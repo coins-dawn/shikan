@@ -4,13 +4,13 @@ import { useState } from 'react'
 import dynamic from 'next/dynamic'
 import LayerControlPanel from '@/components/LayerControlPanel'
 import BusStopSidebar from '@/components/BusStopSidebar'
-import ReachabilityLayer from '@/components/ReachabilityLayer'
-import PopulationLayer from '@/components/PopulationLayer'
-import BusStopMarker from '@/components/BusStopMarker'
 import { BusStop, ReachabilityGeoJSON, PopulationGeoJSON } from '@/types'
 
-// Map コンポーネントは動的インポート (SSR無効化)
+// Leafletを使用するコンポーネントは動的インポート (SSR無効化)
 const Map = dynamic(() => import('@/components/Map'), { ssr: false })
+const ReachabilityLayer = dynamic(() => import('@/components/ReachabilityLayer'), { ssr: false })
+const PopulationLayer = dynamic(() => import('@/components/PopulationLayer'), { ssr: false })
+const BusStopMarker = dynamic(() => import('@/components/BusStopMarker'), { ssr: false })
 
 // ダミーデータ: 停留所候補
 const dummyBusStops: BusStop[] = [
