@@ -12,6 +12,7 @@ const Map = dynamic(() => import('@/components/Map'), { ssr: false })
 const ReachabilityLayer = dynamic(() => import('@/components/ReachabilityLayer'), { ssr: false })
 const PopulationLayer = dynamic(() => import('@/components/PopulationLayer'), { ssr: false })
 const BusStopMarker = dynamic(() => import('@/components/BusStopMarker'), { ssr: false })
+const BusRoutePolyline = dynamic(() => import('@/components/BusRoutePolyline'), { ssr: false })
 
 // ダミーデータ: 停留所候補
 const dummyBusStops: BusStop[] = [
@@ -111,6 +112,9 @@ export default function Home() {
 
             {/* 人口分布 */}
             {layers.showPopulation && <PopulationLayer data={null} />}
+
+            {/* バスルート */}
+            <BusRoutePolyline stops={stops.selected} />
 
             {/* 停留所マーカー */}
             {dummyBusStops.map((stop) => {
