@@ -35,3 +35,47 @@ export interface BusRouteResponse {
   route: ReachabilityGeoJSON
   reachability2: ReachabilityGeoJSON
 }
+
+// API関連の型定義
+export type FacilityType = 'hospital' | 'shopping'
+
+export interface APIRequest {
+  'target-spots': FacilityType[]
+  'max-minute': number
+  combus: {
+    stops: Array<{
+      lat: number
+      lon: number
+    }>
+    sections: Array<{
+      duration: number
+    }>
+  }
+}
+
+export interface MultiPolygon {
+  type: 'MultiPolygon'
+  coordinates: number[][][][]
+}
+
+export interface FacilitySpot {
+  lat: number
+  lon: number
+  name: string
+  type: FacilityType
+}
+
+export interface FacilityReachability {
+  reachable: {
+    original: MultiPolygon
+    'with-combus': MultiPolygon
+  }
+  spots: FacilitySpot[]
+}
+
+export interface APIResponse {
+  result: {
+    [key in FacilityType]?: FacilityReachability
+  }
+  status: string
+}

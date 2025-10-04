@@ -1,10 +1,11 @@
 'use client'
 
 import dynamic from 'next/dynamic'
+import SearchPanel from '@/components/SearchPanel'
 import LayerControlPanel from '@/components/LayerControlPanel'
 import BusStopSidebar from '@/components/BusStopSidebar'
 import { useMapState } from '@/hooks/useMapState'
-import { BusStop } from '@/types'
+import { BusStop, FacilityType } from '@/types'
 
 // Leafletを使用するコンポーネントは動的インポート (SSR無効化)
 const Map = dynamic(() => import('@/components/Map'), { ssr: false })
@@ -14,45 +15,52 @@ const BusStopMarker = dynamic(() => import('@/components/BusStopMarker'), { ssr:
 
 // ダミーデータ: 停留所候補
 const dummyBusStops: BusStop[] = [
-  { id: '1', name: '停留所A', lat: 35.6812, lng: 139.7671 },
-  { id: '2', name: '停留所B', lat: 35.6822, lng: 139.7681 },
-  { id: '3', name: '停留所C', lat: 35.6832, lng: 139.7691 },
-  { id: '4', name: '停留所D', lat: 35.6842, lng: 139.7701 },
+  { id: '1', name: '停留所A', lat: 36.65742, lng: 137.17421 },
+  { id: '2', name: '停留所B', lat: 36.68936, lng: 137.18519 },
+  { id: '3', name: '停留所C', lat: 36.67738, lng: 137.23892 },
+  { id: '4', name: '停留所D', lat: 36.65493, lng: 137.24001 },
+  { id: '5', name: '停留所E', lat: 36.63964, lng: 137.21958 },
 ]
 
-// ダミーデータ: 到達圏1 (現状)
-const dummyReachability1 = {
-  type: 'FeatureCollection' as const,
-  features: [
-    {
-      type: 'Feature' as const,
-      geometry: {
-        type: 'Polygon' as const,
-        coordinates: [
-          [
-            [139.765, 35.679],
-            [139.770, 35.679],
-            [139.770, 35.683],
-            [139.765, 35.683],
-            [139.765, 35.679],
-          ],
-        ],
+// MultiPolygonをGeoJSON FeatureCollectionに変換
+function multiPolygonToGeoJSON(multiPolygon: {
+  type: 'MultiPolygon'
+  coordinates: number[][][][]
+}) {
+  return {
+    type: 'FeatureCollection' as const,
+    features: [
+      {
+        type: 'Feature' as const,
+        geometry: {
+          type: 'MultiPolygon' as const,
+          coordinates: multiPolygon.coordinates,
+        },
+        properties: {},
       },
-      properties: { name: '現状の到達圏' },
-    },
-  ],
+    ],
+  }
 }
 
 export default function Home() {
-  const { layers, stops, data } = useMapState()
+  const { search, layers, stops, data } = useMapState()
 
   return (
     <div className="h-screen flex flex-col">
-      {/* 上部: レイヤーコントロールパネル */}
+      {/* 上部: 検索条件パネル */}
+      <SearchPanel
+        selectedFacilities={search.selectedFacilities}
+        maxMinute={search.maxMinute}
+        onToggleFacility={search.toggleFacility}
+        onMaxMinuteChange={search.setMaxMinute}
+      />
+
+      {/* レイヤーコントロールパネル */}
       <LayerControlPanel
         showReachability1={layers.showReachability1}
         showReachability2={layers.showReachability2}
         showPopulation={layers.showPopulation}
+        availableFacilities={layers.availableFacilities}
         onToggleReachability1={layers.toggleReachability1}
         onToggleReachability2={layers.toggleReachability2}
         onTogglePopulation={layers.togglePopulation}
@@ -70,19 +78,39 @@ export default function Home() {
 
         {/* 地図エリア */}
         <div className="flex-1">
-          <Map center={[35.6812, 139.7671]} zoom={14}>
+          <Map center={[36.67, 137.20]} zoom={12}>
             {/* 到達圏1 (現状) */}
-            {layers.showReachability1 && (
-              <ReachabilityLayer data={dummyReachability1} color="#3b82f6" fillOpacity={0.3} />
-            )}
+            {(Object.keys(layers.showReachability1) as FacilityType[]).map((facility) => {
+              if (!layers.showReachability1[facility] || !data.facilities[facility]) return null
+
+              const geoJSON = multiPolygonToGeoJSON(data.facilities[facility]!.reachable.original)
+              return (
+                <ReachabilityLayer
+                  key={`r1-${facility}`}
+                  data={geoJSON}
+                  color="#3b82f6"
+                  fillOpacity={0.3}
+                />
+              )
+            })}
 
             {/* 到達圏2 (コミュニティバス後) */}
-            {layers.showReachability2 && data.reachability2 && (
-              <ReachabilityLayer data={data.reachability2} color="#22c55e" fillOpacity={0.3} />
-            )}
+            {(Object.keys(layers.showReachability2) as FacilityType[]).map((facility) => {
+              if (!layers.showReachability2[facility] || !data.facilities[facility]) return null
+
+              const geoJSON = multiPolygonToGeoJSON(data.facilities[facility]!.reachable['with-combus'])
+              return (
+                <ReachabilityLayer
+                  key={`r2-${facility}`}
+                  data={geoJSON}
+                  color="#22c55e"
+                  fillOpacity={0.3}
+                />
+              )
+            })}
 
             {/* 人口分布 */}
-            {layers.showPopulation && data.population && <PopulationLayer data={data.population} />}
+            {layers.showPopulation && <PopulationLayer data={null} />}
 
             {/* 停留所マーカー */}
             {dummyBusStops.map((stop) => {
