@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
 import dynamic from 'next/dynamic'
 import LayerControlPanel from '@/components/LayerControlPanel'
 import BusStopSidebar from '@/components/BusStopSidebar'
-import { BusStop, ReachabilityGeoJSON, PopulationGeoJSON } from '@/types'
+import { useMapState } from '@/hooks/useMapState'
+import { BusStop } from '@/types'
 
 // Leafletを使用するコンポーネントは動的インポート (SSR無効化)
 const Map = dynamic(() => import('@/components/Map'), { ssr: false })
@@ -21,13 +21,13 @@ const dummyBusStops: BusStop[] = [
 ]
 
 // ダミーデータ: 到達圏1 (現状)
-const dummyReachability1: ReachabilityGeoJSON = {
-  type: 'FeatureCollection',
+const dummyReachability1 = {
+  type: 'FeatureCollection' as const,
   features: [
     {
-      type: 'Feature',
+      type: 'Feature' as const,
       geometry: {
-        type: 'Polygon',
+        type: 'Polygon' as const,
         coordinates: [
           [
             [139.765, 35.679],
@@ -44,115 +44,49 @@ const dummyReachability1: ReachabilityGeoJSON = {
 }
 
 export default function Home() {
-  // レイヤー表示/非表示の状態
-  const [showReachability1, setShowReachability1] = useState(true)
-  const [showReachability2, setShowReachability2] = useState(false)
-  const [showPopulation, setShowPopulation] = useState(false)
-
-  // 停留所選択の状態
-  const [selectedStops, setSelectedStops] = useState<BusStop[]>([])
-
-  // 到達圏2とバス経路のデータ (API取得後に格納)
-  const [reachability2Data, setReachability2Data] = useState<ReachabilityGeoJSON | null>(null)
-
-  // 人口分布データ (バックエンドから取得予定)
-  const [populationData] = useState<PopulationGeoJSON | null>(null)
-
-  // 停留所選択/解除のハンドラー
-  const handleSelectStop = (stop: BusStop) => {
-    const isSelected = selectedStops.some((s) => s.id === stop.id)
-
-    if (isSelected) {
-      // 選択解除
-      setSelectedStops(selectedStops.filter((s) => s.id !== stop.id))
-    } else {
-      // 選択追加
-      setSelectedStops([...selectedStops, stop])
-    }
-  }
-
-  // 進むボタンのハンドラー
-  const handleProceed = async () => {
-    if (selectedStops.length < 2) return
-
-    // TODO: バックエンドAPIを呼び出して到達圏2を取得
-    console.log('選択された停留所:', selectedStops)
-
-    // ダミーデータで到達圏2を設定
-    const dummyReachability2: ReachabilityGeoJSON = {
-      type: 'FeatureCollection',
-      features: [
-        {
-          type: 'Feature',
-          geometry: {
-            type: 'Polygon',
-            coordinates: [
-              [
-                [139.763, 35.677],
-                [139.773, 35.677],
-                [139.773, 35.687],
-                [139.763, 35.687],
-                [139.763, 35.677],
-              ],
-            ],
-          },
-          properties: { name: 'コミュニティバス後の到達圏' },
-        },
-      ],
-    }
-
-    setReachability2Data(dummyReachability2)
-    setShowReachability2(true)
-  }
-
-  // 戻るボタンのハンドラー
-  const handleReset = () => {
-    setSelectedStops([])
-    setReachability2Data(null)
-    setShowReachability2(false)
-  }
+  const { layers, stops, data } = useMapState()
 
   return (
     <div className="h-screen flex flex-col">
       {/* 上部: レイヤーコントロールパネル */}
       <LayerControlPanel
-        showReachability1={showReachability1}
-        showReachability2={showReachability2}
-        showPopulation={showPopulation}
-        onToggleReachability1={() => setShowReachability1(!showReachability1)}
-        onToggleReachability2={() => setShowReachability2(!showReachability2)}
-        onTogglePopulation={() => setShowPopulation(!showPopulation)}
+        showReachability1={layers.showReachability1}
+        showReachability2={layers.showReachability2}
+        showPopulation={layers.showPopulation}
+        onToggleReachability1={layers.toggleReachability1}
+        onToggleReachability2={layers.toggleReachability2}
+        onTogglePopulation={layers.togglePopulation}
       />
 
       {/* 下部: サイドバーと地図 */}
       <div className="flex-1 flex">
         {/* 左サイドバー: 停留所選択 */}
         <BusStopSidebar
-          selectedStops={selectedStops}
-          onProceed={handleProceed}
-          onReset={handleReset}
-          canProceed={selectedStops.length >= 2}
+          selectedStops={stops.selected}
+          onProceed={stops.onProceed}
+          onReset={stops.onReset}
+          canProceed={stops.canProceed}
         />
 
         {/* 地図エリア */}
         <div className="flex-1">
           <Map center={[35.6812, 139.7671]} zoom={14}>
             {/* 到達圏1 (現状) */}
-            {showReachability1 && (
+            {layers.showReachability1 && (
               <ReachabilityLayer data={dummyReachability1} color="#3b82f6" fillOpacity={0.3} />
             )}
 
             {/* 到達圏2 (コミュニティバス後) */}
-            {showReachability2 && reachability2Data && (
-              <ReachabilityLayer data={reachability2Data} color="#22c55e" fillOpacity={0.3} />
+            {layers.showReachability2 && data.reachability2 && (
+              <ReachabilityLayer data={data.reachability2} color="#22c55e" fillOpacity={0.3} />
             )}
 
             {/* 人口分布 */}
-            {showPopulation && populationData && <PopulationLayer data={populationData} />}
+            {layers.showPopulation && data.population && <PopulationLayer data={data.population} />}
 
             {/* 停留所マーカー */}
             {dummyBusStops.map((stop) => {
-              const selectedIndex = selectedStops.findIndex((s) => s.id === stop.id)
+              const selectedIndex = stops.selected.findIndex((s) => s.id === stop.id)
               const isSelected = selectedIndex !== -1
 
               return (
@@ -161,7 +95,7 @@ export default function Home() {
                   stop={stop}
                   isSelected={isSelected}
                   selectionOrder={isSelected ? selectedIndex + 1 : undefined}
-                  onSelect={handleSelectStop}
+                  onSelect={stops.onSelect}
                 />
               )
             })}
