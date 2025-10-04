@@ -12,7 +12,7 @@ export interface ReachabilityGeoJSON extends FeatureCollection {
     type: 'Feature'
     geometry: Geometry
     properties: {
-      [key: string]: any
+      [key: string]: unknown
     }
   }>
 }
@@ -26,7 +26,7 @@ export interface PopulationGeoJSON extends FeatureCollection {
       population?: number
       color?: string
       fillOpacity?: number
-      [key: string]: any
+      [key: string]: unknown
     }
   }>
 }
