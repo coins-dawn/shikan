@@ -151,6 +151,11 @@ export function useMapState() {
     })
   }, [])
 
+  // --- 停留所順序変更ハンドラー ---
+  const handleReorderStops = useCallback((newStops: BusStop[]) => {
+    setSelectedStops(newStops)
+  }, [])
+
   // --- レイヤー表示切り替えハンドラー ---
   const toggleReachability1 = useCallback((facility: FacilityType) => {
     setShowReachability1(prev => ({
@@ -200,6 +205,7 @@ export function useMapState() {
       onSelect: handleSelectStop,
       onProceed: handleProceed,
       onReset: handleReset,
+      onReorder: handleReorderStops,
     },
     // データ
     data: {

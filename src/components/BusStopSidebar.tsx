@@ -1,13 +1,70 @@
-interface BusStop {
-  id: string
-  name: string
-}
+'use client'
+
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { BusStop } from '@/types'
 
 interface BusStopSidebarProps {
   selectedStops: BusStop[]
   onProceed: () => void
   onReset: () => void
   canProceed: boolean
+  onReorder: (newStops: BusStop[]) => void
+}
+
+// ドラッグ可能な停留所アイテムコンポーネント
+function SortableStopItem({ stop, index }: { stop: BusStop; index: number }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: stop.id })
+
+  // 縦方向のみの移動に制限
+  const style = {
+    transform: transform
+      ? `translate3d(0, ${transform.y}px, 0)`
+      : undefined,
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors"
+    >
+      <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+        {index + 1}
+      </span>
+      <span className="text-sm text-gray-800">{stop.name}</span>
+      <span
+        {...attributes}
+        {...listeners}
+        className="ml-auto text-gray-400 text-lg cursor-move hover:text-gray-600 px-2"
+      >
+        ⋮⋮
+      </span>
+    </li>
+  )
 }
 
 export default function BusStopSidebar({
@@ -15,7 +72,26 @@ export default function BusStopSidebar({
   onProceed,
   onReset,
   canProceed,
+  onReorder,
 }: BusStopSidebarProps) {
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (over && active.id !== over.id) {
+      const oldIndex = selectedStops.findIndex((stop) => stop.id === active.id)
+      const newIndex = selectedStops.findIndex((stop) => stop.id === over.id)
+
+      const newStops = arrayMove(selectedStops, oldIndex, newIndex)
+      onReorder(newStops)
+    }
+  }
   return (
     <div className="bg-white shadow-lg w-80 h-full flex flex-col border-r border-gray-200">
       <div className="p-4 border-b border-gray-200">
@@ -31,19 +107,22 @@ export default function BusStopSidebar({
             地図上のマーカーをクリックして停留所を選択
           </p>
         ) : (
-          <ol className="space-y-2">
-            {selectedStops.map((stop, index) => (
-              <li
-                key={stop.id}
-                className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200"
-              >
-                <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
-                  {index + 1}
-                </span>
-                <span className="text-sm text-gray-800">{stop.name}</span>
-              </li>
-            ))}
-          </ol>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={selectedStops.map((stop) => stop.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <ol className="space-y-2">
+                {selectedStops.map((stop, index) => (
+                  <SortableStopItem key={stop.id} stop={stop} index={index} />
+                ))}
+              </ol>
+            </SortableContext>
+          </DndContext>
         )}
       </div>
 
