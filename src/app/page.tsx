@@ -75,6 +75,7 @@ export default function Home() {
           onProceed={stops.onProceed}
           onReset={stops.onReset}
           canProceed={stops.canProceed}
+          onReorder={stops.onReorder}
         />
 
         {/* 地図エリア */}
