@@ -22,6 +22,9 @@ export function useMapState() {
   // --- 停留所選択状態 ---
   const [selectedStops, setSelectedStops] = useState<BusStop[]>([])
 
+  // --- 編集ロック状態 ---
+  const [isEditable, setIsEditable] = useState(true)
+
   // --- データ ---
   const [facilityData, setFacilityData] = useState<Record<FacilityType, FacilityReachability | null>>({
     hospital: null,
@@ -127,6 +130,9 @@ export function useMapState() {
 
         setShowReachability1(newShowReachability1)
         setShowReachability2(newShowReachability2)
+
+        // 編集を無効化
+        setIsEditable(false)
       }
     } catch (error) {
       console.error('API Call Error:', error)
@@ -136,7 +142,7 @@ export function useMapState() {
 
   // --- 戻るボタンのハンドラー ---
   const handleReset = useCallback(() => {
-    setSelectedStops([])
+    // 停留所リストはリセットしない
     setFacilityData({
       hospital: null,
       shopping: null,
@@ -149,6 +155,8 @@ export function useMapState() {
       hospital: false,
       shopping: false,
     })
+    // 編集を再度可能にする
+    setIsEditable(true)
   }, [])
 
   // --- 停留所順序変更ハンドラー ---
@@ -202,6 +210,7 @@ export function useMapState() {
     stops: {
       selected: selectedStops,
       canProceed: selectedStops.length >= 2 && selectedFacilities.length > 0,
+      isEditable,
       onSelect: handleSelectStop,
       onProceed: handleProceed,
       onReset: handleReset,

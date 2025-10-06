@@ -24,10 +24,11 @@ interface BusStopSidebarProps {
   onReset: () => void
   canProceed: boolean
   onReorder: (newStops: BusStop[]) => void
+  isEditable: boolean
 }
 
 // ドラッグ可能な停留所アイテムコンポーネント
-function SortableStopItem({ stop, index }: { stop: BusStop; index: number }) {
+function SortableStopItem({ stop, index, isEditable }: { stop: BusStop; index: number; isEditable: boolean }) {
   const {
     attributes,
     listeners,
@@ -35,7 +36,7 @@ function SortableStopItem({ stop, index }: { stop: BusStop; index: number }) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: stop.id })
+  } = useSortable({ id: stop.id, disabled: !isEditable })
 
   // 縦方向のみの移動に制限
   const style = {
@@ -50,19 +51,23 @@ function SortableStopItem({ stop, index }: { stop: BusStop; index: number }) {
     <li
       ref={setNodeRef}
       style={style}
-      className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors"
+      className={`flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200 transition-colors min-h-[60px] ${
+        isEditable ? 'hover:bg-blue-100' : 'opacity-75'
+      }`}
     >
       <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
         {index + 1}
       </span>
       <span className="text-sm text-gray-800">{stop.name}</span>
-      <span
-        {...attributes}
-        {...listeners}
-        className="ml-auto text-gray-400 text-lg cursor-move hover:text-gray-600 px-2"
-      >
-        ⋮⋮
-      </span>
+      {isEditable && (
+        <span
+          {...attributes}
+          {...listeners}
+          className="ml-auto text-gray-400 text-lg cursor-move hover:text-gray-600 px-2"
+        >
+          ⋮⋮
+        </span>
+      )}
     </li>
   )
 }
@@ -73,6 +78,7 @@ export default function BusStopSidebar({
   onReset,
   canProceed,
   onReorder,
+  isEditable,
 }: BusStopSidebarProps) {
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -118,7 +124,7 @@ export default function BusStopSidebar({
             >
               <ol className="space-y-2">
                 {selectedStops.map((stop, index) => (
-                  <SortableStopItem key={stop.id} stop={stop} index={index} />
+                  <SortableStopItem key={stop.id} stop={stop} index={index} isEditable={isEditable} />
                 ))}
               </ol>
             </SortableContext>
