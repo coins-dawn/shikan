@@ -76,6 +76,7 @@ export default function Home() {
           onReset={stops.onReset}
           canProceed={stops.canProceed}
           onReorder={stops.onReorder}
+          isEditable={stops.isEditable}
         />
 
         {/* 地図エリア */}
@@ -128,7 +129,7 @@ export default function Home() {
                   stop={stop}
                   isSelected={isSelected}
                   selectionOrder={isSelected ? selectedIndex + 1 : undefined}
-                  onSelect={stops.onSelect}
+                  onSelect={stops.isEditable ? stops.onSelect : () => {}}
                 />
               )
             })}
