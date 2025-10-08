@@ -1,0 +1,130 @@
+# 市観（Shikan）プロジェクト - Claude Code 知識ベース
+
+## プロジェクト概要
+コミュニティバスの路線計画を支援する地図ベースのWebアプリケーション。停留所の配置をインタラクティブに選択し、各種施設への到達圏をビジュアライズすることで、効果的なバス路線の設計を支援します。
+
+## 技術スタック
+- **フレームワーク**: Next.js 15.5.4 (App Router, Turbopack)
+- **言語**: TypeScript 5
+- **UI**: React 19.1.0, Tailwind CSS 4
+- **地図**: Leaflet 1.9.4, react-leaflet 5.0.0
+- **ドラッグ&ドロップ**: @dnd-kit (core, sortable, utilities)
+- **パッケージマネージャー**: npm
+
+## よく使うコマンド
+```bash
+npm run dev        # 開発サーバー起動（Turbopack使用）
+npm run build      # 本番ビルド
+npm run start      # 本番サーバー起動
+npm run lint       # ESLintチェック
+```
+
+## プロジェクト構成
+
+### ディレクトリ構造
+```
+src/
+├── app/
+│   ├── layout.tsx          # ルートレイアウト
+│   └── page.tsx            # メインページ（統合UI）
+├── components/
+│   ├── Map.tsx             # Leaflet地図ベースコンポーネント
+│   ├── SearchPanel.tsx     # 検索条件パネル（施設種別・時間）
+│   ├── LayerControlPanel.tsx  # レイヤー表示制御
+│   ├── BusStopSidebar.tsx  # 停留所選択サイドバー（ドラッグ&ドロップ対応）
+│   ├── BusStopMarker.tsx   # 停留所マーカー
+│   ├── BusRoutePolyline.tsx # バスルート線
+│   ├── ReachabilityLayer.tsx # 到達圏ポリゴン表示
+│   ├── PopulationLayer.tsx   # 人口分布表示
+│   └── Loading.tsx         # ローディングオーバーレイ
+├── hooks/
+│   └── useMapState.ts      # 地図状態管理カスタムフック
+└── types/
+    └── index.ts            # 型定義（BusStop, APIRequest/Response等）
+```
+
+### 主要コンポーネントの役割
+
+#### [page.tsx](src/app/page.tsx)
+- メインページコンポーネント
+- 全コンポーネントを統合し、レイアウトを構成
+- Leaflet使用コンポーネントは動的インポート（SSR無効化）
+- 停留所の選択状態と地図表示を管理
+
+#### [useMapState.ts](src/hooks/useMapState.ts)
+- アプリケーション全体の状態管理
+- 停留所選択、レイヤー表示、検索条件、API通信を管理
+- 「進む」ボタン押下後は編集ロック、「戻る」ボタンで再編集可能
+- API実行中のローディング状態を管理
+
+#### [BusStopSidebar.tsx](src/components/BusStopSidebar.tsx)
+- 選択した停留所のリストを表示
+- @dnd-kitによるドラッグ&ドロップで順序変更可能
+- 進むボタン（API実行）と戻るボタン（リセット）を提供
+- 進むボタン押下後は編集不可（isEditable）
+
+## データフロー
+
+### API連携
+- **エンドポイント**: `POST /api/reachability`（想定）
+- **リクエスト形式**:
+  ```typescript
+  {
+    "target-spots": ["hospital", "shopping"],
+    "max-minute": 30,
+    "combus": {
+      "stops": [{ lat, lon }, ...],
+      "sections": [{ duration }, ...]
+    }
+  }
+  ```
+- **レスポンス形式**:
+  ```typescript
+  {
+    result: {
+      hospital?: { reachable, spots },
+      shopping?: { reachable, spots }
+    },
+    status: "success"
+  }
+  ```
+
+### 状態管理の流れ
+1. ユーザーが地図上の停留所をクリック → `onSelect`
+2. サイドバーで停留所をドラッグ&ドロップ → `onReorder`
+3. 「進む」ボタン押下 → `onProceed` → API呼び出し → `isEditable = false`
+4. 「戻る」ボタン押下 → `onReset` → 停留所クリア → `isEditable = true`
+
+## コーディング規約
+
+### スタイル
+- **Client Components**: `'use client'` ディレクティブを明示
+- **動的インポート**: Leaflet使用コンポーネントは `dynamic(() => import(...), { ssr: false })` でSSR無効化
+- **Tailwind CSS**: ユーティリティファーストで記述
+- **型安全性**: 明示的な型定義を使用（`types/index.ts`）
+
+### 命名規則
+- コンポーネント: PascalCase（例: `BusStopMarker`）
+- フック: `use` + PascalCase（例: `useMapState`）
+- 型: PascalCase（例: `BusStop`, `FacilityType`）
+- 変数: camelCase
+
+### 注意点
+- Leafletは必ずクライアントサイドでのみ実行（SSR回避）
+- GeoJSON MultiPolygon を FeatureCollection に変換してから表示
+- API実行中は `isLoading` を true にしてローディング表示
+
+## 既知の課題・TODO
+- 停留所候補リストは現在ダミーデータ（[page.tsx:19-25](src/app/page.tsx#L19)）
+  - 将来的にバックエンドAPIから取得し、ビルド時に使い回す予定
+- スポット一覧もAPI取得予定（種別ごとに表示）
+- 到達圏のカラーを種別ごとにテーマ化（到達圏1は薄色、到達圏2は濃色）
+
+## Git運用
+- **メインブランチ**: `main`
+- **現在のブランチ**: `feature/loading-indicator`
+- コミットメッセージは日本語でOK（例: `feat: ○○機能を追加`）
+
+## その他
+- API URL等の環境変数は `.env.local` で管理（未作成の場合は追加推奨）
+- デプロイ: Vercel想定（`.vercel/` ディレクトリ存在）
