@@ -1,4 +1,4 @@
-# 市観（Shikan）プロジェクト - Claude Code 知識ベース
+# Shikan プロジェクト - Claude Code 知識ベース
 
 ## プロジェクト概要
 コミュニティバスの路線計画を支援する地図ベースのWebアプリケーション。停留所の配置をインタラクティブに選択し、各種施設への到達圏をビジュアライズすることで、効果的なバス路線の設計を支援します。
@@ -26,9 +26,10 @@ npm run lint       # ESLintチェック
 src/
 ├── app/
 │   ├── layout.tsx          # ルートレイアウト
-│   └── page.tsx            # メインページ（統合UI）
+│   └── page.tsx            # メインページ（Server Component）
 ├── components/
 │   ├── Map.tsx             # Leaflet地図ベースコンポーネント
+│   ├── MapView.tsx         # 地図ビュー（Client Component）
 │   ├── SearchPanel.tsx     # 検索条件パネル（施設種別・時間）
 │   ├── LayerControlPanel.tsx  # レイヤー表示制御
 │   ├── BusStopSidebar.tsx  # 停留所選択サイドバー（ドラッグ&ドロップ対応）
@@ -39,6 +40,8 @@ src/
 │   └── Loading.tsx         # ローディングオーバーレイ
 ├── hooks/
 │   └── useMapState.ts      # 地図状態管理カスタムフック
+├── lib/
+│   └── busStops.ts         # 停留所データ取得関数
 └── types/
     └── index.ts            # 型定義（BusStop, APIRequest/Response等）
 ```
@@ -46,10 +49,20 @@ src/
 ### 主要コンポーネントの役割
 
 #### [page.tsx](src/app/page.tsx)
-- メインページコンポーネント
-- 全コンポーネントを統合し、レイアウトを構成
+- Server Component（async関数）
+- ビルド時にバックエンドAPIから停留所データを取得
+- MapViewにデータを渡して表示
+
+#### [MapView.tsx](src/components/MapView.tsx)
+- Client Component
+- 全UIコンポーネントを統合
 - Leaflet使用コンポーネントは動的インポート（SSR無効化）
 - 停留所の選択状態と地図表示を管理
+
+#### [busStops.ts](src/lib/busStops.ts)
+- 停留所データ取得関数
+- `https://prometheus-h24i.onrender.com/combus/stops` からAPI取得
+- エラー時はフォールバック（ダミーデータ）
 
 #### [useMapState.ts](src/hooks/useMapState.ts)
 - アプリケーション全体の状態管理
@@ -114,16 +127,19 @@ src/
 - GeoJSON MultiPolygon を FeatureCollection に変換してから表示
 - API実行中は `isLoading` を true にしてローディング表示
 
-## 既知の課題・TODO
-- 停留所候補リストは現在ダミーデータ（[page.tsx:19-25](src/app/page.tsx#L19)）
-  - 将来的にバックエンドAPIから取得し、ビルド時に使い回す予定
-- スポット一覧もAPI取得予定（種別ごとに表示）
-- 到達圏のカラーを種別ごとにテーマ化（到達圏1は薄色、到達圏2は濃色）
-
 ## Git運用
 - **メインブランチ**: `main`
-- **現在のブランチ**: `feature/loading-indicator`
-- コミットメッセージは日本語でOK（例: `feat: ○○機能を追加`）
+- **ブランチ命名**: `feature/xxx` 形式
+- **コミットメッセージ**: 日本語でOK（例: `feat: ○○機能を追加`）
+
+### プロジェクトルール
+**重要**: 以下のルールは必ず守ること
+1. **タスク追加時**: ユーザーがタスクを追加したら、必ずGitHub Issueを作成する
+   - `gh issue create` コマンドを使用
+   - タイトルと説明を明確に記載
+2. **プルリク作成時**: 必ず対応するIssueと紐付ける
+   - PR本文に `Closes #<issue番号>` を記載
+   - PRタイトルは過去のPRに倣う（例: `feat: ○○機能を追加`）
 
 ## その他
 - API URL等の環境変数は `.env.local` で管理（未作成の場合は追加推奨）
