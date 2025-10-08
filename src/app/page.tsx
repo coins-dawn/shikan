@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic'
 import SearchPanel from '@/components/SearchPanel'
 import LayerControlPanel from '@/components/LayerControlPanel'
 import BusStopSidebar from '@/components/BusStopSidebar'
+import Loading from '@/components/Loading'
 import { useMapState } from '@/hooks/useMapState'
 import { BusStop, FacilityType } from '@/types'
 
@@ -44,10 +45,12 @@ function multiPolygonToGeoJSON(multiPolygon: {
 }
 
 export default function Home() {
-  const { search, layers, stops, data } = useMapState()
+  const { search, layers, stops, data, ui } = useMapState()
 
   return (
     <div className="h-screen flex flex-col">
+      {/* ローディングオーバーレイ */}
+      {ui.isLoading && <Loading />}
       {/* 上部: 検索条件パネル */}
       <SearchPanel
         selectedFacilities={search.selectedFacilities}
