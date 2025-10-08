@@ -25,6 +25,9 @@ export function useMapState() {
   // --- 編集ロック状態 ---
   const [isEditable, setIsEditable] = useState(true)
 
+  // --- ローディング状態 ---
+  const [isLoading, setIsLoading] = useState(false)
+
   // --- データ ---
   const [facilityData, setFacilityData] = useState<Record<FacilityType, FacilityReachability | null>>({
     hospital: null,
@@ -54,6 +57,8 @@ export function useMapState() {
   // --- 進むボタンのハンドラー ---
   const handleProceed = useCallback(async () => {
     if (selectedStops.length < 2 || selectedFacilities.length === 0) return
+
+    setIsLoading(true)
 
     try {
       // リクエストボディの構築
@@ -137,6 +142,8 @@ export function useMapState() {
     } catch (error) {
       console.error('API Call Error:', error)
       alert('APIの呼び出しに失敗しました')
+    } finally {
+      setIsLoading(false)
     }
   }, [selectedStops, selectedFacilities, maxMinute, showReachability1, showReachability2])
 
@@ -219,6 +226,10 @@ export function useMapState() {
     // データ
     data: {
       facilities: facilityData,
+    },
+    // UI状態
+    ui: {
+      isLoading,
     },
   }
 }
