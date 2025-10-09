@@ -1,18 +1,14 @@
 import { FacilityType } from '@/types'
 
 interface LayerControlPanelProps {
-  showReachability1: Record<FacilityType, boolean>
-  showReachability2: Record<FacilityType, boolean>
+  showReachability1: Record<string, boolean>
+  showReachability2: Record<string, boolean>
   showPopulation: boolean
   availableFacilities: FacilityType[]
   onToggleReachability1: (facility: FacilityType) => void
   onToggleReachability2: (facility: FacilityType) => void
   onTogglePopulation: () => void
-}
-
-const FACILITY_LABELS: Record<FacilityType, string> = {
-  hospital: '病院',
-  shopping: '商業施設',
+  spotLabels: Record<string, string>
 }
 
 export default function LayerControlPanel({
@@ -23,6 +19,7 @@ export default function LayerControlPanel({
   onToggleReachability1,
   onToggleReachability2,
   onTogglePopulation,
+  spotLabels,
 }: LayerControlPanelProps) {
   return (
     <div className="bg-white shadow-md px-6 py-4 border-b border-gray-200">
@@ -41,7 +38,7 @@ export default function LayerControlPanel({
                     onChange={() => onToggleReachability1(facility)}
                     className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
                   />
-                  <span className="text-sm text-gray-700">{FACILITY_LABELS[facility]}</span>
+                  <span className="text-sm text-gray-700">{spotLabels[facility] || facility}</span>
                 </label>
               ))}
             </div>
@@ -56,7 +53,7 @@ export default function LayerControlPanel({
                     onChange={() => onToggleReachability2(facility)}
                     className="w-4 h-4 text-green-600 rounded focus:ring-2 focus:ring-green-500"
                   />
-                  <span className="text-sm text-gray-700">{FACILITY_LABELS[facility]}</span>
+                  <span className="text-sm text-gray-700">{spotLabels[facility] || facility}</span>
                 </label>
               ))}
             </div>
