@@ -6,7 +6,7 @@ import LayerControlPanel from '@/components/LayerControlPanel'
 import BusStopSidebar from '@/components/BusStopSidebar'
 import Loading from '@/components/Loading'
 import { useMapState } from '@/hooks/useMapState'
-import { BusStop, FacilityType } from '@/types'
+import { BusStop, Spot, FacilityType } from '@/types'
 
 // Leafletを使用するコンポーネントは動的インポート (SSR無効化)
 const Map = dynamic(() => import('@/components/Map'), { ssr: false })
@@ -14,6 +14,7 @@ const ReachabilityLayer = dynamic(() => import('@/components/ReachabilityLayer')
 const PopulationLayer = dynamic(() => import('@/components/PopulationLayer'), { ssr: false })
 const BusStopMarker = dynamic(() => import('@/components/BusStopMarker'), { ssr: false })
 const BusRoutePolyline = dynamic(() => import('@/components/BusRoutePolyline'), { ssr: false })
+const SpotMarker = dynamic(() => import('@/components/SpotMarker'), { ssr: false })
 
 // MultiPolygonをGeoJSON FeatureCollectionに変換
 function multiPolygonToGeoJSON(multiPolygon: {
@@ -37,10 +38,13 @@ function multiPolygonToGeoJSON(multiPolygon: {
 
 interface MapViewProps {
   busStops: BusStop[]
+  spots: Spot[]
+  spotTypes: string[]
+  spotLabels: Record<string, string>
 }
 
-export default function MapView({ busStops }: MapViewProps) {
-  const { search, layers, stops, data, ui } = useMapState()
+export default function MapView({ busStops, spots, spotTypes, spotLabels }: MapViewProps) {
+  const { search, layers, stops, data, ui, spotDisplay } = useMapState(spotTypes)
 
   return (
     <div className="h-screen flex flex-col">
@@ -52,6 +56,10 @@ export default function MapView({ busStops }: MapViewProps) {
         maxMinute={search.maxMinute}
         onToggleFacility={search.toggleFacility}
         onMaxMinuteChange={search.setMaxMinute}
+        availableSpotTypes={spotTypes}
+        spotLabels={spotLabels}
+        selectedSpotTypes={spotDisplay.selectedTypes}
+        onToggleSpotType={spotDisplay.toggleType}
       />
 
       {/* レイヤーコントロールパネル */}
@@ -63,6 +71,7 @@ export default function MapView({ busStops }: MapViewProps) {
         onToggleReachability1={layers.toggleReachability1}
         onToggleReachability2={layers.toggleReachability2}
         onTogglePopulation={layers.togglePopulation}
+        spotLabels={spotLabels}
       />
 
       {/* 下部: サイドバーと地図 */}
@@ -131,6 +140,13 @@ export default function MapView({ busStops }: MapViewProps) {
                 />
               )
             })}
+
+            {/* スポットマーカー */}
+            {spots
+              .filter((spot) => spotDisplay.selectedTypes.includes(spot.type))
+              .map((spot) => (
+                <SpotMarker key={spot.id} spot={spot} />
+              ))}
           </Map>
         </div>
       </div>

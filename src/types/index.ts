@@ -7,6 +7,14 @@ export interface BusStop {
   lng: number
 }
 
+export interface Spot {
+  id: string
+  name: string
+  lat: number
+  lng: number
+  type: string
+}
+
 export interface ReachabilityGeoJSON extends FeatureCollection {
   features: Array<{
     type: 'Feature'
@@ -37,7 +45,8 @@ export interface BusRouteResponse {
 }
 
 // API関連の型定義
-export type FacilityType = 'hospital' | 'shopping'
+// 動的なスポットタイプに対応するためstring型に変更
+export type FacilityType = string
 
 export interface APIRequest {
   'target-spots': FacilityType[]
