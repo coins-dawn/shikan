@@ -75,7 +75,7 @@ export default function MapView({ busStops, spots, spotTypes, spotLabels }: MapV
       />
 
       {/* 下部: サイドバーと地図 */}
-      <div className="flex-1 flex">
+      <div className="flex-1 flex overflow-hidden">
         {/* 左サイドバー: 停留所選択 */}
         <BusStopSidebar
           selectedStops={stops.selected}
