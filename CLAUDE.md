@@ -11,9 +11,14 @@
 - **ドラッグ&ドロップ**: @dnd-kit (core, sortable, utilities)
 - **パッケージマネージャー**: npm
 
+## 開発環境
+- **開発サーバー**: 常にユーザーが起動済み
+  - `npm run dev` は実行しない（既に起動している）
+  - コード変更は自動でホットリロードされる
+
 ## よく使うコマンド
 ```bash
-npm run dev        # 開発サーバー起動（Turbopack使用）
+npm run dev        # 開発サーバー起動（Turbopack使用）※ユーザーが常時起動済み
 npm run build      # 本番ビルド
 npm run start      # 本番サーバー起動
 npm run lint       # ESLintチェック

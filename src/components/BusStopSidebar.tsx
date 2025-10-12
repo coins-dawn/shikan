@@ -100,14 +100,14 @@ export default function BusStopSidebar({
   }
   return (
     <div className="bg-white shadow-lg w-80 h-full flex flex-col border-r border-gray-200">
-      <div className="p-4 border-b border-gray-200">
+      <div className="flex-shrink-0 p-4 border-b border-gray-200">
         <h2 className="text-lg font-semibold text-gray-800">停留所選択</h2>
         <p className="text-sm text-gray-600 mt-1">
           コミュニティバスの停留所を選択してください（最低2箇所）
         </p>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4 min-h-0">
         {selectedStops.length === 0 ? (
           <p className="text-sm text-gray-500 text-center mt-8">
             地図上のマーカーをクリックして停留所を選択
@@ -132,7 +132,7 @@ export default function BusStopSidebar({
         )}
       </div>
 
-      <div className="p-4 border-t border-gray-200 space-y-2">
+      <div className="flex-shrink-0 p-4 border-t border-gray-200 space-y-2">
         <button
           onClick={onProceed}
           disabled={!canProceed}
