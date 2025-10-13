@@ -15,6 +15,7 @@ export default function Map({ children, center = [35.6812, 139.7671], zoom = 13 
     <MapContainer
       center={center}
       zoom={zoom}
+      minZoom={11}
       style={{ height: '100%', width: '100%' }}
       className="z-0"
     >
