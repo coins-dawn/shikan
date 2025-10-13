@@ -82,7 +82,9 @@ export default function MapView({ busStops, spots, spotTypes, spotLabels }: MapV
           selectedStops={stops.selected}
           onProceed={stops.onProceed}
           onReset={stops.onReset}
+          onDeselect={stops.onDeselect}
           canProceed={stops.canProceed}
+          canReset={stops.canReset}
           onReorder={stops.onReorder}
           isEditable={stops.isEditable}
         />

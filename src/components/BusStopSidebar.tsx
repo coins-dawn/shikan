@@ -22,13 +22,25 @@ interface BusStopSidebarProps {
   selectedStops: BusStop[]
   onProceed: () => void
   onReset: () => void
+  onDeselect: (stop: BusStop) => void
   canProceed: boolean
+  canReset: boolean
   onReorder: (newStops: BusStop[]) => void
   isEditable: boolean
 }
 
 // ドラッグ可能な停留所アイテムコンポーネント
-function SortableStopItem({ stop, index, isEditable }: { stop: BusStop; index: number; isEditable: boolean }) {
+function SortableStopItem({
+  stop,
+  index,
+  isEditable,
+  onDeselect,
+}: {
+  stop: BusStop
+  index: number
+  isEditable: boolean
+  onDeselect: (stop: BusStop) => void
+}) {
   const {
     attributes,
     listeners,
@@ -58,15 +70,24 @@ function SortableStopItem({ stop, index, isEditable }: { stop: BusStop; index: n
       <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
         {index + 1}
       </span>
-      <span className="text-sm text-gray-800">{stop.name}</span>
+      <span
+        {...attributes}
+        {...listeners}
+        className={`text-sm text-gray-800 flex-1 ${isEditable ? 'cursor-move' : ''}`}
+      >
+        {stop.name}
+      </span>
       {isEditable && (
-        <span
-          {...attributes}
-          {...listeners}
-          className="ml-auto text-gray-400 text-lg cursor-move hover:text-gray-600 px-2"
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            onDeselect(stop)
+          }}
+          className="flex-shrink-0 w-6 h-6 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors flex items-center justify-center"
+          aria-label="選択解除"
         >
-          ⋮⋮
-        </span>
+          ✕
+        </button>
       )}
     </li>
   )
@@ -76,7 +97,9 @@ export default function BusStopSidebar({
   selectedStops,
   onProceed,
   onReset,
+  onDeselect,
   canProceed,
+  canReset,
   onReorder,
   isEditable,
 }: BusStopSidebarProps) {
@@ -124,7 +147,13 @@ export default function BusStopSidebar({
             >
               <ol className="space-y-2">
                 {selectedStops.map((stop, index) => (
-                  <SortableStopItem key={stop.id} stop={stop} index={index} isEditable={isEditable} />
+                  <SortableStopItem
+                    key={stop.id}
+                    stop={stop}
+                    index={index}
+                    isEditable={isEditable}
+                    onDeselect={onDeselect}
+                  />
                 ))}
               </ol>
             </SortableContext>
@@ -146,7 +175,12 @@ export default function BusStopSidebar({
         </button>
         <button
           onClick={onReset}
-          className="w-full py-2 px-4 rounded-lg font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
+          disabled={!canReset}
+          className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
+            canReset
+              ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+          }`}
         >
           戻る
         </button>

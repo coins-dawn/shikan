@@ -222,7 +222,8 @@ export function useMapState(availableSpotTypes: string[] = []) {
     // 停留所関連
     stops: {
       selected: selectedStops,
-      canProceed: selectedStops.length >= 2 && selectedFacilities.length > 0,
+      canProceed: selectedStops.length >= 2 && selectedFacilities.length > 0 && isEditable,
+      canReset: !isEditable,
       isEditable,
       onSelect: handleSelectStop,
       onDeselect: handleDeselectStop,
