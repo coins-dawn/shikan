@@ -7,6 +7,7 @@ import BusStopSidebar from '@/components/BusStopSidebar'
 import Loading from '@/components/Loading'
 import { useMapState } from '@/hooks/useMapState'
 import { BusStop, Spot, FacilityType } from '@/types'
+import { getFacilityColorTheme } from '@/lib/facilityColors'
 
 // Leafletを使用するコンポーネントは動的インポート (SSR無効化)
 const Map = dynamic(() => import('@/components/Map'), { ssr: false })
@@ -94,11 +95,12 @@ export default function MapView({ busStops, spots, spotTypes, spotLabels }: MapV
               if (!layers.showReachability1[facility] || !data.facilities[facility]) return null
 
               const geoJSON = multiPolygonToGeoJSON(data.facilities[facility]!.reachable.original)
+              const colorTheme = getFacilityColorTheme(facility)
               return (
                 <ReachabilityLayer
                   key={`r1-${facility}`}
                   data={geoJSON}
-                  color="#3b82f6"
+                  color={colorTheme.light}
                   fillOpacity={0.3}
                 />
               )
@@ -109,11 +111,12 @@ export default function MapView({ busStops, spots, spotTypes, spotLabels }: MapV
               if (!layers.showReachability2[facility] || !data.facilities[facility]) return null
 
               const geoJSON = multiPolygonToGeoJSON(data.facilities[facility]!.reachable['with-combus'])
+              const colorTheme = getFacilityColorTheme(facility)
               return (
                 <ReachabilityLayer
                   key={`r2-${facility}`}
                   data={geoJSON}
-                  color="#22c55e"
+                  color={colorTheme.dark}
                   fillOpacity={0.3}
                 />
               )
