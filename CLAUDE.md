@@ -36,20 +36,31 @@ src/
 │   ├── layout.tsx          # ルートレイアウト
 │   └── page.tsx            # メインページ（Server Component）
 ├── components/
-│   ├── Map.tsx             # Leaflet地図ベースコンポーネント
-│   ├── MapView.tsx         # 地図ビュー（Client Component）
-│   ├── SearchPanel.tsx     # 検索条件パネル（施設種別・時間）
-│   ├── LayerControlPanel.tsx  # レイヤー表示制御
-│   ├── BusStopSidebar.tsx  # 停留所選択サイドバー（ドラッグ&ドロップ対応）
-│   ├── BusStopMarker.tsx   # 停留所マーカー
-│   ├── BusRoutePolyline.tsx # バスルート線
-│   ├── ReachabilityLayer.tsx # 到達圏ポリゴン表示
-│   ├── PopulationLayer.tsx   # 人口分布表示
-│   └── Loading.tsx         # ローディングオーバーレイ
+│   ├── map/                # 地図関連コンポーネント
+│   │   ├── Map.tsx         # Leaflet地図ベースコンポーネント
+│   │   ├── MapView.tsx     # 地図ビュー（Client Component）
+│   │   └── LayerControlPanel.tsx  # レイヤー表示制御
+│   ├── bus/                # バス関連コンポーネント
+│   │   ├── BusStopMarker.tsx   # 停留所マーカー
+│   │   ├── BusRoutePolyline.tsx # バスルート線
+│   │   └── BusStopSidebar.tsx  # 停留所選択サイドバー（ドラッグ&ドロップ対応）
+│   ├── layer/              # レイヤー系コンポーネント
+│   │   ├── ReachabilityLayer.tsx # 到達圏ポリゴン表示
+│   │   ├── PopulationLayer.tsx   # 人口分布表示
+│   │   └── SpotMarker.tsx        # スポットマーカー
+│   └── ui/                 # 汎用UIコンポーネント
+│       ├── SearchPanel.tsx     # 検索条件パネル（施設種別・時間）
+│       └── Loading.tsx         # ローディングオーバーレイ
 ├── hooks/
 │   └── useMapState.ts      # 地図状態管理カスタムフック
 ├── lib/
-│   └── busStops.ts         # 停留所データ取得関数
+│   ├── api/                # API関連
+│   │   ├── busStops.ts     # 停留所データ取得
+│   │   └── spots.ts        # スポットデータ取得
+│   └── utils/              # ユーティリティ関数
+│       ├── facilityColors.ts   # 施設種別の色定義
+│       ├── spotIcons.ts        # スポットアイコン定義
+│       └── spotLabels.ts       # スポットラベル定義
 └── types/
     └── index.ts            # 型定義（BusStop, APIRequest/Response等）
 ```
@@ -61,13 +72,13 @@ src/
 - ビルド時にバックエンドAPIから停留所データを取得
 - MapViewにデータを渡して表示
 
-#### [MapView.tsx](src/components/MapView.tsx)
+#### [MapView.tsx](src/components/map/MapView.tsx)
 - Client Component
 - 全UIコンポーネントを統合
 - Leaflet使用コンポーネントは動的インポート（SSR無効化）
 - 停留所の選択状態と地図表示を管理
 
-#### [busStops.ts](src/lib/busStops.ts)
+#### [busStops.ts](src/lib/api/busStops.ts)
 - 停留所データ取得関数
 - `https://prometheus-h24i.onrender.com/combus/stops` からAPI取得
 - エラー時はフォールバック（ダミーデータ）
@@ -78,7 +89,7 @@ src/
 - 「進む」ボタン押下後は編集ロック、「戻る」ボタンで再編集可能
 - API実行中のローディング状態を管理
 
-#### [BusStopSidebar.tsx](src/components/BusStopSidebar.tsx)
+#### [BusStopSidebar.tsx](src/components/bus/BusStopSidebar.tsx)
 - 選択した停留所のリストを表示
 - @dnd-kitによるドラッグ&ドロップで順序変更可能
 - 進むボタン（API実行）と戻るボタン（リセット）を提供

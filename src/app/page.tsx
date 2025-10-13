@@ -1,7 +1,7 @@
-import MapView from '@/components/MapView'
-import { fetchBusStops } from '@/lib/busStops'
-import { fetchSpots } from '@/lib/spots'
-import { SPOT_LABELS } from '@/lib/spotLabels'
+import MapView from '@/components/map/MapView'
+import { fetchBusStops } from '@/lib/api/busStops'
+import { fetchSpots } from '@/lib/api/spots'
+import { SPOT_LABELS } from '@/lib/utils/spotLabels'
 
 export default async function Home() {
   const busStops = await fetchBusStops()

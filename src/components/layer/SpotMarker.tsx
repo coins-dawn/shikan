@@ -3,8 +3,8 @@
 import { Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import { Spot } from '@/types'
-import { getSpotLabel } from '@/lib/spotLabels'
-import { getSpotIconPath } from '@/lib/spotIcons'
+import { getSpotLabel } from '@/lib/utils/spotLabels'
+import { getSpotIconPath } from '@/lib/utils/spotIcons'
 
 interface SpotMarkerProps {
   spot: Spot

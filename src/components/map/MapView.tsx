@@ -1,21 +1,21 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import SearchPanel from '@/components/SearchPanel'
-import LayerControlPanel from '@/components/LayerControlPanel'
-import BusStopSidebar from '@/components/BusStopSidebar'
-import Loading from '@/components/Loading'
+import SearchPanel from '@/components/ui/SearchPanel'
+import LayerControlPanel from '@/components/map/LayerControlPanel'
+import BusStopSidebar from '@/components/bus/BusStopSidebar'
+import Loading from '@/components/ui/Loading'
 import { useMapState } from '@/hooks/useMapState'
 import { BusStop, Spot, FacilityType } from '@/types'
-import { getFacilityColorTheme } from '@/lib/facilityColors'
+import { getFacilityColorTheme } from '@/lib/utils/facilityColors'
 
 // Leafletを使用するコンポーネントは動的インポート (SSR無効化)
-const Map = dynamic(() => import('@/components/Map'), { ssr: false })
-const ReachabilityLayer = dynamic(() => import('@/components/ReachabilityLayer'), { ssr: false })
-const PopulationLayer = dynamic(() => import('@/components/PopulationLayer'), { ssr: false })
-const BusStopMarker = dynamic(() => import('@/components/BusStopMarker'), { ssr: false })
-const BusRoutePolyline = dynamic(() => import('@/components/BusRoutePolyline'), { ssr: false })
-const SpotMarker = dynamic(() => import('@/components/SpotMarker'), { ssr: false })
+const Map = dynamic(() => import('@/components/map/Map'), { ssr: false })
+const ReachabilityLayer = dynamic(() => import('@/components/layer/ReachabilityLayer'), { ssr: false })
+const PopulationLayer = dynamic(() => import('@/components/layer/PopulationLayer'), { ssr: false })
+const BusStopMarker = dynamic(() => import('@/components/bus/BusStopMarker'), { ssr: false })
+const BusRoutePolyline = dynamic(() => import('@/components/bus/BusRoutePolyline'), { ssr: false })
+const SpotMarker = dynamic(() => import('@/components/layer/SpotMarker'), { ssr: false })
 
 // MultiPolygonをGeoJSON FeatureCollectionに変換
 function multiPolygonToGeoJSON(multiPolygon: {
