@@ -15,6 +15,10 @@ const facilityColorThemes: Record<string, FacilityColorTheme> = {
     light: '#93c5fd', // 薄い青
     dark: '#2563eb', // 濃い青
   },
+  'public-facility': {
+    light: '#86efac', // 薄い緑
+    dark: '#16a34a', // 濃い緑
+  },
   park: {
     light: '#86efac', // 薄い緑
     dark: '#16a34a', // 濃い緑
