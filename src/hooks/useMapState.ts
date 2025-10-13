@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { BusStop, FacilityType, APIRequest, APIResponse, FacilityReachability } from '@/types'
 
-const API_URL = 'https://prometheus-h24i.onrender.com/search/area'
+const API_URL = 'https://prometheus-h24i.onrender.com/area/search'
 
 export function useMapState(availableSpotTypes: string[] = []) {
   // --- 検索条件 ---
@@ -69,36 +69,7 @@ export function useMapState(availableSpotTypes: string[] = []) {
       const requestBody: APIRequest = {
         'target-spots': selectedFacilities,
         'max-minute': maxMinute,
-        combus: {
-          stops: selectedStops.map(stop => ({
-            lat: stop.lat,
-            lon: stop.lng,
-          })),
-          // 循環バス: 終点→始点も含めてstopsと同じ数
-          sections: Array(selectedStops.length).fill({ duration: 5 }),
-        },
-      }
-
-      // TODO: バックエンド開発完了後、requestBodyを使用
-      const fixedRequestBody = {
-        'target-spots': ['hospital', 'shopping'],
-        'max-minute': 60,
-        combus: {
-          stops: [
-            { lat: 36.65742, lon: 137.17421 },
-            { lat: 36.68936, lon: 137.18519 },
-            { lat: 36.67738, lon: 137.23892 },
-            { lat: 36.65493, lon: 137.24001 },
-            { lat: 36.63964, lon: 137.21958 },
-          ],
-          sections: [
-            { duration: 6 },
-            { duration: 9 },
-            { duration: 5 },
-            { duration: 7 },
-            { duration: 12 },
-          ],
-        },
+        'combus-stops': selectedStops.map(stop => stop.id),
       }
 
       const response = await fetch(API_URL, {
@@ -106,7 +77,7 @@ export function useMapState(availableSpotTypes: string[] = []) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(fixedRequestBody), // 一時的に固定リクエスト
+        body: JSON.stringify(requestBody),
       })
 
       if (!response.ok) {
@@ -117,10 +88,12 @@ export function useMapState(availableSpotTypes: string[] = []) {
 
       if (data.status === 'OK') {
         // レスポンスからデータを設定
-        const newFacilityData: Record<FacilityType, FacilityReachability | null> = {
-          hospital: data.result.hospital || null,
-          shopping: data.result.shopping || null,
-        }
+        const newFacilityData: Record<string, FacilityReachability | null> = {}
+
+        selectedFacilities.forEach(facility => {
+          newFacilityData[facility] = data.result.area[facility] || null
+        })
+
         setFacilityData(newFacilityData)
 
         // 取得できた施設タイプのレイヤーを自動的に表示
@@ -128,7 +101,7 @@ export function useMapState(availableSpotTypes: string[] = []) {
         const newShowReachability2 = { ...showReachability2 }
 
         selectedFacilities.forEach(facility => {
-          if (data.result[facility]) {
+          if (data.result.area[facility]) {
             newShowReachability1[facility] = true
             newShowReachability2[facility] = true
           }

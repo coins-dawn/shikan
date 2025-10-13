@@ -17,25 +17,6 @@ const BusStopMarker = dynamic(() => import('@/components/bus/BusStopMarker'), { 
 const BusRoutePolyline = dynamic(() => import('@/components/bus/BusRoutePolyline'), { ssr: false })
 const SpotMarker = dynamic(() => import('@/components/layer/SpotMarker'), { ssr: false })
 
-// MultiPolygonをGeoJSON FeatureCollectionに変換
-function multiPolygonToGeoJSON(multiPolygon: {
-  type: 'MultiPolygon'
-  coordinates: number[][][][]
-}) {
-  return {
-    type: 'FeatureCollection' as const,
-    features: [
-      {
-        type: 'Feature' as const,
-        geometry: {
-          type: 'MultiPolygon' as const,
-          coordinates: multiPolygon.coordinates,
-        },
-        properties: {},
-      },
-    ],
-  }
-}
 
 interface MapViewProps {
   busStops: BusStop[]
@@ -96,12 +77,14 @@ export default function MapView({ busStops, spots, spotTypes, spotLabels }: MapV
             {(Object.keys(layers.showReachability1) as FacilityType[]).map((facility) => {
               if (!layers.showReachability1[facility] || !data.facilities[facility]) return null
 
-              const geoJSON = multiPolygonToGeoJSON(data.facilities[facility]!.reachable.original)
+              const facilityData = data.facilities[facility]
+              if (!facilityData?.reachable?.original) return null
+
               const colorTheme = getFacilityColorTheme(facility)
               return (
                 <ReachabilityLayer
                   key={`r1-${facility}`}
-                  data={geoJSON}
+                  data={facilityData.reachable.original}
                   color={colorTheme.light}
                   fillOpacity={0.3}
                 />
@@ -112,12 +95,14 @@ export default function MapView({ busStops, spots, spotTypes, spotLabels }: MapV
             {(Object.keys(layers.showReachability2) as FacilityType[]).map((facility) => {
               if (!layers.showReachability2[facility] || !data.facilities[facility]) return null
 
-              const geoJSON = multiPolygonToGeoJSON(data.facilities[facility]!.reachable['with-combus'])
+              const facilityData = data.facilities[facility]
+              if (!facilityData?.reachable?.['with-combus']) return null
+
               const colorTheme = getFacilityColorTheme(facility)
               return (
                 <ReachabilityLayer
                   key={`r2-${facility}`}
-                  data={geoJSON}
+                  data={facilityData.reachable['with-combus']}
                   color={colorTheme.dark}
                   fillOpacity={0.3}
                 />

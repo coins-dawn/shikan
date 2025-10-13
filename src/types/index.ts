@@ -15,14 +15,10 @@ export interface Spot {
   type: string
 }
 
-export interface ReachabilityGeoJSON extends FeatureCollection {
-  features: Array<{
-    type: 'Feature'
-    geometry: Geometry
-    properties: {
-      [key: string]: unknown
-    }
-  }>
+// 到達圏データはMultiPolygonジオメトリとして扱う
+export type ReachabilityGeoJSON = {
+  type: 'MultiPolygon'
+  coordinates: number[][][][]
 }
 
 export interface PopulationGeoJSON extends FeatureCollection {
@@ -51,15 +47,7 @@ export type FacilityType = string
 export interface APIRequest {
   'target-spots': FacilityType[]
   'max-minute': number
-  combus: {
-    stops: Array<{
-      lat: number
-      lon: number
-    }>
-    sections: Array<{
-      duration: number
-    }>
-  }
+  'combus-stops': string[]
 }
 
 export interface MultiPolygon {
@@ -68,10 +56,12 @@ export interface MultiPolygon {
 }
 
 export interface FacilitySpot {
-  lat: number
-  lon: number
+  coord: {
+    lat: number
+    lon: number
+  }
   name: string
-  type: FacilityType
+  'spot-type': FacilityType
 }
 
 export interface FacilityReachability {
@@ -84,7 +74,10 @@ export interface FacilityReachability {
 
 export interface APIResponse {
   result: {
-    [key in FacilityType]?: FacilityReachability
+    area: {
+      [key in FacilityType]?: FacilityReachability
+    }
+    combus: unknown
   }
   status: string
 }
