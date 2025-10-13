@@ -43,15 +43,19 @@ export function useMapState(availableSpotTypes: string[] = []) {
     )
   }, [])
 
-  // --- 停留所選択/解除のハンドラー ---
+  // --- 停留所選択のハンドラー ---
   const handleSelectStop = useCallback((stop: BusStop) => {
     const isSelected = selectedStops.some((s) => s.id === stop.id)
 
-    if (isSelected) {
-      setSelectedStops(selectedStops.filter((s) => s.id !== stop.id))
-    } else {
+    // 未選択の場合のみ選択を追加
+    if (!isSelected) {
       setSelectedStops([...selectedStops, stop])
     }
+  }, [selectedStops])
+
+  // --- 停留所解除のハンドラー ---
+  const handleDeselectStop = useCallback((stop: BusStop) => {
+    setSelectedStops(selectedStops.filter((s) => s.id !== stop.id))
   }, [selectedStops])
 
   // --- 進むボタンのハンドラー ---
@@ -221,6 +225,7 @@ export function useMapState(availableSpotTypes: string[] = []) {
       canProceed: selectedStops.length >= 2 && selectedFacilities.length > 0,
       isEditable,
       onSelect: handleSelectStop,
+      onDeselect: handleDeselectStop,
       onProceed: handleProceed,
       onReset: handleReset,
       onReorder: handleReorderStops,

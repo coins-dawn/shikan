@@ -9,6 +9,7 @@ interface BusStopMarkerProps {
   isSelected: boolean
   selectionOrder?: number
   onSelect: (stop: BusStop) => void
+  onDeselect?: (stop: BusStop) => void
 }
 
 // カスタムアイコンの作成
@@ -76,23 +77,48 @@ export default function BusStopMarker({
   isSelected,
   selectionOrder,
   onSelect,
+  onDeselect,
 }: BusStopMarkerProps) {
+  const handleClick = () => {
+    // 未選択の場合のみ選択処理を実行
+    if (!isSelected) {
+      onSelect(stop)
+    }
+  }
+
+  const handleDeselect = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (onDeselect) {
+      onDeselect(stop)
+    }
+  }
+
   return (
     <Marker
       position={[stop.lat, stop.lng]}
       icon={createIcon(isSelected, selectionOrder)}
       eventHandlers={{
-        click: () => onSelect(stop),
+        click: handleClick,
       }}
     >
-      <Popup>
-        <div className="text-sm">
-          <p className="font-semibold">{stop.name}</p>
-          {isSelected && selectionOrder !== undefined && (
-            <p className="text-xs text-gray-600 mt-1">選択順: {selectionOrder}</p>
-          )}
-        </div>
-      </Popup>
+      {isSelected && (
+        <Popup>
+          <div className="text-sm">
+            <p className="font-semibold">{stop.name}</p>
+            {selectionOrder !== undefined && (
+              <p className="text-xs text-gray-600 mt-1">選択順: {selectionOrder}</p>
+            )}
+            {onDeselect && (
+              <button
+                onClick={handleDeselect}
+                className="mt-2 w-full px-3 py-1 text-xs font-medium text-white bg-red-500 rounded hover:bg-red-600 transition-colors"
+              >
+                選択を解除
+              </button>
+            )}
+          </div>
+        </Popup>
+      )}
     </Marker>
   )
 }
