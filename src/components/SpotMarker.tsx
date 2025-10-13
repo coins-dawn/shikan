@@ -4,6 +4,7 @@ import { Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import { Spot } from '@/types'
 import { getSpotLabel } from '@/lib/spotLabels'
+import { getSpotIconPath } from '@/lib/spotIcons'
 
 interface SpotMarkerProps {
   spot: Spot
@@ -22,21 +23,22 @@ const DEFAULT_COLOR = '#6b7280' // グレー
 // タイプごとのアイコンを作成
 const createSpotIcon = (type: string) => {
   const color = SPOT_COLORS[type] || DEFAULT_COLOR
+  const iconDef = getSpotIconPath(type)
 
-  // 停留所マーカーと区別するため、四角形のアイコンを使用
+  // 種別ごとに適したアイコンを使用
   const svgIcon = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${color}" width="24" height="24">
-      <rect x="3" y="3" width="18" height="18" rx="3" fill="${color}" stroke="white" stroke-width="2"/>
-      <circle cx="12" cy="12" r="4" fill="white"/>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="${iconDef.viewBox || '0 0 24 24'}" width="28" height="28">
+      <circle cx="12" cy="12" r="11" fill="${color}" stroke="white" stroke-width="2"/>
+      ${iconDef.path}
     </svg>
   `
 
   return L.divIcon({
     html: svgIcon,
     className: 'spot-marker',
-    iconSize: [24, 24],
-    iconAnchor: [12, 12],
-    popupAnchor: [0, -12],
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+    popupAnchor: [0, -14],
   })
 }
 
