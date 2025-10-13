@@ -140,6 +140,7 @@ export default function MapView({ busStops, spots, spotTypes, spotLabels }: MapV
                   isSelected={isSelected}
                   selectionOrder={isSelected ? selectedIndex + 1 : undefined}
                   onSelect={stops.isEditable ? stops.onSelect : () => {}}
+                  onDeselect={stops.isEditable ? stops.onDeselect : undefined}
                 />
               )
             })}
