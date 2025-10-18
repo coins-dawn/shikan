@@ -116,21 +116,28 @@ export default function MapView({ busStops, spots, spotTypes, spotLabels }: MapV
             <BusRoutePolyline stops={stops.selected} />
 
             {/* 停留所マーカー */}
-            {busStops.map((stop) => {
-              const selectedIndex = stops.selected.findIndex((s) => s.id === stop.id)
-              const isSelected = selectedIndex !== -1
+            {busStops
+              .filter((stop) => {
+                // 編集可能時: すべての停留所を表示
+                // 編集不可時: 選択済み停留所のみ表示
+                if (stops.isEditable) return true
+                return stops.selected.some((s) => s.id === stop.id)
+              })
+              .map((stop) => {
+                const selectedIndex = stops.selected.findIndex((s) => s.id === stop.id)
+                const isSelected = selectedIndex !== -1
 
-              return (
-                <BusStopMarker
-                  key={stop.id}
-                  stop={stop}
-                  isSelected={isSelected}
-                  selectionOrder={isSelected ? selectedIndex + 1 : undefined}
-                  onSelect={stops.isEditable ? stops.onSelect : () => {}}
-                  onDeselect={stops.isEditable ? stops.onDeselect : undefined}
-                />
-              )
-            })}
+                return (
+                  <BusStopMarker
+                    key={stop.id}
+                    stop={stop}
+                    isSelected={isSelected}
+                    selectionOrder={isSelected ? selectedIndex + 1 : undefined}
+                    onSelect={stops.isEditable ? stops.onSelect : () => {}}
+                    onDeselect={stops.isEditable ? stops.onDeselect : undefined}
+                  />
+                )
+              })}
 
             {/* スポットマーカー */}
             {spots
