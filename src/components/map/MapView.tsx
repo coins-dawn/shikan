@@ -110,7 +110,7 @@ export default function MapView({ busStops, spots, spotTypes, spotLabels }: MapV
             })}
 
             {/* 人口分布 */}
-            {layers.showPopulation && <PopulationLayer data={null} />}
+            {layers.showPopulation && <PopulationLayer data={data.population} />}
 
             {/* バスルート */}
             <BusRoutePolyline stops={stops.selected} />

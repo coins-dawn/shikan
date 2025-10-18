@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
-import { BusStop, FacilityType, APIRequest, APIResponse, FacilityReachability } from '@/types'
+import { BusStop, FacilityType, APIRequest, APIResponse, FacilityReachability, PopulationGeoJSON } from '@/types'
+import { fetchPopulationData } from '@/lib/api/population'
 
 const API_URL = 'https://prometheus-h24i.onrender.com/area/search'
 
@@ -33,6 +34,16 @@ export function useMapState(availableSpotTypes: string[] = []) {
 
   // --- データ ---
   const [facilityData, setFacilityData] = useState<Record<string, FacilityReachability | null>>({})
+  const [populationData, setPopulationData] = useState<PopulationGeoJSON | null>(null)
+
+  // 人口分布データの読み込み
+  useEffect(() => {
+    async function loadPopulation() {
+      const data = await fetchPopulationData()
+      setPopulationData(data)
+    }
+    loadPopulation()
+  }, [])
 
   // --- 施設タイプ切り替え ---
   const toggleFacility = useCallback((facility: FacilityType) => {
@@ -207,6 +218,7 @@ export function useMapState(availableSpotTypes: string[] = []) {
     // データ
     data: {
       facilities: facilityData,
+      population: populationData,
     },
     // UI状態
     ui: {
