@@ -1,9 +1,11 @@
 import { Polyline, Marker } from 'react-leaflet'
 import L from 'leaflet'
-import { BusStop } from '@/types'
+import { BusStop, CombusData } from '@/types'
+import polyline from '@mapbox/polyline'
 
 interface BusRoutePolylineProps {
   stops: BusStop[]
+  combusData?: CombusData | null
 }
 
 // 矢印アイコンを作成（SVGで上向き三角形を使用）
@@ -60,9 +62,61 @@ const getOffsetPoint = (point: [number, number], angle: number, offsetPixels: nu
   ]
 }
 
-export default function BusRoutePolyline({ stops }: BusRoutePolylineProps) {
+export default function BusRoutePolyline({ stops, combusData }: BusRoutePolylineProps) {
   if (stops.length < 2) return null
 
+  // combusDataがある場合は、APIから取得した実際の経路を描画
+  if (combusData && combusData['section-list'].length > 0) {
+    const allRoutePositions: [number, number][] = []
+
+    // 全セクションのgeometryをデコードして結合
+    combusData['section-list'].forEach((section) => {
+      const decoded = polyline.decode(section.geometry)
+      // decodedは[[lat, lon], ...]形式
+      decoded.forEach(([lat, lon]) => {
+        allRoutePositions.push([lat, lon])
+      })
+    })
+
+    // 経路全体に矢印を配置（適度な間隔で）
+    const arrows = []
+    const arrowInterval = Math.max(1, Math.floor(allRoutePositions.length / 10)) // 10個程度の矢印を配置
+
+    for (let i = arrowInterval; i < allRoutePositions.length; i += arrowInterval) {
+      const from = allRoutePositions[i - 1]
+      const to = allRoutePositions[i]
+      const angle = calculateAngle(from, to)
+
+      arrows.push({
+        position: to,
+        angle: angle,
+        key: `arrow-${i}`,
+      })
+    }
+
+    return (
+      <>
+        <Polyline
+          positions={allRoutePositions}
+          pathOptions={{
+            color: '#2563eb',
+            weight: 3,
+            opacity: 0.7,
+          }}
+        />
+        {arrows.map((arrow) => (
+          <Marker
+            key={arrow.key}
+            position={arrow.position}
+            icon={createArrowIcon(arrow.angle)}
+            interactive={false}
+          />
+        ))}
+      </>
+    )
+  }
+
+  // combusDataがない場合は従来の直線描画
   const isTwoStopRoute = stops.length === 2
 
   if (isTwoStopRoute) {

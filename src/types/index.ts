@@ -72,12 +72,32 @@ export interface FacilityReachability {
   spots: FacilitySpot[]
 }
 
+export interface BusSection {
+  'distance-km': number
+  'duration-m': number
+  geometry: string // Polyline encoded string
+}
+
+export interface BusStopCoord {
+  coord: {
+    lat: number
+    lon: number
+  }
+  id: string
+  name: string
+}
+
+export interface CombusData {
+  'section-list': BusSection[]
+  'stop-list': BusStopCoord[]
+}
+
 export interface APIResponse {
   result: {
     area: {
       [key in FacilityType]?: FacilityReachability
     }
-    combus: unknown
+    combus: CombusData
   }
   status: string
 }
