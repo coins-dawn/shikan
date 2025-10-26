@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { BusStop, FacilityType, APIRequest, APIResponse, FacilityReachability, PopulationGeoJSON } from '@/types'
+import { BusStop, FacilityType, APIRequest, APIResponse, FacilityReachability, PopulationGeoJSON, CombusData } from '@/types'
 import { fetchPopulationData } from '@/lib/api/population'
 
 const API_URL = 'https://prometheus-h24i.onrender.com/area/search'
@@ -35,6 +35,7 @@ export function useMapState(availableSpotTypes: string[] = []) {
   // --- データ ---
   const [facilityData, setFacilityData] = useState<Record<string, FacilityReachability | null>>({})
   const [populationData, setPopulationData] = useState<PopulationGeoJSON | null>(null)
+  const [combusData, setCombusData] = useState<CombusData | null>(null)
 
   // 人口分布データの読み込み
   useEffect(() => {
@@ -106,6 +107,7 @@ export function useMapState(availableSpotTypes: string[] = []) {
         })
 
         setFacilityData(newFacilityData)
+        setCombusData(data.result.combus)
 
         // 取得できた施設タイプのレイヤーを自動的に表示
         const newShowReachability1 = { ...showReachability1 }
@@ -138,6 +140,7 @@ export function useMapState(availableSpotTypes: string[] = []) {
     setFacilityData({})
     setShowReachability1({})
     setShowReachability2({})
+    setCombusData(null)
     // 編集を再度可能にする
     setIsEditable(true)
   }, [])
@@ -219,6 +222,7 @@ export function useMapState(availableSpotTypes: string[] = []) {
     data: {
       facilities: facilityData,
       population: populationData,
+      combus: combusData,
     },
     // UI状態
     ui: {

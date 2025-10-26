@@ -8,6 +8,7 @@
 - **言語**: TypeScript 5
 - **UI**: React 19.1.0, Tailwind CSS 4
 - **地図**: Leaflet 1.9.4, react-leaflet 5.0.0
+- **経路デコード**: @mapbox/polyline 1.2.1
 - **ドラッグ&ドロップ**: @dnd-kit (core, sortable, utilities)
 - **パッケージマネージャー**: npm
 
@@ -88,6 +89,7 @@ src/
 - 停留所選択、レイヤー表示、検索条件、API通信を管理
 - 「進む」ボタン押下後は編集ロック、「戻る」ボタンで再編集可能
 - API実行中のローディング状態を管理
+- API経路データ（combusData）を取得・管理
 
 #### [BusStopSidebar.tsx](src/components/bus/BusStopSidebar.tsx)
 - 選択した停留所のリストを表示
@@ -95,29 +97,53 @@ src/
 - 進むボタン（API実行）と戻るボタン（リセット）を提供
 - 進むボタン押下後は編集不可（isEditable）
 
+#### [BusRoutePolyline.tsx](src/components/bus/BusRoutePolyline.tsx)
+- バス経路の描画コンポーネント
+- API経路データがある場合: 実際の道路に沿った経路を描画
+  - Polylineエンコード文字列をデコード
+  - 停留所間ごとに方向矢印を配置（広域的な方向計算）
+  - 停留所付近（0.002度以内）には矢印を配置しない
+- API経路データがない場合: 選択停留所間を直線で描画（後方互換性）
+
 ## データフロー
 
 ### API連携
-- **エンドポイント**: `POST /api/reachability`（想定）
+- **エンドポイント**: `POST https://prometheus-h24i.onrender.com/area/search`
 - **リクエスト形式**:
   ```typescript
   {
     "target-spots": ["hospital", "shopping"],
-    "max-minute": 30,
-    "combus": {
-      "stops": [{ lat, lon }, ...],
-      "sections": [{ duration }, ...]
-    }
+    "max-minute": 60,
+    "combus-stops": ["comstop8", "comstop12", ...]
   }
   ```
 - **レスポンス形式**:
   ```typescript
   {
     result: {
-      hospital?: { reachable, spots },
-      shopping?: { reachable, spots }
+      area: {
+        hospital?: {
+          reachable: { original, with-combus },
+          spots: [...]
+        },
+        shopping?: { ... }
+      },
+      combus: {
+        "section-list": [
+          {
+            "distance-km": 10.51,
+            "duration-m": 26,
+            "geometry": "Polylineエンコード文字列"
+          },
+          ...
+        ],
+        "stop-list": [
+          { coord: { lat, lon }, id, name },
+          ...
+        ]
+      }
     },
-    status: "success"
+    status: "OK"
   }
   ```
 
@@ -153,10 +179,13 @@ src/
 
 ### プロジェクトルール
 **重要**: 以下のルールは必ず守ること
-1. **タスク追加時**: ユーザーがタスクを追加したら、必ずGitHub Issueを作成する
+1. **ブランチ作成**: 作業開始時は必ずfeatureブランチを作成してから作業する（mainブランチへの直接コミットは禁止）
+   - ブランチ命名: `feature/xxx` 形式
+   - Issue番号がある場合は `feature/issue-番号-説明` も可
+2. **タスク追加時**: ユーザーがタスクを追加したら、必ずGitHub Issueを作成する
    - `gh issue create` コマンドを使用
    - タイトルと説明を明確に記載
-2. **プルリク作成時**: 必ず対応するIssueと紐付ける
+3. **プルリク作成時**: 必ず対応するIssueと紐付ける
    - PR本文に `Closes #<issue番号>` を記載
    - PRタイトルは過去のPRに倣う（例: `feat: ○○機能を追加`）
 

@@ -1,9 +1,11 @@
 import { Polyline, Marker } from 'react-leaflet'
 import L from 'leaflet'
-import { BusStop } from '@/types'
+import { BusStop, CombusData } from '@/types'
+import polyline from '@mapbox/polyline'
 
 interface BusRoutePolylineProps {
   stops: BusStop[]
+  combusData?: CombusData | null
 }
 
 // 矢印アイコンを作成（SVGで上向き三角形を使用）
@@ -36,6 +38,37 @@ const calculateAngle = (from: [number, number], to: [number, number]): number =>
   return angle
 }
 
+// 経路上の指定位置における広域的な方向を計算（前後の点から平均方向を算出）
+const calculateRegionalAngle = (positions: [number, number][], index: number, lookAheadCount: number = 20): number => {
+  // 前後のlookAheadCount点の範囲で方向を計算
+  const startIdx = Math.max(0, index - lookAheadCount)
+  const endIdx = Math.min(positions.length - 1, index + lookAheadCount)
+
+  // 始点と終点で大まかな方向を計算
+  const from = positions[startIdx]
+  const to = positions[endIdx]
+
+  return calculateAngle(from, to)
+}
+
+// 2点間の距離を計算（簡易的な直線距離、度単位）
+const calculateDistance = (point1: [number, number], point2: [number, number]): number => {
+  const [lat1, lng1] = point1
+  const [lat2, lng2] = point2
+  const dLat = lat2 - lat1
+  const dLng = lng2 - lng1
+  return Math.sqrt(dLat * dLat + dLng * dLng)
+}
+
+// 指定位置が停留所から十分離れているかチェック
+const isFarFromStops = (position: [number, number], stops: BusStop[], minDistance: number = 0.002): boolean => {
+  return stops.every(stop => {
+    const stopPos: [number, number] = [stop.lat, stop.lng]
+    const distance = calculateDistance(position, stopPos)
+    return distance >= minDistance
+  })
+}
+
 // 2点間の指定位置の点を計算（ratio: 0.0-1.0）
 const getPointOnLine = (from: [number, number], to: [number, number], ratio: number): [number, number] => {
   const [lat1, lng1] = from
@@ -60,9 +93,113 @@ const getOffsetPoint = (point: [number, number], angle: number, offsetPixels: nu
   ]
 }
 
-export default function BusRoutePolyline({ stops }: BusRoutePolylineProps) {
+export default function BusRoutePolyline({ stops, combusData }: BusRoutePolylineProps) {
   if (stops.length < 2) return null
 
+  // combusDataがある場合は、APIから取得した実際の経路を描画
+  if (combusData && combusData['section-list'].length > 0) {
+    const allRoutePositions: [number, number][] = []
+
+    // 全セクションのgeometryをデコードして結合
+    combusData['section-list'].forEach((section) => {
+      const decoded = polyline.decode(section.geometry)
+      // decodedは[[lat, lon], ...]形式
+      decoded.forEach(([lat, lon]) => {
+        allRoutePositions.push([lat, lon])
+      })
+    })
+
+    // 各停留所に最も近い経路上の座標インデックスを見つける
+    const stopIndices = stops.map(stop => {
+      const stopPos: [number, number] = [stop.lat, stop.lng]
+      let minDistance = Infinity
+      let closestIndex = 0
+
+      allRoutePositions.forEach((pos, idx) => {
+        const dist = calculateDistance(stopPos, pos)
+        if (dist < minDistance) {
+          minDistance = dist
+          closestIndex = idx
+        }
+      })
+
+      return closestIndex
+    })
+
+    // 停留所間ごとに矢印を配置
+    const arrows = []
+    for (let i = 0; i < stopIndices.length - 1; i++) {
+      const startIdx = stopIndices[i]
+      const endIdx = stopIndices[i + 1]
+      const sectionLength = endIdx - startIdx
+
+      // 停留所間の中点付近に矢印を配置
+      const arrowIdx = startIdx + Math.floor(sectionLength / 2)
+
+      if (arrowIdx > startIdx && arrowIdx < endIdx) {
+        const position = allRoutePositions[arrowIdx]
+
+        // 停留所の近くでないことを確認
+        if (isFarFromStops(position, stops, 0.002)) {
+          // 広域的な方向を計算（前後20点の範囲で）
+          const angle = calculateRegionalAngle(allRoutePositions, arrowIdx, 20)
+
+          arrows.push({
+            position: position,
+            angle: angle,
+            key: `arrow-section-${i}`,
+          })
+        }
+      }
+    }
+
+    // 最後の停留所から最初の停留所への区間（循環路線の場合）
+    if (stopIndices.length > 0) {
+      const lastIdx = stopIndices[stopIndices.length - 1]
+      const sectionLength = allRoutePositions.length - lastIdx
+
+      if (sectionLength > 0) {
+        const arrowIdx = lastIdx + Math.floor(sectionLength / 2)
+
+        if (arrowIdx < allRoutePositions.length) {
+          const position = allRoutePositions[arrowIdx]
+
+          if (isFarFromStops(position, stops, 0.002)) {
+            const angle = calculateRegionalAngle(allRoutePositions, arrowIdx, 20)
+
+            arrows.push({
+              position: position,
+              angle: angle,
+              key: `arrow-section-last`,
+            })
+          }
+        }
+      }
+    }
+
+    return (
+      <>
+        <Polyline
+          positions={allRoutePositions}
+          pathOptions={{
+            color: '#2563eb',
+            weight: 3,
+            opacity: 0.7,
+          }}
+        />
+        {arrows.map((arrow) => (
+          <Marker
+            key={arrow.key}
+            position={arrow.position}
+            icon={createArrowIcon(arrow.angle)}
+            interactive={false}
+          />
+        ))}
+      </>
+    )
+  }
+
+  // combusDataがない場合は従来の直線描画
   const isTwoStopRoute = stops.length === 2
 
   if (isTwoStopRoute) {
