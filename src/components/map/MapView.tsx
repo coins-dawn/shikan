@@ -5,6 +5,7 @@ import SearchPanel from '@/components/ui/SearchPanel'
 import LayerControlPanel from '@/components/map/LayerControlPanel'
 import BusStopSidebar from '@/components/bus/BusStopSidebar'
 import Loading from '@/components/ui/Loading'
+import KPIDashboard from '@/components/dashboard/KPIDashboard'
 import { useMapState } from '@/hooks/useMapState'
 import { BusStop, Spot, FacilityType } from '@/types'
 import { getFacilityColorTheme } from '@/lib/utils/facilityColors'
@@ -71,7 +72,10 @@ export default function MapView({ busStops, spots, spotTypes, spotLabels }: MapV
         />
 
         {/* 地図エリア */}
-        <div className="flex-1">
+        <div className="flex-1 relative">
+          {/* KPIダッシュボード */}
+          <KPIDashboard apiResponse={data.apiResponse} />
+
           <Map center={[36.67, 137.20]} zoom={12}>
             {/* 到達圏1 (現状) */}
             {(Object.keys(layers.showReachability1) as FacilityType[]).map((facility) => {

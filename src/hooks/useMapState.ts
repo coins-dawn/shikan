@@ -36,6 +36,7 @@ export function useMapState(availableSpotTypes: string[] = []) {
   const [facilityData, setFacilityData] = useState<Record<string, FacilityReachability | null>>({})
   const [populationData, setPopulationData] = useState<PopulationGeoJSON | null>(null)
   const [combusData, setCombusData] = useState<CombusData | null>(null)
+  const [apiResponse, setApiResponse] = useState<APIResponse | null>(null)
 
   // 人口分布データの読み込み
   useEffect(() => {
@@ -99,6 +100,9 @@ export function useMapState(availableSpotTypes: string[] = []) {
       const data: APIResponse = await response.json()
 
       if (data.status === 'OK') {
+        // APIレスポンス全体を保存
+        setApiResponse(data)
+
         // レスポンスからデータを設定
         const newFacilityData: Record<string, FacilityReachability | null> = {}
 
@@ -141,6 +145,7 @@ export function useMapState(availableSpotTypes: string[] = []) {
     setShowReachability1({})
     setShowReachability2({})
     setCombusData(null)
+    setApiResponse(null)
     // 編集を再度可能にする
     setIsEditable(true)
   }, [])
@@ -223,6 +228,7 @@ export function useMapState(availableSpotTypes: string[] = []) {
       facilities: facilityData,
       population: populationData,
       combus: combusData,
+      apiResponse,
     },
     // UI状態
     ui: {
