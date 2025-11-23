@@ -10,7 +10,7 @@ interface MapProps {
   zoom?: number
 }
 
-export default function Map({ children, center = [35.6812, 139.7671], zoom = 13 }: MapProps) {
+export default function Map({ children, center = [36.673333568, 137.226471043], zoom = 13 }: MapProps) {
   return (
     <MapContainer
       center={center}

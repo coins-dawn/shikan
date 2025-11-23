@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from 'react'
 
-export default function Loading() {
+interface LoadingProps {
+  message?: string
+}
+
+export default function Loading({ message = '読み込み中' }: LoadingProps) {
   const [dots, setDots] = useState('.')
 
   useEffect(() => {
@@ -22,7 +26,7 @@ export default function Loading() {
       <div className="bg-white rounded-lg p-8 flex flex-col items-center shadow-xl">
         <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600"></div>
         <p className="mt-4 text-gray-700 font-medium">
-          読み込み中
+          {message}
           <span className="inline-block w-6 text-left">{dots}</span>
         </p>
       </div>
