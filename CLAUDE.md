@@ -1,7 +1,25 @@
 # Shikan プロジェクト - Claude Code 知識ベース
 
 ## プロジェクト概要
-コミュニティバスの路線計画を支援する地図ベースのWebアプリケーション。停留所の配置をインタラクティブに選択し、各種施設への到達圏をビジュアライズすることで、効果的なバス路線の設計を支援します。
+コミュニティバスの路線計画を支援する地図ベースのWebアプリケーション。3画面構成（到達圏の条件設定 → コミュニティバスの条件設定 → 結果）で、各種施設への到達圏をビジュアライズし、効果的なバス路線の設計を支援します。
+
+## 画面構成
+アプリケーションは以下の3画面で構成されています：
+
+### 1. 到達圏の条件設定画面
+- **左パネル**: 対象スポット（病院等）、移動上限時間（30〜120分）を選択
+- **右パネル**: 選択条件のサマリと到達可能人口を表示
+- **地図**: 選択条件に応じた到達圏とスポットを表示
+
+### 2. コミュニティバスの条件設定画面（簡易）
+- **左パネル**: 周回所要時間（60〜120分）を選択
+- **右パネル**: 前画面と同じサマリを表示
+- **地図**: 選択条件に応じたバス停と経路を表示
+
+### 3. 結果画面
+- **左パネル**: バス停一覧、所要時間、経路長、サンプル経路
+- **右パネル**: 導入前後の到達可能人口と増加量を表示
+- **地図**: バス経路、バス停、到達圏（導入前後）を表示
 
 ## 技術スタック
 - **フレームワーク**: Next.js 15.5.4 (App Router, Turbopack)
@@ -35,112 +53,129 @@ npm run lint       # ESLintチェック
 src/
 ├── app/
 │   ├── layout.tsx          # ルートレイアウト
-│   └── page.tsx            # メインページ（Server Component）
+│   └── page.tsx            # メインページ（Client Component、3画面を切り替え）
 ├── components/
+│   ├── layout/             # レイアウト系コンポーネント
+│   │   └── Header.tsx      # ヘッダー（ロゴ + パンくずナビ）
+│   ├── condition/          # 到達圏の条件設定画面
+│   │   ├── ConditionMapView.tsx  # 地図ビュー
+│   │   ├── ConditionPanel.tsx    # 条件設定パネル（左）
+│   │   └── SummaryPanel.tsx      # サマリパネル（右）
+│   ├── bus-simple/         # コミュニティバス条件設定画面（簡易）
+│   │   ├── SimpleMapView.tsx     # 地図ビュー
+│   │   └── BusConditionPanel.tsx # バス生成条件パネル（左）
+│   ├── result/             # 結果画面
+│   │   ├── ResultMapView.tsx     # 地図ビュー
+│   │   ├── BusStopDetailPanel.tsx # バス停詳細パネル（左）
+│   │   ├── ResultSummaryPanel.tsx # 結果サマリパネル（右）
+│   │   └── SampleRoutePanel.tsx  # サンプル経路パネル（開発中）
 │   ├── map/                # 地図関連コンポーネント
-│   │   ├── Map.tsx         # Leaflet地図ベースコンポーネント
-│   │   ├── MapView.tsx     # 地図ビュー（Client Component）
-│   │   └── LayerControlPanel.tsx  # レイヤー表示制御
+│   │   └── Map.tsx         # Leaflet地図ベースコンポーネント
 │   ├── bus/                # バス関連コンポーネント
 │   │   ├── BusStopMarker.tsx   # 停留所マーカー
-│   │   ├── BusRoutePolyline.tsx # バスルート線
-│   │   └── BusStopSidebar.tsx  # 停留所選択サイドバー（ドラッグ&ドロップ対応）
+│   │   └── BusRoutePolyline.tsx # バスルート線（矢印付き）
 │   ├── layer/              # レイヤー系コンポーネント
 │   │   ├── ReachabilityLayer.tsx # 到達圏ポリゴン表示
-│   │   ├── PopulationLayer.tsx   # 人口分布表示
 │   │   └── SpotMarker.tsx        # スポットマーカー
 │   └── ui/                 # 汎用UIコンポーネント
-│       ├── SearchPanel.tsx     # 検索条件パネル（施設種別・時間）
+│       ├── Panel.tsx           # 開閉パネル（320px固定幅）
 │       └── Loading.tsx         # ローディングオーバーレイ
 ├── hooks/
-│   └── useMapState.ts      # 地図状態管理カスタムフック
+│   └── useAppState.ts      # アプリケーション状態管理（3画面対応）
 ├── lib/
 │   ├── api/                # API関連
-│   │   ├── busStops.ts     # 停留所データ取得
-│   │   └── spots.ts        # スポットデータ取得
+│   │   ├── busStops.ts         # 停留所データ取得
+│   │   ├── spots.ts            # スポットデータ取得
+│   │   ├── reachabilityList.ts # 到達圏探索一覧取得
+│   │   ├── stopSequences.ts    # バス停列一覧取得
+│   │   └── areaSearch.ts       # 到達圏検索
 │   └── utils/              # ユーティリティ関数
 │       ├── facilityColors.ts   # 施設種別の色定義
 │       ├── spotIcons.ts        # スポットアイコン定義
 │       └── spotLabels.ts       # スポットラベル定義
 └── types/
-    └── index.ts            # 型定義（BusStop, APIRequest/Response等）
+    └── index.ts            # 型定義（BusStop, AppState, ScreenType等）
 ```
 
 ### 主要コンポーネントの役割
 
 #### [page.tsx](src/app/page.tsx)
-- Server Component（async関数）
-- ビルド時にバックエンドAPIから停留所データを取得
-- MapViewにデータを渡して表示
-
-#### [MapView.tsx](src/components/map/MapView.tsx)
 - Client Component
-- 全UIコンポーネントを統合
-- Leaflet使用コンポーネントは動的インポート（SSR無効化）
-- 停留所の選択状態と地図表示を管理
+- 3画面（condition, bus-simple, result）の切り替えを管理
+- useAppStateから状態と関数を取得し、各画面コンポーネントに渡す
 
-#### [busStops.ts](src/lib/api/busStops.ts)
-- 停留所データ取得関数
-- `https://prometheus-h24i.onrender.com/combus/stops` からAPI取得
-- エラー時はフォールバック（ダミーデータ）
+#### [useAppState.ts](src/hooks/useAppState.ts)
+- アプリケーション全体の状態管理フック
+- 画面状態（currentScreen）、条件設定、API データを一元管理
+- 初期表示時に4つのAPIを並列で取得（到達圏一覧、スポット、バス停列、バス停）
+- `getCurrentReachability()`: 現在の条件に合致する到達圏を取得
+- `getCurrentSpots()`: 現在の条件に合致するスポットを取得
+- `getSelectedBusStops()`: 現在の条件に合致するバス停を取得
+- `executeSearch()`: 結果画面遷移時に到達圏検索APIを実行
 
-#### [useMapState.ts](src/hooks/useMapState.ts)
-- アプリケーション全体の状態管理
-- 停留所選択、レイヤー表示、検索条件、API通信を管理
-- 「進む」ボタン押下後は編集ロック、「戻る」ボタンで再編集可能
-- API実行中のローディング状態を管理
-- API経路データ（combusData）を取得・管理
+#### [Header.tsx](src/components/layout/Header.tsx)
+- ロゴ（テキスト「コミュニティバスを作ろう！」）を表示
+- パンくずナビゲーション（3ステップ）
+- 過去の画面にクリックで戻れる
 
-#### [BusStopSidebar.tsx](src/components/bus/BusStopSidebar.tsx)
-- 選択した停留所のリストを表示
-- @dnd-kitによるドラッグ&ドロップで順序変更可能
-- 進むボタン（API実行）と戻るボタン（リセット）を提供
-- 進むボタン押下後は編集不可（isEditable）
+#### [Panel.tsx](src/components/ui/Panel.tsx)
+- 左右配置対応のオーバーレイパネル
+- 320px固定幅
+- 開閉アニメーション付き
 
 #### [BusRoutePolyline.tsx](src/components/bus/BusRoutePolyline.tsx)
 - バス経路の描画コンポーネント
 - API経路データがある場合: 実際の道路に沿った経路を描画
   - Polylineエンコード文字列をデコード
-  - 停留所間ごとに方向矢印を配置（広域的な方向計算）
-  - 停留所付近（0.002度以内）には矢印を配置しない
-- API経路データがない場合: 選択停留所間を直線で描画（後方互換性）
+  - 停留所間ごとに方向矢印を配置
+- API経路データがない場合: 選択停留所間を直線で描画
 
 ## データフロー
 
 ### API連携
-- **エンドポイント**: `POST https://prometheus-h24i.onrender.com/area/search`
-- **リクエスト形式**:
+アプリケーションは以下のAPIを使用します：
+
+#### 初期表示時に取得するAPI
+1. **到達圏探索一覧取得** `GET /area/search/all`
+   - すべてのスポットタイプ・上限時間の到達圏を一括取得
+   - レスポンス時間: 10〜20秒程度
+
+2. **スポット一覧取得** `GET /area/spots`
+   - スポット情報とスポットタイプ一覧を取得
+
+3. **バス停列一覧取得** `GET /combus/stop-sequences`
+   - スポットタイプと周回時間ごとの最適化されたバス停列を取得
+
+4. **停留所データ取得** `GET /combus/stops`
+   - 全停留所の座標と名称を取得
+
+#### 結果画面遷移時に呼び出すAPI
+- **到達圏検索** `POST /area/search`
   ```typescript
+  // リクエスト
   {
-    "target-spots": ["hospital", "shopping"],
+    "target-spots": ["hospital"],
     "max-minute": 60,
     "combus-stops": ["comstop8", "comstop12", ...]
   }
-  ```
-- **レスポンス形式**:
-  ```typescript
+  // レスポンス
   {
     result: {
       area: {
-        hospital?: {
-          reachable: { original, with-combus },
+        hospital: {
+          reachable: {
+            original: MultiPolygon,
+            "with-combus": MultiPolygon,
+            "original-score": 12345,
+            "with-combus-score": 5678,  // ※増加分
+            "with-combus-score-rate": 46
+          },
           spots: [...]
-        },
-        shopping?: { ... }
+        }
       },
       combus: {
-        "section-list": [
-          {
-            "distance-km": 10.51,
-            "duration-m": 26,
-            "geometry": "Polylineエンコード文字列"
-          },
-          ...
-        ],
-        "stop-list": [
-          { coord: { lat, lon }, id, name },
-          ...
-        ]
+        "section-list": [...],
+        "stop-list": [...]
       }
     },
     status: "OK"
@@ -148,10 +183,11 @@ src/
   ```
 
 ### 状態管理の流れ
-1. ユーザーが地図上の停留所をクリック → `onSelect`
-2. サイドバーで停留所をドラッグ&ドロップ → `onReorder`
-3. 「進む」ボタン押下 → `onProceed` → API呼び出し → `isEditable = false`
-4. 「戻る」ボタン押下 → `onReset` → 停留所クリア → `isEditable = true`
+1. **初期表示**: `useAppState`が4つのAPIを並列で取得
+2. **条件設定画面**: 条件変更時に`getCurrentReachability()`で該当データを取得
+3. **バス条件設定画面**: `getSelectedBusStops()`で該当バス停を取得
+4. **結果画面遷移**: `executeSearch()`で到達圏検索APIを実行
+5. **画面戻り**: パンくずクリックで`navigateTo()`、条件は保持される
 
 ## コーディング規約
 
@@ -185,10 +221,11 @@ src/
 2. **タスク追加時**: ユーザーがタスクを追加したら、必ずGitHub Issueを作成する
    - `gh issue create` コマンドを使用
    - タイトルと説明を明確に記載
-3. **プルリク作成時**: 必ず対応するIssueと紐付ける
+3. **プルリク作成時**:
+   - **重要**: プルリクエストの作成は必ずユーザーの明示的な指示を受けてから実行する
+   - 「PRを作成してください」等の指示があるまで、コミット・プッシュまでで止める
    - PR本文に `Closes #<issue番号>` を記載
    - PRタイトルは過去のPRに倣う（例: `feat: ○○機能を追加`）
-   - **重要**: プルリクエストの作成は必ずユーザーに確認を取ってから実行する（勝手に作成しない）
 
 ### セッション管理
 - 基本的に **1 Issue = 1 Session** で運用
