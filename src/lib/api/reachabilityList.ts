@@ -1,9 +1,11 @@
 import { ReachabilityListResponse } from '@/types'
 
-const API_BASE_URL = 'https://prometheus-h24i.onrender.com'
-
+/**
+ * ビルド時に生成された静的JSONファイルから到達圏データを取得
+ * prebuildスクリプトで生成された /data/reachability.json を読み込む
+ */
 export async function fetchReachabilityList(): Promise<ReachabilityListResponse> {
-  const response = await fetch(`${API_BASE_URL}/area/search/all`, {
+  const response = await fetch('/data/reachability.json', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
