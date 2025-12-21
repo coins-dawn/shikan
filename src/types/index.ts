@@ -125,7 +125,7 @@ export interface APIResponseWithScore {
 }
 
 // 画面状態の型定義
-export type ScreenType = 'condition' | 'bus-simple' | 'result'
+export type ScreenType = 'condition' | 'bus-simple' | 'bus-manual' | 'result'
 
 // 到達圏探索一覧取得APIのレスポンス
 export interface ReachabilityItem {
@@ -183,6 +183,9 @@ export interface AppState {
 
   // コミュニティバス経路生成条件
   busCondition: BusConditionState
+
+  // 手動選択バス停（bus-manual画面用）
+  manualBusStops: string[]
 
   // API データ
   reachabilityList: ReachabilityItem[] | null

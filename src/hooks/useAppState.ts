@@ -26,6 +26,7 @@ const initialState: AppState = {
   busCondition: {
     roundTripTime: 60,
   },
+  manualBusStops: [],
   reachabilityList: null,
   spotsData: null,
   stopSequences: null,
@@ -128,23 +129,37 @@ export function useAppState() {
 
   // 到達圏検索APIを呼び出し（結果画面に遷移時）
   const executeSearch = useCallback(async () => {
-    const { condition, busCondition, stopSequences } = state
+    const { condition, busCondition, stopSequences, currentScreen, manualBusStops } = state
 
-    if (!stopSequences) {
-      console.error('Stop sequences not loaded')
-      return
-    }
+    let combusStops: string[]
 
-    // 選択された条件に合致するバス停列を取得
-    const matchingSequence = stopSequences.find(
-      (seq) =>
-        seq['spot-type'] === condition.selectedSpotType &&
-        seq['time-limit'] === busCondition.roundTripTime
-    )
+    if (currentScreen === 'bus-manual') {
+      // 手動選択の場合
+      combusStops = manualBusStops
+      if (combusStops.length < 2) {
+        console.error('At least 2 bus stops must be selected')
+        return
+      }
+    } else {
+      // 簡易選択の場合
+      if (!stopSequences) {
+        console.error('Stop sequences not loaded')
+        return
+      }
 
-    if (!matchingSequence) {
-      console.error('No matching stop sequence found')
-      return
+      // 選択された条件に合致するバス停列を取得
+      const matchingSequence = stopSequences.find(
+        (seq) =>
+          seq['spot-type'] === condition.selectedSpotType &&
+          seq['time-limit'] === busCondition.roundTripTime
+      )
+
+      if (!matchingSequence) {
+        console.error('No matching stop sequence found')
+        return
+      }
+
+      combusStops = matchingSequence['stop-sequence']
     }
 
     setState((prev) => ({
@@ -157,7 +172,7 @@ export function useAppState() {
       const result = await fetchAreaSearch({
         'target-spots': [condition.selectedSpotType],
         'max-minute': condition.maxMinute,
-        'combus-stops': matchingSequence['stop-sequence'],
+        'combus-stops': combusStops,
       })
 
       setState((prev) => ({
@@ -228,6 +243,46 @@ export function useAppState() {
       .filter((stop): stop is BusStop => stop !== undefined)
   }, [state])
 
+  // 手動選択バス停のトグル（地図クリック時）
+  const toggleManualBusStop = useCallback((stopId: string) => {
+    setState((prev) => {
+      const currentStops = prev.manualBusStops
+      const index = currentStops.indexOf(stopId)
+
+      if (index >= 0) {
+        // 既に選択されている場合は削除
+        return {
+          ...prev,
+          manualBusStops: currentStops.filter((id) => id !== stopId),
+        }
+      } else {
+        // 未選択の場合は末尾に追加
+        return {
+          ...prev,
+          manualBusStops: [...currentStops, stopId],
+        }
+      }
+    })
+  }, [])
+
+  // 手動選択バス停の更新（ドラッグ&ドロップ後）
+  const updateManualBusStops = useCallback((stopIds: string[]) => {
+    setState((prev) => ({
+      ...prev,
+      manualBusStops: stopIds,
+    }))
+  }, [])
+
+  // 手動選択バス停の取得（IDからBusStopオブジェクトに変換）
+  const getManualBusStops = useCallback((): BusStop[] => {
+    const { manualBusStops, busStopsData } = state
+    if (!busStopsData) return []
+
+    return manualBusStops
+      .map((stopId) => busStopsData.find((stop) => stop.id === stopId))
+      .filter((stop): stop is BusStop => stop !== undefined)
+  }, [state])
+
   return {
     state,
     navigateTo,
@@ -239,5 +294,8 @@ export function useAppState() {
     getSpotTypes,
     getSelectedBusStops,
     loadInitialData,
+    toggleManualBusStop,
+    updateManualBusStops,
+    getManualBusStops,
   }
 }
