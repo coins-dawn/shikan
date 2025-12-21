@@ -53,24 +53,22 @@ npm run lint       # ESLintチェック
 src/
 ├── app/
 │   ├── layout.tsx          # ルートレイアウト
-│   └── page.tsx            # メインページ（Client Component、3画面を切り替え）
+│   └── page.tsx            # メインページ（UnifiedMapViewを常に表示）
 ├── components/
 │   ├── layout/             # レイアウト系コンポーネント
 │   │   └── Header.tsx      # ヘッダー（ロゴ + パンくずナビ）
 │   ├── condition/          # 到達圏の条件設定画面
-│   │   ├── ConditionMapView.tsx  # 地図ビュー
 │   │   ├── ConditionPanel.tsx    # 条件設定パネル（左）
 │   │   └── SummaryPanel.tsx      # サマリパネル（右）
 │   ├── bus-simple/         # コミュニティバス条件設定画面（簡易）
-│   │   ├── SimpleMapView.tsx     # 地図ビュー
 │   │   └── BusConditionPanel.tsx # バス生成条件パネル（左）
 │   ├── result/             # 結果画面
-│   │   ├── ResultMapView.tsx     # 地図ビュー
 │   │   ├── BusStopDetailPanel.tsx # バス停詳細パネル（左）
 │   │   ├── ResultSummaryPanel.tsx # 結果サマリパネル（右）
 │   │   └── SampleRoutePanel.tsx  # サンプル経路パネル（開発中）
 │   ├── map/                # 地図関連コンポーネント
-│   │   └── Map.tsx         # Leaflet地図ベースコンポーネント
+│   │   ├── Map.tsx         # Leaflet地図ベースコンポーネント
+│   │   └── UnifiedMapView.tsx # 統合地図ビュー（全画面で共有）
 │   ├── bus/                # バス関連コンポーネント
 │   │   ├── BusStopMarker.tsx   # 停留所マーカー
 │   │   └── BusRoutePolyline.tsx # バスルート線（矢印付き）
@@ -101,8 +99,17 @@ src/
 
 #### [page.tsx](src/app/page.tsx)
 - Client Component
-- 3画面（condition, bus-simple, result）の切り替えを管理
-- useAppStateから状態と関数を取得し、各画面コンポーネントに渡す
+- UnifiedMapViewを常に表示（画面切り替え時も再マウントされない）
+- useAppStateから状態と関数を取得し、UnifiedMapViewに渡す
+
+#### [UnifiedMapView.tsx](src/components/map/UnifiedMapView.tsx)
+- **重要**: 全画面で共有される統合地図ビューコンポーネント
+- Mapコンポーネントを永続的にマウント（画面遷移でアンマウントされない）
+- currentScreenの値に応じて表示内容を条件分岐で切り替え
+  - condition画面: 到達圏ポリゴン、スポットマーカー、ConditionPanel、SummaryPanel
+  - bus-simple画面: 到達圏ポリゴン、スポットマーカー、バス停マーカー、バス経路、BusConditionPanel、SummaryPanel
+  - result画面: 導入前後の到達圏ポリゴン、スポットマーカー、バス停マーカー、バス経路、BusStopDetailPanel、ResultSummaryPanel、SampleRoutePanel
+- 地図のズーム率と中心位置が画面間で完全に維持される
 
 #### [useAppState.ts](src/hooks/useAppState.ts)
 - アプリケーション全体の状態管理フック
@@ -188,6 +195,11 @@ src/
 3. **バス条件設定画面**: `getSelectedBusStops()`で該当バス停を取得
 4. **結果画面遷移**: `executeSearch()`で到達圏検索APIを実行
 5. **画面戻り**: パンくずクリックで`navigateTo()`、条件は保持される
+
+### 地図状態の維持
+- **重要**: UnifiedMapViewコンポーネントが全画面で共有されるため、地図のズーム率と中心位置が画面遷移時も完全に維持される
+- 画面切り替え時にMapコンポーネントが再マウントされないため、タイルの再読み込みも発生しない
+- ユーザーが地図を操作した状態（ズーム・パン）は、どの画面に遷移しても保持される
 
 ## コーディング規約
 
