@@ -217,8 +217,6 @@ export function useAppState() {
   // 現在の条件に合致する到達圏データを取得
   const getCurrentReachability = useCallback((): ReachabilityItem | null => {
     const { reachabilityList, condition } = state
-    console.log(reachabilityList)
-    console.log(condition)
     if (!reachabilityList) return null
 
     return (
