@@ -117,7 +117,7 @@ export default function UnifiedMapView({
           currentScreen === 'bus-manual') &&
           reachability && (
             <ReachabilityLayer
-              key={`${condition.selectedSpotId}-${condition.maxMinute}`}
+              key={`${condition.selectedSpotId}-${condition.maxMinute}-${condition.walkingDistance}`}
               data={reachability.polygon}
               color="#3b82f6"
               fillOpacity={0.3}
