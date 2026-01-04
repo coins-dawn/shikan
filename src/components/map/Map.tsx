@@ -10,12 +10,12 @@ interface MapProps {
   zoom?: number
 }
 
-export default function Map({ children, center = [36.673333568, 137.226471043], zoom = 12 }: MapProps) {
+export default function Map({ children, center, zoom = 12 }: MapProps) {
   return (
     <MapContainer
       center={center}
       zoom={zoom}
-      minZoom={11}
+      minZoom={8}
       style={{ height: '100%', width: '100%' }}
       className="z-0"
       zoomControl={false}
