@@ -15,6 +15,7 @@ export default function Home() {
     getCurrentReachability,
     getCurrentSpots,
     getSpots,
+    getAllMatchingRoutes,
     getSelectedBusStops,
     toggleManualBusStop,
     updateManualBusStops,
@@ -24,9 +25,15 @@ export default function Home() {
   const reachability = getCurrentReachability()
   const spots = getCurrentSpots()
   const allSpots = getSpots()
+  const allRoutes = getAllMatchingRoutes()
   const selectedBusStops = getSelectedBusStops()
   const manualBusStops = getManualBusStops()
   const allBusStops = state.busStopsData || []
+
+  // ルート選択ハンドラー
+  const handleSelectRoute = (index: number) => {
+    updateBusCondition({ selectedRouteIndex: index })
+  }
 
   return (
     <div className="h-screen flex flex-col">
@@ -49,6 +56,8 @@ export default function Home() {
           isLoading={state.isLoading}
           loadingMessage={state.loadingMessage}
           mapCenter={mapCenter}
+          allRoutes={allRoutes}
+          busStopsData={allBusStops}
           onUpdateCondition={updateCondition}
           onUpdateBusCondition={updateBusCondition}
           onNavigateToSimple={() => navigateTo('bus-simple')}
@@ -56,6 +65,7 @@ export default function Home() {
           onExecuteSearch={executeSearch}
           onToggleManualBusStop={toggleManualBusStop}
           onUpdateManualBusStops={updateManualBusStops}
+          onSelectRoute={handleSelectRoute}
         />
       </main>
     </div>

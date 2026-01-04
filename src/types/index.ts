@@ -224,6 +224,7 @@ export interface ConditionState {
 
 export interface BusConditionState {
   roundTripTime: number // 周回所要時間（30-90分）
+  selectedRouteIndex: number // 選択されたルートのインデックス（0始まり）
 }
 
 export interface AppState {

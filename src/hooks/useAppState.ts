@@ -26,6 +26,7 @@ const initialState: AppState = {
   },
   busCondition: {
     roundTripTime: 60,
+    selectedRouteIndex: 0,
   },
   manualBusStops: [],
   reachabilityList: null,
@@ -124,6 +125,10 @@ export function useAppState() {
           ...prev.condition,
           ...updates,
         },
+        busCondition: {
+          ...prev.busCondition,
+          selectedRouteIndex: 0, // 条件変更時はルートをリセット
+        },
       }))
     },
     []
@@ -163,15 +168,10 @@ export function useAppState() {
         return
       }
 
-      // 選択された条件に合致するバス停列を取得
-      const matchingSequence = stopSequences.find(
-        (seq) =>
-          seq.spot === condition.selectedSpotId &&
-          seq['time-limit-m'] === busCondition.roundTripTime &&
-          seq['walk-distance-limit-m'] === condition.walkingDistance
-      )
+      // 現在選択されているルートを取得
+      const selectedRoute = getSelectedRoute()
 
-      if (!matchingSequence) {
+      if (!selectedRoute) {
         console.error('No matching stop sequence found', {
           spotId: condition.selectedSpotId,
           timeLimit: busCondition.roundTripTime,
@@ -180,7 +180,7 @@ export function useAppState() {
         return
       }
 
-      combusStops = matchingSequence['stop-sequence']
+      combusStops = selectedRoute['stop-sequence']
     }
 
     setState((prev) => ({
@@ -248,33 +248,44 @@ export function useAppState() {
     return spotsData.result.spots
   }, [state])
 
-  // 選択された条件に合致するバス停一覧を取得
-  const getSelectedBusStops = useCallback((): BusStop[] => {
-    const { stopSequences, busStopsData, condition, busCondition } = state
-    if (!stopSequences || !busStopsData) return []
+  // 現在の条件に合致する全ルート候補を取得
+  const getAllMatchingRoutes = useCallback((): StopSequence[] => {
+    const { stopSequences, condition, busCondition } = state
+    if (!stopSequences) return []
 
-    // 選択された条件に合致するバス停列を取得
-    const matchingSequence = stopSequences.find(
+    // 条件に合致するすべてのルートをフィルタ（スコア順にソート済みと想定）
+    return stopSequences.filter(
       (seq) =>
         seq.spot === condition.selectedSpotId &&
         seq['time-limit-m'] === busCondition.roundTripTime &&
         seq['walk-distance-limit-m'] === condition.walkingDistance
     )
+  }, [state])
 
-    if (!matchingSequence) {
-      console.warn('No matching stop sequence found', {
-        spotId: condition.selectedSpotId,
-        timeLimit: busCondition.roundTripTime,
-        walkDistanceLimit: condition.walkingDistance,
-      })
+  // 現在選択されているルートを取得
+  const getSelectedRoute = useCallback((): StopSequence | null => {
+    const { busCondition } = state
+    const allRoutes = getAllMatchingRoutes()
+    if (allRoutes.length === 0) return null
+    return allRoutes[busCondition.selectedRouteIndex] || null
+  }, [state, getAllMatchingRoutes])
+
+  // 選択された条件に合致するバス停一覧を取得
+  const getSelectedBusStops = useCallback((): BusStop[] => {
+    const { busStopsData } = state
+    if (!busStopsData) return []
+
+    // 選択されたルートを取得
+    const selectedRoute = getSelectedRoute()
+    if (!selectedRoute) {
       return []
     }
 
     // バス停IDからBusStopオブジェクトを取得
-    return matchingSequence['stop-sequence']
+    return selectedRoute['stop-sequence']
       .map((stopId) => busStopsData.find((stop) => stop.id === stopId))
       .filter((stop): stop is BusStop => stop !== undefined)
-  }, [state])
+  }, [state, getSelectedRoute])
 
   // 手動選択バス停のトグル（地図クリック時）
   const toggleManualBusStop = useCallback((stopId: string) => {
@@ -326,6 +337,8 @@ export function useAppState() {
     getCurrentReachability,
     getCurrentSpots,
     getSpots,
+    getAllMatchingRoutes,
+    getSelectedRoute,
     getSelectedBusStops,
     loadInitialData,
     toggleManualBusStop,

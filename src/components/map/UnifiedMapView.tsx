@@ -10,6 +10,7 @@ import {
   BusConditionState,
   BusStop,
   APIResponseWithScore,
+  StopSequence,
 } from '@/types'
 import { MapCenter } from '@/lib/api/targetRegion'
 import ConditionPanel from '@/components/condition/ConditionPanel'
@@ -56,6 +57,8 @@ interface UnifiedMapViewProps {
   allBusStops: BusStop[]
   searchResult: APIResponseWithScore | null
   mapCenter: MapCenter | null
+  allRoutes: StopSequence[]
+  busStopsData: BusStop[]
 
   // ローディング
   isLoading: boolean
@@ -69,6 +72,7 @@ interface UnifiedMapViewProps {
   onExecuteSearch: () => void
   onToggleManualBusStop: (stopId: string) => void
   onUpdateManualBusStops: (stopIds: string[]) => void
+  onSelectRoute: (index: number) => void
 }
 
 export default function UnifiedMapView({
@@ -83,6 +87,8 @@ export default function UnifiedMapView({
   allBusStops,
   searchResult,
   mapCenter,
+  allRoutes,
+  busStopsData,
   isLoading,
   loadingMessage,
   onUpdateCondition,
@@ -92,9 +98,20 @@ export default function UnifiedMapView({
   onExecuteSearch,
   onToggleManualBusStop,
   onUpdateManualBusStops,
+  onSelectRoute,
 }: UnifiedMapViewProps) {
   // 結果画面のローカルステート
   const [showSampleRoute, setShowSampleRoute] = useState(false)
+
+  // StopSequenceをBusStop[]に変換するヘルパー関数
+  const convertStopSequenceToBusStops = (
+    stopSequence: StopSequence,
+    busStopsData: BusStop[]
+  ): BusStop[] => {
+    return stopSequence['stop-sequence']
+      .map((stopId) => busStopsData.find((bs) => bs.id === stopId))
+      .filter((stop): stop is BusStop => stop !== undefined)
+  }
 
   // 結果画面用のデータ変換
   const combusData = searchResult?.result.combus ?? null
@@ -149,20 +166,39 @@ export default function UnifiedMapView({
           <SpotMarker key={spot.id} spot={spot} />
         ))}
 
-        {/* === バス停マーカー - bus-simple画面 === */}
-        {currentScreen === 'bus-simple' &&
-          selectedBusStops.map((stop) => (
-            <BusStopMarker
-              key={stop.id}
-              stop={stop}
-              isSelected={true}
-              onSelect={() => {}}
-            />
-          ))}
+        {/* === バス停マーカーとルート - bus-simple画面（複数ルート対応） === */}
+        {currentScreen === 'bus-simple' && allRoutes.length > 0 && (
+          <>
+            {allRoutes.map((route, index) => {
+              const routeBusStops = convertStopSequenceToBusStops(route, busStopsData)
+              const isSelected = index === busCondition.selectedRouteIndex
 
-        {/* === バス経路 - bus-simple画面 === */}
-        {currentScreen === 'bus-simple' && selectedBusStops.length >= 2 && (
-          <BusRoutePolyline stops={selectedBusStops} />
+              return (
+                <div key={`route-${index}`}>
+                  {/* 選択されたルートのみマーカーを表示 */}
+                  {isSelected &&
+                    routeBusStops.map((stop) => (
+                      <BusStopMarker
+                        key={`${index}-${stop.id}`}
+                        stop={stop}
+                        isSelected={true}
+                        onSelect={() => {}}
+                      />
+                    ))}
+
+                  {/* 全ルートの経路を表示（選択/非選択で色分け） */}
+                  {routeBusStops.length >= 2 && (
+                    <BusRoutePolyline
+                      stops={routeBusStops}
+                      color={isSelected ? '#2563eb' : '#94a3b8'}
+                      isSelected={isSelected}
+                      onSelectRoute={() => onSelectRoute(index)}
+                    />
+                  )}
+                </div>
+              )
+            })}
+          </>
         )}
 
         {/* === 全バス停マーカー - bus-manual画面 === */}
@@ -218,6 +254,9 @@ export default function UnifiedMapView({
       {currentScreen === 'bus-simple' && (
         <BusConditionPanel
           busCondition={busCondition}
+          allRoutes={allRoutes}
+          selectedRouteIndex={busCondition.selectedRouteIndex}
+          onSelectRoute={onSelectRoute}
           onUpdate={onUpdateBusCondition}
           onNext={onExecuteSearch}
           onSwitchToManual={onNavigateToManual}

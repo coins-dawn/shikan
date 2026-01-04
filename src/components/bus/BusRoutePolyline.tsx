@@ -6,15 +6,18 @@ import polyline from '@mapbox/polyline'
 interface BusRoutePolylineProps {
   stops: BusStop[]
   combusData?: CombusData | null
+  color?: string
+  isSelected?: boolean
+  onSelectRoute?: () => void
 }
 
 // 矢印アイコンを作成（SVGで上向き三角形を使用）
-const createArrowIcon = (rotation: number) => {
+const createArrowIcon = (rotation: number, color: string = '#2563eb') => {
   return L.divIcon({
     className: 'arrow-icon',
     html: `
       <svg width="20" height="20" viewBox="0 0 20 20" style="transform: rotate(${rotation}deg);">
-        <path d="M10 2 L18 18 L10 14 L2 18 Z" fill="#2563eb" stroke="#2563eb" stroke-width="1"/>
+        <path d="M10 2 L18 18 L10 14 L2 18 Z" fill="${color}" stroke="${color}" stroke-width="1"/>
       </svg>
     `,
     iconSize: [20, 20],
@@ -93,7 +96,13 @@ const getOffsetPoint = (point: [number, number], angle: number, offsetPixels: nu
   ]
 }
 
-export default function BusRoutePolyline({ stops, combusData }: BusRoutePolylineProps) {
+export default function BusRoutePolyline({
+  stops,
+  combusData,
+  color = '#2563eb',
+  isSelected = true,
+  onSelectRoute,
+}: BusRoutePolylineProps) {
   if (stops.length < 2) return null
 
   // combusDataがある場合は、APIから取得した実際の経路を描画
@@ -182,16 +191,21 @@ export default function BusRoutePolyline({ stops, combusData }: BusRoutePolyline
         <Polyline
           positions={allRoutePositions}
           pathOptions={{
-            color: '#2563eb',
+            color: color,
             weight: 3,
             opacity: 0.7,
           }}
+          eventHandlers={
+            onSelectRoute && !isSelected
+              ? { click: () => onSelectRoute() }
+              : undefined
+          }
         />
         {arrows.map((arrow) => (
           <Marker
             key={arrow.key}
             position={arrow.position}
-            icon={createArrowIcon(arrow.angle)}
+            icon={createArrowIcon(arrow.angle, color)}
             interactive={false}
           />
         ))}
@@ -226,14 +240,19 @@ export default function BusRoutePolyline({ stops, combusData }: BusRoutePolyline
         <Polyline
           positions={[outboundStop1, outboundStop2]}
           pathOptions={{
-            color: '#2563eb',
+            color: color,
             weight: 3,
             opacity: 0.7,
           }}
+          eventHandlers={
+            onSelectRoute && !isSelected
+              ? { click: () => onSelectRoute() }
+              : undefined
+          }
         />
         <Marker
           position={outboundArrowPos}
-          icon={createArrowIcon(outboundAngle)}
+          icon={createArrowIcon(outboundAngle, color)}
           interactive={false}
         />
 
@@ -241,14 +260,19 @@ export default function BusRoutePolyline({ stops, combusData }: BusRoutePolyline
         <Polyline
           positions={[returnStop1, returnStop2]}
           pathOptions={{
-            color: '#2563eb',
+            color: color,
             weight: 3,
             opacity: 0.7,
           }}
+          eventHandlers={
+            onSelectRoute && !isSelected
+              ? { click: () => onSelectRoute() }
+              : undefined
+          }
         />
         <Marker
           position={returnArrowPos}
-          icon={createArrowIcon(returnAngle)}
+          icon={createArrowIcon(returnAngle, color)}
           interactive={false}
         />
       </>
@@ -278,16 +302,21 @@ export default function BusRoutePolyline({ stops, combusData }: BusRoutePolyline
       <Polyline
         positions={positions}
         pathOptions={{
-          color: '#2563eb',
+          color: color,
           weight: 3,
           opacity: 0.7,
         }}
+        eventHandlers={
+          onSelectRoute && !isSelected
+            ? { click: () => onSelectRoute() }
+            : undefined
+        }
       />
       {arrows.map((arrow) => (
         <Marker
           key={arrow.key}
           position={arrow.position}
-          icon={createArrowIcon(arrow.angle)}
+          icon={createArrowIcon(arrow.angle, color)}
           interactive={false}
         />
       ))}
