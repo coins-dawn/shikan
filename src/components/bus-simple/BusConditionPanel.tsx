@@ -7,6 +7,7 @@ interface BusConditionPanelProps {
   busCondition: BusConditionState
   onUpdate: (updates: Partial<BusConditionState>) => void
   onNext: () => void
+  onSwitchToManual: () => void
 }
 
 // 周回所要時間の選択肢（60〜120分、10分刻み）
@@ -16,6 +17,7 @@ export default function BusConditionPanel({
   busCondition,
   onUpdate,
   onNext,
+  onSwitchToManual,
 }: BusConditionPanelProps) {
   return (
     <Panel position="left" title="コミュニティバスの条件設定">
@@ -39,6 +41,14 @@ export default function BusConditionPanel({
             ))}
           </select>
         </div>
+
+        {/* 手動設定するリンク */}
+        <button
+          onClick={onSwitchToManual}
+          className="w-full text-sm text-blue-600 hover:text-blue-700 underline text-center"
+        >
+          手動設定する
+        </button>
 
         {/* 次へボタン */}
         <button

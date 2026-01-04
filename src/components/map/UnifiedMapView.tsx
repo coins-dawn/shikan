@@ -14,6 +14,7 @@ import {
 import ConditionPanel from '@/components/condition/ConditionPanel'
 import SummaryPanel from '@/components/condition/SummaryPanel'
 import BusConditionPanel from '@/components/bus-simple/BusConditionPanel'
+import BusManualPanel from '@/components/bus-manual/BusManualPanel'
 import BusStopDetailPanel from '@/components/result/BusStopDetailPanel'
 import ResultSummaryPanel from '@/components/result/ResultSummaryPanel'
 import SampleRoutePanel from '@/components/result/SampleRoutePanel'
@@ -50,6 +51,8 @@ interface UnifiedMapViewProps {
   reachability: ReachabilityItem | null
   spots: Spot[]
   selectedBusStops: BusStop[]
+  manualBusStops: BusStop[]
+  allBusStops: BusStop[]
   searchResult: APIResponseWithScore | null
 
   // ローディング
@@ -60,7 +63,10 @@ interface UnifiedMapViewProps {
   onUpdateCondition: (updates: Partial<ConditionState>) => void
   onUpdateBusCondition: (updates: Partial<BusConditionState>) => void
   onNavigateToSimple: () => void
+  onNavigateToManual: () => void
   onExecuteSearch: () => void
+  onToggleManualBusStop: (stopId: string) => void
+  onUpdateManualBusStops: (stopIds: string[]) => void
 }
 
 export default function UnifiedMapView({
@@ -71,13 +77,18 @@ export default function UnifiedMapView({
   reachability,
   spots,
   selectedBusStops,
+  manualBusStops,
+  allBusStops,
   searchResult,
   isLoading,
   loadingMessage,
   onUpdateCondition,
   onUpdateBusCondition,
   onNavigateToSimple,
+  onNavigateToManual,
   onExecuteSearch,
+  onToggleManualBusStop,
+  onUpdateManualBusStops,
 }: UnifiedMapViewProps) {
   // 結果画面のローカルステート
   const [showSampleRoute, setShowSampleRoute] = useState(false)
@@ -98,8 +109,10 @@ export default function UnifiedMapView({
     <div className="relative w-full h-full">
       {/* 地図（常に同一インスタンス） */}
       <Map>
-        {/* === 到達圏ポリゴン - condition/bus-simple画面 === */}
-        {(currentScreen === 'condition' || currentScreen === 'bus-simple') &&
+        {/* === 到達圏ポリゴン - condition/bus-simple/bus-manual画面 === */}
+        {(currentScreen === 'condition' ||
+          currentScreen === 'bus-simple' ||
+          currentScreen === 'bus-manual') &&
           reachability && (
             <ReachabilityLayer
               key={`${condition.selectedSpotType}-${condition.maxMinute}`}
@@ -150,6 +163,29 @@ export default function UnifiedMapView({
           <BusRoutePolyline stops={selectedBusStops} />
         )}
 
+        {/* === 全バス停マーカー - bus-manual画面 === */}
+        {currentScreen === 'bus-manual' &&
+          allBusStops.map((stop) => {
+            const selectedIndex = manualBusStops.findIndex((s) => s.id === stop.id)
+            const isSelected = selectedIndex >= 0
+
+            return (
+              <BusStopMarker
+                key={stop.id}
+                stop={stop}
+                isSelected={isSelected}
+                selectionOrder={isSelected ? selectedIndex + 1 : undefined}
+                onSelect={() => onToggleManualBusStop(stop.id)}
+                onDeselect={() => onToggleManualBusStop(stop.id)}
+              />
+            )
+          })}
+
+        {/* === バス経路 - bus-manual画面 === */}
+        {currentScreen === 'bus-manual' && manualBusStops.length >= 2 && (
+          <BusRoutePolyline stops={manualBusStops} />
+        )}
+
         {/* === バス停マーカー - result画面 === */}
         {currentScreen === 'result' &&
           busStopsFromResult.map((stop) => (
@@ -182,6 +218,17 @@ export default function UnifiedMapView({
           busCondition={busCondition}
           onUpdate={onUpdateBusCondition}
           onNext={onExecuteSearch}
+          onSwitchToManual={onNavigateToManual}
+        />
+      )}
+
+      {currentScreen === 'bus-manual' && (
+        <BusManualPanel
+          selectedStops={manualBusStops}
+          onReorder={onUpdateManualBusStops}
+          onDeselect={onToggleManualBusStop}
+          onNext={onExecuteSearch}
+          onBackToSimple={onNavigateToSimple}
         />
       )}
 
@@ -193,7 +240,9 @@ export default function UnifiedMapView({
       )}
 
       {/* === 右パネル - 画面ごとに切り替え === */}
-      {(currentScreen === 'condition' || currentScreen === 'bus-simple') && (
+      {(currentScreen === 'condition' ||
+        currentScreen === 'bus-simple' ||
+        currentScreen === 'bus-manual') && (
         <SummaryPanel condition={condition} reachability={reachability} />
       )}
 

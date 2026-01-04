@@ -14,7 +14,12 @@ const steps: { id: ScreenType; label: string }[] = [
 ]
 
 export default function Header({ currentScreen, onNavigate }: HeaderProps) {
-  const currentIndex = steps.findIndex((step) => step.id === currentScreen)
+  // bus-manualもbus-simpleと同じステップとして扱う
+  const currentIndex = steps.findIndex(
+    (step) =>
+      step.id === currentScreen ||
+      (currentScreen === 'bus-manual' && step.id === 'bus-simple')
+  )
 
   return (
     <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
@@ -26,7 +31,9 @@ export default function Header({ currentScreen, onNavigate }: HeaderProps) {
       {/* パンくずナビゲーション */}
       <nav className="flex items-center space-x-2">
         {steps.map((step, index) => {
-          const isActive = step.id === currentScreen
+          const isActive =
+            step.id === currentScreen ||
+            (step.id === 'bus-simple' && currentScreen === 'bus-manual')
           const isPast = index < currentIndex
           const isClickable = isPast
 

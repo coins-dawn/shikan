@@ -80,8 +80,13 @@ export default function BusStopMarker({
   onDeselect,
 }: BusStopMarkerProps) {
   const handleClick = () => {
-    // 未選択の場合のみ選択処理を実行
-    if (!isSelected) {
+    if (isSelected) {
+      // 選択済みの場合は選択解除
+      if (onDeselect) {
+        onDeselect(stop)
+      }
+    } else {
+      // 未選択の場合は選択
       onSelect(stop)
     }
   }
