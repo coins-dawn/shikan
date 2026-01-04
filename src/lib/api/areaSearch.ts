@@ -3,8 +3,9 @@ import { APIResponseWithScore, FacilityType } from '@/types'
 const API_BASE_URL = 'https://prometheus-h24i.onrender.com'
 
 export interface AreaSearchRequest {
-  'target-spots': FacilityType[]
+  'target-spot': string
   'max-minute': number
+  'max-walk-distance': number
   'combus-stops': string[]
 }
 

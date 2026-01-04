@@ -99,12 +99,18 @@ export function useMapState(availableSpotTypes: string[] = []) {
       const data: APIResponse = await response.json()
 
       if (data.status === 'OK') {
+        // Note: This is legacy code. The new API structure has changed.
+        // area is now a single FacilityReachability object, not a dictionary.
+        // This code is kept for backwards compatibility but should be refactored.
+
         // レスポンスからデータを設定
         const newFacilityData: Record<string, FacilityReachability | null> = {}
 
-        selectedFacilities.forEach(facility => {
-          newFacilityData[facility] = data.result.area[facility] || null
-        })
+        // Since area is now a single object, we can't index it by facility type
+        // For now, just set the area data to the first facility
+        if (selectedFacilities.length > 0) {
+          newFacilityData[selectedFacilities[0]] = data.result.area
+        }
 
         setFacilityData(newFacilityData)
         setCombusData(data.result.combus)
@@ -113,12 +119,10 @@ export function useMapState(availableSpotTypes: string[] = []) {
         const newShowReachability1 = { ...showReachability1 }
         const newShowReachability2 = { ...showReachability2 }
 
-        selectedFacilities.forEach(facility => {
-          if (data.result.area[facility]) {
-            newShowReachability1[facility] = true
-            newShowReachability2[facility] = true
-          }
-        })
+        if (selectedFacilities.length > 0 && data.result.area) {
+          newShowReachability1[selectedFacilities[0]] = true
+          newShowReachability2[selectedFacilities[0]] = true
+        }
 
         setShowReachability1(newShowReachability1)
         setShowReachability2(newShowReachability2)

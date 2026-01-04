@@ -48,7 +48,7 @@ interface UnifiedMapViewProps {
   busCondition: BusConditionState
 
   // データ
-  spotTypes: string[]
+  allSpots: Spot[]
   reachability: ReachabilityItem | null
   spots: Spot[]
   selectedBusStops: BusStop[]
@@ -75,7 +75,7 @@ export default function UnifiedMapView({
   currentScreen,
   condition,
   busCondition,
-  spotTypes,
+  allSpots,
   reachability,
   spots,
   selectedBusStops,
@@ -98,8 +98,7 @@ export default function UnifiedMapView({
 
   // 結果画面用のデータ変換
   const combusData = searchResult?.result.combus ?? null
-  const facilityResult =
-    searchResult?.result.area[condition.selectedSpotType] ?? null
+  const facilityResult = searchResult?.result.area ?? null
   const busStopsFromResult: BusStop[] =
     combusData?.['stop-list'].map((stop) => ({
       id: stop.id,
@@ -110,15 +109,15 @@ export default function UnifiedMapView({
 
   return (
     <div className="relative w-full h-full">
-      {/* 地図（常に同一インスタンス） */}
-      <Map center={mapCenter ? [mapCenter.lat, mapCenter.lng] : undefined}>
+      {/* 地図（常に同一インスタンス）- mapCenter取得後にマウント */}
+      {mapCenter && <Map center={[mapCenter.lat, mapCenter.lng]}>
         {/* === 到達圏ポリゴン - condition/bus-simple/bus-manual画面 === */}
         {(currentScreen === 'condition' ||
           currentScreen === 'bus-simple' ||
           currentScreen === 'bus-manual') &&
           reachability && (
             <ReachabilityLayer
-              key={`${condition.selectedSpotType}-${condition.maxMinute}`}
+              key={`${condition.selectedSpotId}-${condition.maxMinute}`}
               data={reachability.polygon}
               color="#3b82f6"
               fillOpacity={0.3}
@@ -204,13 +203,13 @@ export default function UnifiedMapView({
         {currentScreen === 'result' && busStopsFromResult.length >= 2 && (
           <BusRoutePolyline stops={busStopsFromResult} combusData={combusData} />
         )}
-      </Map>
+      </Map>}
 
       {/* === 左パネル - 画面ごとに切り替え === */}
       {currentScreen === 'condition' && (
         <ConditionPanel
           condition={condition}
-          spotTypes={spotTypes}
+          spots={allSpots}
           onUpdate={onUpdateCondition}
           onNext={onNavigateToSimple}
         />
@@ -246,7 +245,11 @@ export default function UnifiedMapView({
       {(currentScreen === 'condition' ||
         currentScreen === 'bus-simple' ||
         currentScreen === 'bus-manual') && (
-        <SummaryPanel condition={condition} reachability={reachability} />
+        <SummaryPanel
+          condition={condition}
+          reachability={reachability}
+          spots={allSpots}
+        />
       )}
 
       {currentScreen === 'result' && (
@@ -254,6 +257,7 @@ export default function UnifiedMapView({
           condition={condition}
           reachability={reachability}
           facilityResult={facilityResult}
+          spots={allSpots}
         />
       )}
 

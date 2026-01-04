@@ -64,12 +64,44 @@ export interface FacilitySpot {
   'spot-type': FacilityType
 }
 
+export interface RouteSection {
+  mode: 'walk' | 'bus' | 'combus' | 'tram'
+  'distance-m': number
+  'duration-m': number
+  from: {
+    name: string
+    coord: { lat: number; lon: number }
+  }
+  to: {
+    name: string
+    coord: { lat: number; lon: number }
+  }
+  geometry: string
+}
+
+export interface RoutePair {
+  'duration-m': number
+  'distance-m': number
+  'walk-distance-m': number
+  geometry: string
+  from: {
+    name: string
+    coord: { lat: number; lon: number }
+  }
+  to: {
+    name: string
+    coord: { lat: number; lon: number }
+  }
+  sections: RouteSection[]
+}
+
 export interface FacilityReachability {
   reachable: {
     original: MultiPolygon
     'with-combus': MultiPolygon
   }
   spots: FacilitySpot[]
+  'route-pairs': RoutePair[]
 }
 
 export interface BusSection {
@@ -94,9 +126,7 @@ export interface CombusData {
 
 export interface APIResponse {
   result: {
-    area: {
-      [key in FacilityType]?: FacilityReachability
-    }
+    area: FacilityReachability
     combus: CombusData
   }
   status: string
@@ -116,9 +146,7 @@ export interface FacilityReachabilityWithScore extends FacilityReachability {
 
 export interface APIResponseWithScore {
   result: {
-    area: {
-      [key in FacilityType]?: FacilityReachabilityWithScore
-    }
+    area: FacilityReachabilityWithScore
     combus: CombusData
   }
   status: string
@@ -131,8 +159,14 @@ export type ScreenType = 'condition' | 'bus-simple' | 'bus-manual' | 'result'
 export interface ReachabilityItem {
   polygon: MultiPolygon
   score: number
-  'spot-type': string
-  'time-limit': number
+  spot: {
+    id: string
+    lat: number
+    lon: number
+    name: string
+  }
+  'time-limit': number // 30-90分
+  'walk-distance-limit': number // 500/1000m
 }
 
 export interface ReachabilityListResponse {
@@ -152,14 +186,18 @@ export interface SpotsResponse {
 }
 
 // バス停列一覧取得APIのレスポンス
-export interface StopSequenceItem {
-  'spot-type': string
-  'stop-sequence': string[]
-  'time-limit': number
+export interface StopSequence {
+  spot: string // 個別スポットID
+  'time-limit-m': number // 時間上限（30-90分）
+  'walk-distance-limit-m': number // 徒歩距離上限（500/1000m）
+  'stop-sequence': string[] // バス停ID配列
+  score: number // 到達圏スコア
 }
 
 export interface StopSequencesResponse {
-  result: StopSequenceItem[]
+  result: {
+    'best-combus-stop-sequences': StopSequence[]
+  }
   status: string
 }
 
@@ -179,13 +217,13 @@ export interface TargetRegionResponse {
 
 // アプリケーション状態
 export interface ConditionState {
-  selectedSpotType: string
-  maxMinute: number
+  selectedSpotId: string // 個別スポットID
+  maxMinute: number // 時間上限（30-90分）
   walkingDistance: number // 1000m固定
 }
 
 export interface BusConditionState {
-  roundTripTime: number // 周回所要時間（60-120分）
+  roundTripTime: number // 周回所要時間（30-90分）
 }
 
 export interface AppState {
@@ -204,7 +242,7 @@ export interface AppState {
   // API データ
   reachabilityList: ReachabilityItem[] | null
   spotsData: SpotsResponse | null
-  stopSequences: StopSequenceItem[] | null
+  stopSequences: StopSequence[] | null
   busStopsData: BusStop[] | null
   searchResult: APIResponseWithScore | null
 

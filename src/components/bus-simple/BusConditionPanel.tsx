@@ -10,8 +10,8 @@ interface BusConditionPanelProps {
   onSwitchToManual: () => void
 }
 
-// 周回所要時間の選択肢（60〜120分、10分刻み）
-const TIME_OPTIONS = Array.from({ length: 7 }, (_, i) => (i + 6) * 10)
+// 周回所要時間の選択肢（30〜90分、10分刻み）
+const TIME_OPTIONS = Array.from({ length: 7 }, (_, i) => (i + 3) * 10)
 
 export default function BusConditionPanel({
   busCondition,

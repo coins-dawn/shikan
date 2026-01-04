@@ -6,7 +6,7 @@ import {
   AppState,
   ReachabilityItem,
   SpotsResponse,
-  StopSequenceItem,
+  StopSequence,
   APIResponseWithScore,
 } from '@/types'
 import { fetchReachabilityList } from '@/lib/api/reachabilityList'
@@ -20,7 +20,7 @@ import { BusStop } from '@/types'
 const initialState: AppState = {
   currentScreen: 'condition',
   condition: {
-    selectedSpotType: 'hospital',
+    selectedSpotId: '', // 初期表示時にスポットデータ取得後に設定
     maxMinute: 60,
     walkingDistance: 1000,
   },
@@ -80,8 +80,12 @@ export function useAppState() {
           },
           status: 'OK',
         },
-        stopSequences: stopSequencesResponse.result,
+        stopSequences: stopSequencesResponse.result['best-combus-stop-sequences'],
         busStopsData: busStopsResponse,
+        condition: {
+          ...prev.condition,
+          selectedSpotId: spotsResponse.spots[0]?.id || '',
+        },
         isLoading: false,
         loadingMessage: '',
       }))
@@ -162,12 +166,17 @@ export function useAppState() {
       // 選択された条件に合致するバス停列を取得
       const matchingSequence = stopSequences.find(
         (seq) =>
-          seq['spot-type'] === condition.selectedSpotType &&
-          seq['time-limit'] === busCondition.roundTripTime
+          seq.spot === condition.selectedSpotId &&
+          seq['time-limit-m'] === busCondition.roundTripTime &&
+          seq['walk-distance-limit-m'] === condition.walkingDistance
       )
 
       if (!matchingSequence) {
-        console.error('No matching stop sequence found')
+        console.error('No matching stop sequence found', {
+          spotId: condition.selectedSpotId,
+          timeLimit: busCondition.roundTripTime,
+          walkDistanceLimit: condition.walkingDistance,
+        })
         return
       }
 
@@ -182,8 +191,9 @@ export function useAppState() {
 
     try {
       const result = await fetchAreaSearch({
-        'target-spots': [condition.selectedSpotType],
+        'target-spot': condition.selectedSpotId,
         'max-minute': condition.maxMinute,
+        'max-walk-distance': condition.walkingDistance,
         'combus-stops': combusStops,
       })
 
@@ -207,13 +217,16 @@ export function useAppState() {
   // 現在の条件に合致する到達圏データを取得
   const getCurrentReachability = useCallback((): ReachabilityItem | null => {
     const { reachabilityList, condition } = state
+    console.log(reachabilityList)
+    console.log(condition)
     if (!reachabilityList) return null
 
     return (
       reachabilityList.find(
         (item) =>
-          item['spot-type'] === condition.selectedSpotType &&
-          item['time-limit'] === condition.maxMinute
+          item.spot.id === condition.selectedSpotId &&
+          item['time-limit'] === condition.maxMinute &&
+          item['walk-distance-limit'] === condition.walkingDistance
       ) || null
     )
   }, [state])
@@ -223,16 +236,18 @@ export function useAppState() {
     const { spotsData, condition } = state
     if (!spotsData) return []
 
-    return spotsData.result.spots.filter(
-      (spot) => spot.type === condition.selectedSpotType
+    // 選択された個別スポットのみを返す
+    const selectedSpot = spotsData.result.spots.find(
+      (spot) => spot.id === condition.selectedSpotId
     )
+    return selectedSpot ? [selectedSpot] : []
   }, [state])
 
-  // 利用可能なスポットタイプ一覧を取得
-  const getSpotTypes = useCallback((): string[] => {
+  // 利用可能なスポット一覧を取得
+  const getSpots = useCallback(() => {
     const { spotsData } = state
     if (!spotsData) return []
-    return spotsData.result.types
+    return spotsData.result.spots
   }, [state])
 
   // 選択された条件に合致するバス停一覧を取得
@@ -243,11 +258,19 @@ export function useAppState() {
     // 選択された条件に合致するバス停列を取得
     const matchingSequence = stopSequences.find(
       (seq) =>
-        seq['spot-type'] === condition.selectedSpotType &&
-        seq['time-limit'] === busCondition.roundTripTime
+        seq.spot === condition.selectedSpotId &&
+        seq['time-limit-m'] === busCondition.roundTripTime &&
+        seq['walk-distance-limit-m'] === condition.walkingDistance
     )
 
-    if (!matchingSequence) return []
+    if (!matchingSequence) {
+      console.warn('No matching stop sequence found', {
+        spotId: condition.selectedSpotId,
+        timeLimit: busCondition.roundTripTime,
+        walkDistanceLimit: condition.walkingDistance,
+      })
+      return []
+    }
 
     // バス停IDからBusStopオブジェクトを取得
     return matchingSequence['stop-sequence']
@@ -304,7 +327,7 @@ export function useAppState() {
     executeSearch,
     getCurrentReachability,
     getCurrentSpots,
-    getSpotTypes,
+    getSpots,
     getSelectedBusStops,
     loadInitialData,
     toggleManualBusStop,
