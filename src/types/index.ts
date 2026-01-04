@@ -79,7 +79,8 @@ export interface RouteSection {
   geometry: string
 }
 
-export interface RoutePair {
+// 個別の経路情報
+export interface RouteInfo {
   'duration-m': number
   'distance-m': number
   'walk-distance-m': number
@@ -93,6 +94,12 @@ export interface RoutePair {
     coord: { lat: number; lon: number }
   }
   sections: RouteSection[]
+}
+
+// 経路のペア（従来 vs 導入後）
+export interface RoutePair {
+  original: RouteInfo
+  'with-combus': RouteInfo
 }
 
 export interface FacilityReachability {
