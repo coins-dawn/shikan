@@ -163,6 +163,20 @@ export interface StopSequencesResponse {
   status: string
 }
 
+// 対象リージョン取得APIのレスポンス
+export interface Coord {
+  lat: number
+  lon: number
+}
+
+export interface TargetRegionResponse {
+  result: {
+    'north-east': Coord
+    'south-west': Coord
+  }
+  status: string
+}
+
 // アプリケーション状態
 export interface ConditionState {
   selectedSpotType: string

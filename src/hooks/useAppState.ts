@@ -14,6 +14,7 @@ import { fetchStopSequences } from '@/lib/api/stopSequences'
 import { fetchAreaSearch } from '@/lib/api/areaSearch'
 import { fetchSpots } from '@/lib/api/spots'
 import { fetchBusStops } from '@/lib/api/busStops'
+import { fetchTargetRegion, MapCenter } from '@/lib/api/targetRegion'
 import { BusStop } from '@/types'
 
 const initialState: AppState = {
@@ -38,8 +39,9 @@ const initialState: AppState = {
 
 export function useAppState() {
   const [state, setState] = useState<AppState>(initialState)
+  const [mapCenter, setMapCenter] = useState<MapCenter | null>(null)
 
-  // 初期データの取得（到達圏探索一覧、スポット一覧、バス停列一覧）
+  // 初期データの取得（到達圏探索一覧、スポット一覧、バス停列一覧、対象リージョン）
   const loadInitialData = useCallback(async () => {
     setState((prev) => ({
       ...prev,
@@ -48,18 +50,25 @@ export function useAppState() {
     }))
 
     try {
-      const [reachabilityResponse, spotsResponse, stopSequencesResponse, busStopsResponse] =
-        await Promise.all([
-          fetchReachabilityList(),
-          fetchSpots(),
-          fetchStopSequences(),
-          fetchBusStops(),
-        ])
+      const [
+        reachabilityResponse,
+        spotsResponse,
+        stopSequencesResponse,
+        busStopsResponse,
+        targetRegionResponse,
+      ] = await Promise.all([
+        fetchReachabilityList(),
+        fetchSpots(),
+        fetchStopSequences(),
+        fetchBusStops(),
+        fetchTargetRegion(),
+      ])
 
       console.log('Reachability response:', reachabilityResponse)
       console.log('Spots response:', spotsResponse)
       console.log('Stop sequences response:', stopSequencesResponse)
       console.log('Bus stops response:', busStopsResponse)
+      console.log('Target region response:', targetRegionResponse)
 
       setState((prev) => ({
         ...prev,
@@ -76,6 +85,9 @@ export function useAppState() {
         isLoading: false,
         loadingMessage: '',
       }))
+
+      // 地図中心座標をセット
+      setMapCenter(targetRegionResponse)
     } catch (error) {
       console.error('Failed to load initial data:', error)
       setState((prev) => ({
@@ -285,6 +297,7 @@ export function useAppState() {
 
   return {
     state,
+    mapCenter,
     navigateTo,
     updateCondition,
     updateBusCondition,

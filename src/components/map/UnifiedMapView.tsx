@@ -11,6 +11,7 @@ import {
   BusStop,
   APIResponseWithScore,
 } from '@/types'
+import { MapCenter } from '@/lib/api/targetRegion'
 import ConditionPanel from '@/components/condition/ConditionPanel'
 import SummaryPanel from '@/components/condition/SummaryPanel'
 import BusConditionPanel from '@/components/bus-simple/BusConditionPanel'
@@ -54,6 +55,7 @@ interface UnifiedMapViewProps {
   manualBusStops: BusStop[]
   allBusStops: BusStop[]
   searchResult: APIResponseWithScore | null
+  mapCenter: MapCenter | null
 
   // ローディング
   isLoading: boolean
@@ -80,6 +82,7 @@ export default function UnifiedMapView({
   manualBusStops,
   allBusStops,
   searchResult,
+  mapCenter,
   isLoading,
   loadingMessage,
   onUpdateCondition,
@@ -108,7 +111,7 @@ export default function UnifiedMapView({
   return (
     <div className="relative w-full h-full">
       {/* 地図（常に同一インスタンス） */}
-      <Map>
+      <Map center={mapCenter ? [mapCenter.lat, mapCenter.lng] : undefined}>
         {/* === 到達圏ポリゴン - condition/bus-simple/bus-manual画面 === */}
         {(currentScreen === 'condition' ||
           currentScreen === 'bus-simple' ||

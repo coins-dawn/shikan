@@ -7,6 +7,7 @@ import UnifiedMapView from '@/components/map/UnifiedMapView'
 export default function Home() {
   const {
     state,
+    mapCenter,
     navigateTo,
     updateCondition,
     updateBusCondition,
@@ -47,6 +48,7 @@ export default function Home() {
           searchResult={state.searchResult}
           isLoading={state.isLoading}
           loadingMessage={state.loadingMessage}
+          mapCenter={mapCenter}
           onUpdateCondition={updateCondition}
           onUpdateBusCondition={updateBusCondition}
           onNavigateToSimple={() => navigateTo('bus-simple')}
