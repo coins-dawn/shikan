@@ -1,6 +1,6 @@
 'use client'
 
-import { MapContainer, TileLayer } from 'react-leaflet'
+import { MapContainer, TileLayer, ZoomControl } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { ReactNode } from 'react'
 
@@ -18,11 +18,13 @@ export default function Map({ children, center = [36.673333568, 137.226471043], 
       minZoom={11}
       style={{ height: '100%', width: '100%' }}
       className="z-0"
+      zoomControl={false}
     >
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank">国土地理院</a>'
+        url="https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png"
       />
+      <ZoomControl position="bottomright" />
       {children}
     </MapContainer>
   )
