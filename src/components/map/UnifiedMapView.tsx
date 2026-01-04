@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import {
   ScreenType,
@@ -19,7 +19,6 @@ import BusConditionPanel from '@/components/bus-simple/BusConditionPanel'
 import BusManualPanel from '@/components/bus-manual/BusManualPanel'
 import BusStopDetailPanel from '@/components/result/BusStopDetailPanel'
 import ResultSummaryPanel from '@/components/result/ResultSummaryPanel'
-import SampleRoutePanel from '@/components/result/SampleRoutePanel'
 import Loading from '@/components/ui/Loading'
 
 // Leaflet コンポーネントは動的インポート（SSR無効化）
@@ -101,7 +100,14 @@ export default function UnifiedMapView({
   onSelectRoute,
 }: UnifiedMapViewProps) {
   // 結果画面のローカルステート
-  const [showSampleRoute, setShowSampleRoute] = useState(false)
+  const [selectedRouteIndex, setSelectedRouteIndex] = useState<number | null>(null)
+
+  // 画面遷移時のクリーンアップ
+  useEffect(() => {
+    if (currentScreen !== 'result') {
+      setSelectedRouteIndex(null)
+    }
+  }, [currentScreen])
 
   // StopSequenceをBusStop[]に変換するヘルパー関数
   const convertStopSequenceToBusStops = (
@@ -116,6 +122,7 @@ export default function UnifiedMapView({
   // 結果画面用のデータ変換
   const combusData = searchResult?.result.combus ?? null
   const facilityResult = searchResult?.result.area ?? null
+  console.log(facilityResult)
   const busStopsFromResult: BusStop[] =
     combusData?.['stop-list'].map((stop) => ({
       id: stop.id,
@@ -276,7 +283,14 @@ export default function UnifiedMapView({
       {currentScreen === 'result' && (
         <BusStopDetailPanel
           combusData={combusData}
-          onShowSampleRoute={() => setShowSampleRoute(true)}
+          routePairs={facilityResult?.['route-pairs'] ?? []}
+          selectedRouteIndex={selectedRouteIndex}
+          onShowSampleRoute={(index) => {
+            setSelectedRouteIndex(index)
+          }}
+          onCloseSampleRoute={() => {
+            setSelectedRouteIndex(null)
+          }}
         />
       )}
 
@@ -300,13 +314,6 @@ export default function UnifiedMapView({
         />
       )}
 
-      {/* === サンプル経路パネル - result画面のみ === */}
-      {currentScreen === 'result' && (
-        <SampleRoutePanel
-          isOpen={showSampleRoute}
-          onClose={() => setShowSampleRoute(false)}
-        />
-      )}
 
       {/* === ローディング === */}
       {isLoading && <Loading message={loadingMessage} />}
