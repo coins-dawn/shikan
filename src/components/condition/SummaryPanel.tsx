@@ -1,18 +1,21 @@
 'use client'
 
-import { ConditionState, ReachabilityItem } from '@/types'
-import { getSpotLabel } from '@/lib/utils/spotLabels'
+import { ConditionState, ReachabilityItem, Spot } from '@/types'
 import Panel from '@/components/ui/Panel'
 
 interface SummaryPanelProps {
   condition: ConditionState
   reachability: ReachabilityItem | null
+  spots: Spot[]
 }
 
 export default function SummaryPanel({
   condition,
   reachability,
+  spots,
 }: SummaryPanelProps) {
+  const selectedSpot = spots.find((s) => s.id === condition.selectedSpotId)
+
   return (
     <Panel position="right" title="サマリ">
       <div className="space-y-3">
@@ -20,7 +23,7 @@ export default function SummaryPanel({
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">対象スポット</span>
-            <span className="font-medium">{getSpotLabel(condition.selectedSpotType)}</span>
+            <span className="font-medium">{selectedSpot?.name || '-'}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">移動上限時間</span>

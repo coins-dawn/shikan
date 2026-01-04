@@ -12,6 +12,7 @@ export async function fetchReachabilityList(): Promise<ReachabilityListResponse>
     },
   })
 
+  console.log(response)
   if (!response.ok) {
     throw new Error(`Failed to fetch reachability list: ${response.status}`)
   }

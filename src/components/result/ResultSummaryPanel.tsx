@@ -4,21 +4,24 @@ import {
   ConditionState,
   ReachabilityItem,
   FacilityReachabilityWithScore,
+  Spot,
 } from '@/types'
-import { getSpotLabel } from '@/lib/utils/spotLabels'
 import Panel from '@/components/ui/Panel'
 
 interface ResultSummaryPanelProps {
   condition: ConditionState
   reachability: ReachabilityItem | null
   facilityResult: FacilityReachabilityWithScore | null
+  spots: Spot[]
 }
 
 export default function ResultSummaryPanel({
   condition,
   reachability,
   facilityResult,
+  spots,
 }: ResultSummaryPanelProps) {
+  const selectedSpot = spots.find((s) => s.id === condition.selectedSpotId)
   const originalScore = facilityResult?.reachable['original-score'] ?? 0
   // with-combus-scoreは増加分を表す
   const increase = facilityResult?.reachable['with-combus-score'] ?? 0
@@ -33,9 +36,7 @@ export default function ResultSummaryPanel({
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">対象スポット</span>
-            <span className="font-medium">
-              {getSpotLabel(condition.selectedSpotType)}
-            </span>
+            <span className="font-medium">{selectedSpot?.name || '-'}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">移動上限時間</span>

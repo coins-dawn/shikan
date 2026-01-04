@@ -14,7 +14,7 @@ export default function Home() {
     executeSearch,
     getCurrentReachability,
     getCurrentSpots,
-    getSpotTypes,
+    getSpots,
     getSelectedBusStops,
     toggleManualBusStop,
     updateManualBusStops,
@@ -23,7 +23,7 @@ export default function Home() {
 
   const reachability = getCurrentReachability()
   const spots = getCurrentSpots()
-  const spotTypes = getSpotTypes()
+  const allSpots = getSpots()
   const selectedBusStops = getSelectedBusStops()
   const manualBusStops = getManualBusStops()
   const allBusStops = state.busStopsData || []
@@ -39,7 +39,7 @@ export default function Home() {
           currentScreen={state.currentScreen}
           condition={state.condition}
           busCondition={state.busCondition}
-          spotTypes={spotTypes}
+          allSpots={allSpots}
           reachability={reachability}
           spots={spots}
           selectedBusStops={selectedBusStops}
