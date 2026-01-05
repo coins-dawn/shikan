@@ -65,12 +65,6 @@ export function useAppState() {
         fetchTargetRegion(),
       ])
 
-      console.log('Reachability response:', reachabilityResponse)
-      console.log('Spots response:', spotsResponse)
-      console.log('Stop sequences response:', stopSequencesResponse)
-      console.log('Bus stops response:', busStopsResponse)
-      console.log('Target region response:', targetRegionResponse)
-
       setState((prev) => ({
         ...prev,
         reachabilityList: reachabilityResponse.result.reachables,

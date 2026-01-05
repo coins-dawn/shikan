@@ -1,47 +1,59 @@
 # Shikan プロジェクト - Claude Code 知識ベース
 
 ## プロジェクト概要
-コミュニティバスの路線計画を支援する地図ベースのWebアプリケーション。3画面構成（到達圏の条件設定 → コミュニティバスの条件設定 → 結果）で、各種施設への到達圏をビジュアライズし、効果的なバス路線の設計を支援します。
+コミュニティバスの路線計画を支援する地図ベースのWebアプリケーション。4画面構成で、各種施設への到達圏をビジュアライズし、効果的なバス路線の設計を支援する。
 
 ## 画面構成
-アプリケーションは以下の3画面で構成されています：
+アプリケーションは以下の4画面で構成：
 
-### 1. 到達圏の条件設定画面
-- **左パネル**: 対象スポット（病院等）、移動上限時間（30〜120分）を選択
+### 1. 到達圏の条件設定（condition）
+- **左パネル**: 対象スポット（病院等）、移動上限時間、徒歩距離上限を選択
 - **右パネル**: 選択条件のサマリと到達可能人口を表示
-- **地図**: 選択条件に応じた到達圏とスポットを表示
+- **地図**: 選択条件に応じた到達圏ポリゴンとスポットマーカーを表示
 
-### 2. コミュニティバスの条件設定画面（簡易）
-- **左パネル**: 周回所要時間（60〜120分）を選択
+### 2. コミュニティバス条件設定・簡易（bus-simple）
+- **左パネル**: 周回所要時間を選択、マッチング経路を一覧表示して選択
 - **右パネル**: 前画面と同じサマリを表示
-- **地図**: 選択条件に応じたバス停と経路を表示
+- **地図**: 選択経路に応じたバス停マーカーとバス経路を表示
 
-### 3. 結果画面
-- **左パネル**: バス停一覧、所要時間、経路長、サンプル経路
+### 3. コミュニティバス条件設定・手動（bus-manual）
+- **左パネル**: バス停をドラッグ&ドロップで選択・並び替え
+- **右パネル**: 前画面と同じサマリを表示
+- **地図**: 選択バス停に応じたバス停マーカーとバス経路（直線）を表示
+
+### 4. 結果（result）
+- **左パネル**: バス停一覧、所要時間、経路長を表示
+- **中パネル**: サンプル経路（導入前後の比較）を表示
 - **右パネル**: 導入前後の到達可能人口と増加量を表示
 - **地図**: バス経路、バス停、到達圏（導入前後）を表示
 
 ## 技術スタック
-- **フレームワーク**: Next.js 15.5.4 (App Router, Turbopack)
+- **フレームワーク**: Next.js 15.5.7 (App Router, Turbopack)
 - **言語**: TypeScript 5
 - **UI**: React 19.1.0, Tailwind CSS 4
 - **地図**: Leaflet 1.9.4, react-leaflet 5.0.0
-- **経路デコード**: @mapbox/polyline 1.2.1
-- **ドラッグ&ドロップ**: @dnd-kit (core, sortable, utilities)
+- **経路描画**: @mapbox/polyline 1.2.1, leaflet-polylinedecorator 1.6.0
+- **ドラッグ&ドロップ**: @dnd-kit (core 6.3.1, sortable 10.0.0, utilities 3.2.2)
 - **パッケージマネージャー**: npm
 
 ## 開発環境
-- **開発サーバー**: 常にユーザーが起動済み
-  - `npm run dev` は実行しない（既に起動している）
-  - コード変更は自動でホットリロードされる
-  - **型チェック**: `npm run build` は不要。開発サーバーが自動で型チェックするため、ファイル保存時に自動反映される
-  - 型エラーのみ確認したい場合: `npx tsc --noEmit` を使用（数秒で完了）
+- **開発サーバー**: ユーザーが常時起動済み
+  - `npm run dev` は実行しない（既に起動中）
+  - コード変更は自動でホットリロード
+  - 型チェックは開発サーバーが自動実行（ファイル保存時に反映）
+  - 型エラーのみ確認: `npx tsc --noEmit` を使用（数秒で完了）
+
+- **プリビルド**: `npm run build` 実行時に自動でプリビルドスクリプトを実行
+  - `scripts/prebuild.mjs` が `/area/search/all` APIを呼び出し
+  - `public/data/reachability.json` に静的JSONファイルとして保存
+  - 初期ロード時間が10-20秒から瞬時に短縮
 
 ## よく使うコマンド
 ```bash
 npm run dev        # 開発サーバー起動（Turbopack使用）※ユーザーが常時起動済み
-npx tsc --noEmit   # 型チェックのみ（ビルド不要、数秒で完了）
-npm run build      # 本番ビルド（通常は不要、本番確認時のみ）
+npx tsc --noEmit   # 型チェックのみ（数秒で完了）
+npm run prebuild   # プリビルドスクリプトのみ実行
+npm run build      # 本番ビルド（自動でprebuild実行 → next build）
 npm run start      # 本番サーバー起動
 npm run lint       # ESLintチェック
 ```
@@ -53,46 +65,52 @@ npm run lint       # ESLintチェック
 src/
 ├── app/
 │   ├── layout.tsx          # ルートレイアウト
-│   └── page.tsx            # メインページ（UnifiedMapViewを常に表示）
+│   └── page.tsx            # メインページ（UnifiedMapViewを表示）
 ├── components/
-│   ├── layout/             # レイアウト系コンポーネント
+│   ├── layout/
 │   │   └── Header.tsx      # ヘッダー（ロゴ + パンくずナビ）
-│   ├── condition/          # 到達圏の条件設定画面
-│   │   ├── ConditionPanel.tsx    # 条件設定パネル（左）
-│   │   └── SummaryPanel.tsx      # サマリパネル（右）
-│   ├── bus-simple/         # コミュニティバス条件設定画面（簡易）
-│   │   └── BusConditionPanel.tsx # バス生成条件パネル（左）
+│   ├── condition/          # 到達圏条件設定画面
+│   │   ├── ConditionPanel.tsx
+│   │   └── SummaryPanel.tsx
+│   ├── bus-simple/         # バス条件設定・簡易
+│   │   └── BusConditionPanel.tsx
+│   ├── bus-manual/         # バス条件設定・手動
+│   │   └── BusManualPanel.tsx    # ドラッグ&ドロップバス停選択
 │   ├── result/             # 結果画面
-│   │   ├── BusStopDetailPanel.tsx # バス停詳細パネル（左）
-│   │   ├── ResultSummaryPanel.tsx # 結果サマリパネル（右）
-│   │   └── SampleRoutePanel.tsx  # サンプル経路パネル（開発中）
-│   ├── map/                # 地図関連コンポーネント
-│   │   ├── Map.tsx         # Leaflet地図ベースコンポーネント
-│   │   └── UnifiedMapView.tsx # 統合地図ビュー（全画面で共有）
-│   ├── bus/                # バス関連コンポーネント
-│   │   ├── BusStopMarker.tsx   # 停留所マーカー
-│   │   └── BusRoutePolyline.tsx # バスルート線（矢印付き）
-│   ├── layer/              # レイヤー系コンポーネント
+│   │   ├── BusStopDetailPanel.tsx
+│   │   ├── ResultSummaryPanel.tsx
+│   │   └── SampleRoutePanel.tsx
+│   ├── map/
+│   │   ├── Map.tsx               # Leaflet地図ベース
+│   │   └── UnifiedMapView.tsx    # 統合地図ビュー（全画面共有）
+│   ├── bus/
+│   │   ├── BusStopMarker.tsx
+│   │   └── BusRoutePolyline.tsx
+│   ├── layer/
 │   │   ├── ReachabilityLayer.tsx # 到達圏ポリゴン表示
 │   │   └── SpotMarker.tsx        # スポットマーカー
-│   └── ui/                 # 汎用UIコンポーネント
-│       ├── Panel.tsx           # 開閉パネル（320px固定幅）
-│       └── Loading.tsx         # ローディングオーバーレイ
+│   └── ui/
+│       ├── Panel.tsx             # 開閉パネル（320px固定幅）
+│       └── Loading.tsx
 ├── hooks/
-│   └── useAppState.ts      # アプリケーション状態管理（3画面対応）
+│   └── useAppState.ts      # アプリケーション状態管理（4画面対応）
 ├── lib/
-│   ├── api/                # API関連
-│   │   ├── busStops.ts         # 停留所データ取得
-│   │   ├── spots.ts            # スポットデータ取得
-│   │   ├── reachabilityList.ts # 到達圏探索一覧取得
-│   │   ├── stopSequences.ts    # バス停列一覧取得
-│   │   └── areaSearch.ts       # 到達圏検索
-│   └── utils/              # ユーティリティ関数
-│       ├── facilityColors.ts   # 施設種別の色定義
-│       ├── spotIcons.ts        # スポットアイコン定義
-│       └── spotLabels.ts       # スポットラベル定義
-└── types/
-    └── index.ts            # 型定義（BusStop, AppState, ScreenType等）
+│   ├── api/
+│   │   ├── reachabilityList.ts   # 到達圏一覧取得（静的JSON）
+│   │   ├── spots.ts              # スポット一覧取得
+│   │   ├── stopSequences.ts      # バス停列一覧取得
+│   │   ├── busStops.ts           # 停留所データ取得
+│   │   ├── areaSearch.ts         # 到達圏検索（POST）
+│   │   ├── targetRegion.ts       # 地図中心座標取得
+│   │   └── population.ts         # 人口分布データ取得
+│   └── utils/
+│       ├── facilityColors.ts     # 施設種別の色定義
+│       ├── spotIcons.ts          # スポットアイコン定義
+│       └── spotLabels.ts         # スポットラベル定義
+├── types/
+│   └── index.ts            # 型定義
+└── scripts/
+    └── prebuild.mjs        # プリビルドスクリプト
 ```
 
 ### 主要コンポーネントの役割
@@ -104,25 +122,48 @@ src/
 
 #### [UnifiedMapView.tsx](src/components/map/UnifiedMapView.tsx)
 - **重要**: 全画面で共有される統合地図ビューコンポーネント
-- Mapコンポーネントを永続的にマウント（画面遷移でアンマウントされない）
-- currentScreenの値に応じて表示内容を条件分岐で切り替え
-  - condition画面: 到達圏ポリゴン、スポットマーカー、ConditionPanel、SummaryPanel
-  - bus-simple画面: 到達圏ポリゴン、スポットマーカー、バス停マーカー、バス経路、BusConditionPanel、SummaryPanel
-  - result画面: 導入前後の到達圏ポリゴン、スポットマーカー、バス停マーカー、バス経路、BusStopDetailPanel、ResultSummaryPanel、SampleRoutePanel
-- 地図のズーム率と中心位置が画面間で完全に維持される
+- **永続的マウント**: Mapコンポーネントを全画面で単一インスタンスとして共有
+- **状態保持**: 画面遷移時もズーム率・中心座標が完全に保持される
+- **条件分岐レンダリング**: currentScreenに応じてパネル・レイヤーを動的に切り替え
+  - `condition`: ReachabilityLayer, SpotMarker, ConditionPanel, SummaryPanel
+  - `bus-simple`: 上記 + BusStopMarker, BusRoutePolyline, BusConditionPanel
+  - `bus-manual`: 上記 + BusManualPanel（BusConditionPanelの代わり）
+  - `result`: 導入前後のReachabilityLayer, SpotMarker, BusStopMarker, BusRoutePolyline, BusStopDetailPanel, ResultSummaryPanel, SampleRoutePanel
+- **パフォーマンス**: タイル再読み込みなし、スムーズな画面遷移
 
 #### [useAppState.ts](src/hooks/useAppState.ts)
-- アプリケーション全体の状態管理フック
-- 画面状態（currentScreen）、条件設定、API データを一元管理
-- 初期表示時に4つのAPIを並列で取得（到達圏一覧、スポット、バス停列、バス停）
-- `getCurrentReachability()`: 現在の条件に合致する到達圏を取得
-- `getCurrentSpots()`: 現在の条件に合致するスポットを取得
-- `getSelectedBusStops()`: 現在の条件に合致するバス停を取得
-- `executeSearch()`: 結果画面遷移時に到達圏検索APIを実行
+アプリケーション全体の状態管理フック。
+
+**管理する状態**:
+- `currentScreen`: 現在の画面（condition / bus-simple / bus-manual / result）
+- `condition`: 到達圏設定（selectedSpotId, maxMinute, walkingDistance）
+- `busCondition`: バス条件（roundTripTime, selectedRouteIndex）
+- `manualBusStops`: 手動選択バス停ID配列（bus-manual画面用）
+- `reachabilityList`: 到達圏一覧（静的JSON）
+- `spotsData`: スポット一覧
+- `stopSequences`: バス停列一覧
+- `busStopsData`: 停留所データ
+- `searchResult`: 到達圏検索結果
+- `isLoading`, `loadingMessage`: ローディング状態
+
+**主要メソッド**:
+- `navigateTo(screen)`: 画面遷移
+- `updateCondition()` / `updateBusCondition()`: 条件更新
+- `executeSearch()`: 到達圏検索API実行（結果画面遷移時）
+- `getCurrentReachability()`: 現在の条件に合致する到達圏取得
+- `getCurrentSpots()`: 現在の条件に合致するスポット取得
+- `getSelectedBusStops()`: 現在の条件に合致するバス停取得
+- `getAllMatchingRoutes()`: マッチング経路一覧取得
+- `toggleManualBusStop(stopId)`: 手動バス停の選択/解除トグル
+- `updateManualBusStops(stops)`: 手動バス停の並び順更新（ドラッグ&ドロップ対応）
 
 #### [Header.tsx](src/components/layout/Header.tsx)
 - ロゴ（テキスト「コミュニティバスを作ろう！」）を表示
 - パンくずナビゲーション（3ステップ）
+  1. 到達圏の条件設定（condition）
+  2. コミュニティバスの条件設定（bus-simple / bus-manual）
+  3. 結果（result）
+- **注**: bus-manual画面ではbus-simpleステップがアクティブ表示される
 - 過去の画面にクリックで戻れる
 
 #### [Panel.tsx](src/components/ui/Panel.tsx)
@@ -134,70 +175,58 @@ src/
 - バス経路の描画コンポーネント
 - API経路データがある場合: 実際の道路に沿った経路を描画
   - Polylineエンコード文字列をデコード
-  - 停留所間ごとに方向矢印を配置
+  - leaflet-polylinedecoratorで方向矢印を配置
 - API経路データがない場合: 選択停留所間を直線で描画
+
+#### [BusManualPanel.tsx](src/components/bus-manual/BusManualPanel.tsx)
+- bus-manual画面の左パネル
+- @dnd-kitを使用したドラッグ&ドロップ機能
+- バス停の選択・解除・並び替えが可能
+
+#### [PopulationLayer.tsx](src/components/layer/PopulationLayer.tsx)
+- 人口分布メッシュデータをポリゴンとして表示
+- 人口密度に応じた色分け表示
 
 ## データフロー
 
 ### API連携
-アプリケーションは以下のAPIを使用します：
+アプリケーションは以下のAPIを使用：
 
-#### 初期表示時に取得するAPI
-1. **到達圏探索一覧取得** `GET /area/search/all`
-   - すべてのスポットタイプ・上限時間の到達圏を一括取得
-   - レスポンス時間: 10〜20秒程度
+| エンドポイント | メソッド | 用途 | キャッシュ | 備考 |
+|---|---|---|---|---|
+| `/data/reachability.json` | GET | 到達圏一覧取得 | 静的JSON | プリビルドで生成 |
+| `/area/spots` | GET | スポット一覧取得 | force-cache | 初期表示時 |
+| `/combus/stop-sequences` | GET | バス停列一覧取得 | なし | 初期表示時 |
+| `/combus/stops` | GET | 停留所データ取得 | force-cache | 初期表示時 |
+| `/target/region` | GET | 地図中心座標取得 | force-cache | 初期表示時 |
+| `/data/population-mesh.json` | GET | 人口分布取得 | 静的JSON | オプション |
+| `/area/search` | POST | 到達圏検索 | なし | 結果画面遷移時 |
 
-2. **スポット一覧取得** `GET /area/spots`
-   - スポット情報とスポットタイプ一覧を取得
+**プリビルドプロセス**:
+```
+npm run build
+  ↓
+npm run prebuild（自動実行）
+  ↓
+scripts/prebuild.mjs が /area/search/all を呼び出し
+  ↓
+public/data/reachability.json に保存
+  ↓
+next build --turbopack
+```
 
-3. **バス停列一覧取得** `GET /combus/stop-sequences`
-   - スポットタイプと周回時間ごとの最適化されたバス停列を取得
-
-4. **停留所データ取得** `GET /combus/stops`
-   - 全停留所の座標と名称を取得
-
-#### 結果画面遷移時に呼び出すAPI
-- **到達圏検索** `POST /area/search`
-  ```typescript
-  // リクエスト
-  {
-    "target-spots": ["hospital"],
-    "max-minute": 60,
-    "combus-stops": ["comstop8", "comstop12", ...]
-  }
-  // レスポンス
-  {
-    result: {
-      area: {
-        hospital: {
-          reachable: {
-            original: MultiPolygon,
-            "with-combus": MultiPolygon,
-            "original-score": 12345,
-            "with-combus-score": 5678,  // ※増加分
-            "with-combus-score-rate": 46
-          },
-          spots: [...]
-        }
-      },
-      combus: {
-        "section-list": [...],
-        "stop-list": [...]
-      }
-    },
-    status: "OK"
-  }
-  ```
+**効果**: 初期ロード時間が10-20秒から瞬時に短縮
 
 ### 状態管理の流れ
-1. **初期表示**: `useAppState`が4つのAPIを並列で取得
+1. **初期表示**: `useAppState`が5つのAPI/JSONを並列で取得（到達圏一覧、スポット、バス停列、バス停、地図中心）
 2. **条件設定画面**: 条件変更時に`getCurrentReachability()`で該当データを取得
-3. **バス条件設定画面**: `getSelectedBusStops()`で該当バス停を取得
-4. **結果画面遷移**: `executeSearch()`で到達圏検索APIを実行
-5. **画面戻り**: パンくずクリックで`navigateTo()`、条件は保持される
+3. **バス条件設定・簡易**: `getAllMatchingRoutes()`でマッチング経路一覧を取得、選択時に`getSelectedBusStops()`で該当バス停を取得
+4. **バス条件設定・手動**: `toggleManualBusStop()`でバス停選択、`updateManualBusStops()`で並び替え
+5. **結果画面遷移**: `executeSearch()`で到達圏検索APIを実行
+6. **画面戻り**: パンくずクリックで`navigateTo()`、条件は保持される
 
 ### 地図状態の維持
-- **重要**: UnifiedMapViewコンポーネントが全画面で共有されるため、地図のズーム率と中心位置が画面遷移時も完全に維持される
+- UnifiedMapViewコンポーネントが全画面で共有されるため、地図のズーム率と中心位置が画面遷移時も完全に維持される
 - 画面切り替え時にMapコンポーネントが再マウントされないため、タイルの再読み込みも発生しない
 - ユーザーが地図を操作した状態（ズーム・パン）は、どの画面に遷移しても保持される
 
@@ -211,8 +240,8 @@ src/
 
 ### 命名規則
 - コンポーネント: PascalCase（例: `BusStopMarker`）
-- フック: `use` + PascalCase（例: `useMapState`）
-- 型: PascalCase（例: `BusStop`, `FacilityType`）
+- フック: `use` + PascalCase（例: `useAppState`）
+- 型: PascalCase（例: `BusStop`, `ScreenType`）
 - 変数: camelCase
 
 ### 注意点

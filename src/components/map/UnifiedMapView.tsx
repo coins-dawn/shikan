@@ -122,7 +122,6 @@ export default function UnifiedMapView({
   // 結果画面用のデータ変換
   const combusData = searchResult?.result.combus ?? null
   const facilityResult = searchResult?.result.area ?? null
-  console.log(facilityResult)
   const busStopsFromResult: BusStop[] =
     combusData?.['stop-list'].map((stop) => ({
       id: stop.id,
