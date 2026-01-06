@@ -69,6 +69,7 @@ interface UnifiedMapViewProps {
   busStopsData: BusStop[]
   publicTransitData: PublicTransitResponse | null
   showPublicTransit: boolean
+  availableDepartureTimes: string[]
 
   // ローディング
   isLoading: boolean
@@ -102,6 +103,7 @@ export default function UnifiedMapView({
   busStopsData,
   publicTransitData,
   showPublicTransit,
+  availableDepartureTimes,
   isLoading,
   loadingMessage,
   onUpdateCondition,
@@ -278,6 +280,7 @@ export default function UnifiedMapView({
         <ConditionPanel
           condition={condition}
           spots={allSpots}
+          availableDepartureTimes={availableDepartureTimes}
           onUpdate={onUpdateCondition}
           onNext={onNavigateToSimple}
         />

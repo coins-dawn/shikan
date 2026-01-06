@@ -7,7 +7,6 @@ import { PopulationGeoJSON } from '@/types'
 export async function fetchPopulationData(): Promise<PopulationGeoJSON | null> {
   try {
     const response = await fetch('/data/population-mesh.json', {
-      cache: 'force-cache', // ビルド時にキャッシュ
     })
 
     if (!response.ok) {

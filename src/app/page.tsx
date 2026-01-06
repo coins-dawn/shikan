@@ -20,6 +20,7 @@ export default function Home() {
     toggleManualBusStop,
     updateManualBusStops,
     getManualBusStops,
+    getAvailableDepartureTimes,
     togglePublicTransit,
   } = useAppState()
 
@@ -30,6 +31,7 @@ export default function Home() {
   const selectedBusStops = getSelectedBusStops()
   const manualBusStops = getManualBusStops()
   const allBusStops = state.busStopsData || []
+  const availableDepartureTimes = getAvailableDepartureTimes()
 
   // ルート選択ハンドラー
   const handleSelectRoute = (index: number) => {
@@ -61,6 +63,7 @@ export default function Home() {
           busStopsData={allBusStops}
           publicTransitData={state.publicTransitData}
           showPublicTransit={state.showPublicTransit}
+          availableDepartureTimes={availableDepartureTimes}
           onUpdateCondition={updateCondition}
           onUpdateBusCondition={updateBusCondition}
           onNavigateToSimple={() => navigateTo('bus-simple')}

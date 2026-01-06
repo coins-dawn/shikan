@@ -6,6 +6,7 @@ import Panel from '@/components/ui/Panel'
 interface ConditionPanelProps {
   condition: ConditionState
   spots: Spot[]
+  availableDepartureTimes: string[]
   onUpdate: (updates: Partial<ConditionState>) => void
   onNext: () => void
 }
@@ -19,6 +20,7 @@ const WALK_DISTANCE_OPTIONS = [500, 1000]
 export default function ConditionPanel({
   condition,
   spots,
+  availableDepartureTimes,
   onUpdate,
   onNext,
 }: ConditionPanelProps) {
@@ -76,6 +78,24 @@ export default function ConditionPanel({
             {WALK_DISTANCE_OPTIONS.map((distance) => (
               <option key={distance} value={distance}>
                 {distance}m
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* 出発時刻 */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            出発時刻を選択
+          </label>
+          <select
+            value={condition.departureTime}
+            onChange={(e) => onUpdate({ departureTime: e.target.value })}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            {availableDepartureTimes.map((time) => (
+              <option key={time} value={time}>
+                {time}
               </option>
             ))}
           </select>

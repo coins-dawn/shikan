@@ -10,7 +10,6 @@ export interface MapCenter {
 export async function fetchTargetRegion(): Promise<MapCenter> {
   try {
     const response = await fetch(API_URL, {
-      cache: 'force-cache', // ビルド時にキャッシュ
     })
 
     if (!response.ok) {

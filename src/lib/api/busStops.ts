@@ -17,7 +17,6 @@ const API_URL = 'https://prometheus-h24i.onrender.com/combus/stops'
 export async function fetchBusStops(): Promise<BusStop[]> {
   try {
     const response = await fetch(API_URL, {
-      cache: 'force-cache', // ビルド時にキャッシュ
     })
 
     if (!response.ok) {

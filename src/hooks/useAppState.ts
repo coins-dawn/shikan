@@ -24,6 +24,7 @@ const initialState: AppState = {
     selectedSpotId: '', // 初期表示時にスポットデータ取得後に設定
     maxMinute: 60,
     walkingDistance: 1000,
+    departureTime: '',
   },
   busCondition: {
     roundTripTime: 60,
@@ -70,6 +71,15 @@ export function useAppState() {
         fetchPublicTransit(),
       ])
 
+      // stop-sequencesから一意な時刻を抽出してソート
+      const uniqueTimes = Array.from(
+        new Set(
+          stopSequencesResponse.result['best-combus-stop-sequences'].map(
+            (seq) => seq['start-time']
+          )
+        )
+      ).sort()
+
       setState((prev) => ({
         ...prev,
         reachabilityList: reachabilityResponse.result.reachables,
@@ -86,6 +96,7 @@ export function useAppState() {
         condition: {
           ...prev.condition,
           selectedSpotId: spotsResponse.spots[0]?.id || '',
+          departureTime: uniqueTimes[0] || '',
         },
         isLoading: false,
         loadingMessage: '',
@@ -258,7 +269,8 @@ export function useAppState() {
       (seq) =>
         seq.spot === condition.selectedSpotId &&
         seq['time-limit-m'] === busCondition.roundTripTime &&
-        seq['walk-distance-limit-m'] === condition.walkingDistance
+        seq['walk-distance-limit-m'] === condition.walkingDistance &&
+        seq['start-time'] === condition.departureTime
     )
   }, [state])
 
@@ -327,6 +339,28 @@ export function useAppState() {
       .filter((stop): stop is BusStop => stop !== undefined)
   }, [state])
 
+  // 利用可能な出発時刻一覧を取得
+  const getAvailableDepartureTimes = useCallback((): string[] => {
+    const { stopSequences, condition, busCondition } = state
+    if (!stopSequences) return []
+
+    // 現在の条件（スポット、周回時間、徒歩距離）に合致する時刻を抽出
+    const uniqueTimes = Array.from(
+      new Set(
+        stopSequences
+          .filter(
+            (seq) =>
+              seq.spot === condition.selectedSpotId &&
+              seq['time-limit-m'] === busCondition.roundTripTime &&
+              seq['walk-distance-limit-m'] === condition.walkingDistance
+          )
+          .map((seq) => seq['start-time'])
+      )
+    ).sort()
+
+    return uniqueTimes
+  }, [state])
+
   // 公共交通レイヤーの表示/非表示をトグル
   const togglePublicTransit = useCallback(() => {
     setState((prev) => ({
@@ -352,6 +386,7 @@ export function useAppState() {
     toggleManualBusStop,
     updateManualBusStops,
     getManualBusStops,
+    getAvailableDepartureTimes,
     togglePublicTransit,
   }
 }

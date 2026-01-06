@@ -199,6 +199,7 @@ export interface StopSequence {
   'walk-distance-limit-m': number // 徒歩距離上限（500/1000m）
   'stop-sequence': string[] // バス停ID配列
   score: number // 到達圏スコア
+  'start-time': string // 出発時刻（HH:MM形式）
 }
 
 export interface StopSequencesResponse {
@@ -260,6 +261,7 @@ export interface ConditionState {
   selectedSpotId: string // 個別スポットID
   maxMinute: number // 時間上限（30-90分）
   walkingDistance: number // 1000m固定
+  departureTime: string // 出発時刻（HH:MM形式）
 }
 
 export interface BusConditionState {

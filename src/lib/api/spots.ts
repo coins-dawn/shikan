@@ -25,7 +25,6 @@ const API_URL = 'https://prometheus-h24i.onrender.com/area/spots'
 export async function fetchSpots(): Promise<{ spots: Spot[]; types: string[] }> {
   try {
     const response = await fetch(API_URL, {
-      cache: 'force-cache', // ビルド時にキャッシュ
     })
 
     if (!response.ok) {

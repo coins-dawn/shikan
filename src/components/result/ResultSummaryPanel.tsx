@@ -46,6 +46,10 @@ export default function ResultSummaryPanel({
             <span className="text-gray-600">徒歩上限距離</span>
             <span className="font-medium">{condition.walkingDistance}m</span>
           </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">出発時刻</span>
+            <span className="font-medium">{condition.departureTime || '-'}</span>
+          </div>
         </div>
 
         {/* 区切り線 */}
