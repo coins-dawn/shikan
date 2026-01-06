@@ -222,6 +222,39 @@ export interface TargetRegionResponse {
   status: string
 }
 
+// 公共交通の停留所
+export interface PublicTransitStop {
+  id: string
+  name: string
+  lat: number
+  lon: number
+  times: string[]
+}
+
+// 公共交通の路線
+export interface PublicTransitRoute {
+  geometry: string
+  name: string
+  stops: PublicTransitStop[]
+}
+
+// 公共交通APIレスポンス
+export interface PublicTransitResponse {
+  result: {
+    geometry: string
+    routes: PublicTransitRoute[]
+    stops: PublicTransitStopWithLines[]
+  }
+  status?: string
+}
+
+export interface PublicTransitStopWithLines extends PublicTransitStop {
+  lines: {
+    index: number
+    name: string
+    times: string[]
+  }[]
+}
 // アプリケーション状態
 export interface ConditionState {
   selectedSpotId: string // 個別スポットID
@@ -253,6 +286,10 @@ export interface AppState {
   stopSequences: StopSequence[] | null
   busStopsData: BusStop[] | null
   searchResult: APIResponseWithScore | null
+  publicTransitData: PublicTransitResponse | null
+
+  // 表示設定
+  showPublicTransit: boolean
 
   // ローディング状態
   isLoading: boolean

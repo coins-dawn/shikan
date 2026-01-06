@@ -20,6 +20,7 @@ export default function Home() {
     toggleManualBusStop,
     updateManualBusStops,
     getManualBusStops,
+    togglePublicTransit,
   } = useAppState()
 
   const reachability = getCurrentReachability()
@@ -58,6 +59,8 @@ export default function Home() {
           mapCenter={mapCenter}
           allRoutes={allRoutes}
           busStopsData={allBusStops}
+          publicTransitData={state.publicTransitData}
+          showPublicTransit={state.showPublicTransit}
           onUpdateCondition={updateCondition}
           onUpdateBusCondition={updateBusCondition}
           onNavigateToSimple={() => navigateTo('bus-simple')}
@@ -66,6 +69,7 @@ export default function Home() {
           onToggleManualBusStop={toggleManualBusStop}
           onUpdateManualBusStops={updateManualBusStops}
           onSelectRoute={handleSelectRoute}
+          onTogglePublicTransit={togglePublicTransit}
         />
       </main>
     </div>

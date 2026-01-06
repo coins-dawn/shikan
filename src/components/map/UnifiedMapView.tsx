@@ -11,6 +11,7 @@ import {
   BusStop,
   APIResponseWithScore,
   StopSequence,
+  PublicTransitResponse,
 } from '@/types'
 import { MapCenter } from '@/lib/api/targetRegion'
 import ConditionPanel from '@/components/condition/ConditionPanel'
@@ -38,6 +39,14 @@ const BusRoutePolyline = dynamic(
   () => import('@/components/bus/BusRoutePolyline'),
   { ssr: false }
 )
+const PublicTransitLayer = dynamic(
+  () => import('@/components/layer/PublicTransitLayer'),
+  { ssr: false }
+)
+const LayerControlPanel = dynamic(
+  () => import('@/components/map/LayerControlPanel'),
+  { ssr: false }
+)
 
 interface UnifiedMapViewProps {
   // 画面状態
@@ -58,6 +67,8 @@ interface UnifiedMapViewProps {
   mapCenter: MapCenter | null
   allRoutes: StopSequence[]
   busStopsData: BusStop[]
+  publicTransitData: PublicTransitResponse | null
+  showPublicTransit: boolean
 
   // ローディング
   isLoading: boolean
@@ -72,6 +83,7 @@ interface UnifiedMapViewProps {
   onToggleManualBusStop: (stopId: string) => void
   onUpdateManualBusStops: (stopIds: string[]) => void
   onSelectRoute: (index: number) => void
+  onTogglePublicTransit: () => void
 }
 
 export default function UnifiedMapView({
@@ -88,6 +100,8 @@ export default function UnifiedMapView({
   mapCenter,
   allRoutes,
   busStopsData,
+  publicTransitData,
+  showPublicTransit,
   isLoading,
   loadingMessage,
   onUpdateCondition,
@@ -98,6 +112,7 @@ export default function UnifiedMapView({
   onToggleManualBusStop,
   onUpdateManualBusStops,
   onSelectRoute,
+  onTogglePublicTransit,
 }: UnifiedMapViewProps) {
   // 結果画面のローカルステート
   const [selectedRouteIndex, setSelectedRouteIndex] = useState<number | null>(null)
@@ -134,6 +149,9 @@ export default function UnifiedMapView({
     <div className="relative w-full h-full">
       {/* 地図（常に同一インスタンス）- mapCenter取得後にマウント */}
       {mapCenter && <Map center={[mapCenter.lat, mapCenter.lng]}>
+        {/* === 公共交通レイヤー - 全画面共通（最背面） === */}
+        <PublicTransitLayer data={publicTransitData} isVisible={showPublicTransit} />
+
         {/* === 到達圏ポリゴン - condition/bus-simple/bus-manual画面 === */}
         {(currentScreen === 'condition' ||
           currentScreen === 'bus-simple' ||
@@ -246,6 +264,14 @@ export default function UnifiedMapView({
           <BusRoutePolyline stops={busStopsFromResult} combusData={combusData} />
         )}
       </Map>}
+
+      {/* === レイヤーコントロールパネル - 全画面共通 === */}
+      {mapCenter && (
+        <LayerControlPanel
+          showPublicTransit={showPublicTransit}
+          onTogglePublicTransit={onTogglePublicTransit}
+        />
+      )}
 
       {/* === 左パネル - 画面ごとに切り替え === */}
       {currentScreen === 'condition' && (

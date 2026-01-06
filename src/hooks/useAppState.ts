@@ -15,6 +15,7 @@ import { fetchAreaSearch } from '@/lib/api/areaSearch'
 import { fetchSpots } from '@/lib/api/spots'
 import { fetchBusStops } from '@/lib/api/busStops'
 import { fetchTargetRegion, MapCenter } from '@/lib/api/targetRegion'
+import { fetchPublicTransit } from '@/lib/api/publicTransit'
 import { BusStop } from '@/types'
 
 const initialState: AppState = {
@@ -34,6 +35,8 @@ const initialState: AppState = {
   stopSequences: null,
   busStopsData: null,
   searchResult: null,
+  publicTransitData: null,
+  showPublicTransit: false,
   isLoading: false,
   loadingMessage: '',
 }
@@ -57,12 +60,14 @@ export function useAppState() {
         stopSequencesResponse,
         busStopsResponse,
         targetRegionResponse,
+        publicTransitResponse,
       ] = await Promise.all([
         fetchReachabilityList(),
         fetchSpots(),
         fetchStopSequences(),
         fetchBusStops(),
         fetchTargetRegion(),
+        fetchPublicTransit(),
       ])
 
       setState((prev) => ({
@@ -77,6 +82,7 @@ export function useAppState() {
         },
         stopSequences: stopSequencesResponse.result['best-combus-stop-sequences'],
         busStopsData: busStopsResponse,
+        publicTransitData: publicTransitResponse,
         condition: {
           ...prev.condition,
           selectedSpotId: spotsResponse.spots[0]?.id || '',
@@ -321,6 +327,14 @@ export function useAppState() {
       .filter((stop): stop is BusStop => stop !== undefined)
   }, [state])
 
+  // 公共交通レイヤーの表示/非表示をトグル
+  const togglePublicTransit = useCallback(() => {
+    setState((prev) => ({
+      ...prev,
+      showPublicTransit: !prev.showPublicTransit,
+    }))
+  }, [])
+
   return {
     state,
     mapCenter,
@@ -338,5 +352,6 @@ export function useAppState() {
     toggleManualBusStop,
     updateManualBusStops,
     getManualBusStops,
+    togglePublicTransit,
   }
 }
