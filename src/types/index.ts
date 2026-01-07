@@ -174,6 +174,7 @@ export interface ReachabilityItem {
   }
   'time-limit': number // 30-90分
   'walk-distance-limit': number // 500/1000m
+  'start-time': string // 出発時刻（HH:MM形式）
 }
 
 export interface ReachabilityListResponse {

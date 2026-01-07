@@ -7,6 +7,7 @@ export interface AreaSearchRequest {
   'max-minute': number
   'max-walk-distance': number
   'combus-stops': string[]
+  'start-time': string
 }
 
 export async function fetchAreaSearch(

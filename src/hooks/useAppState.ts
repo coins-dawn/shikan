@@ -71,11 +71,11 @@ export function useAppState() {
         fetchPublicTransit(),
       ])
 
-      // stop-sequencesから一意な時刻を抽出してソート
+      // reachabilityListから一意な時刻を抽出してソート
       const uniqueTimes = Array.from(
         new Set(
-          stopSequencesResponse.result['best-combus-stop-sequences'].map(
-            (seq) => seq['start-time']
+          reachabilityResponse.result.reachables.map(
+            (item) => item['start-time']
           )
         )
       ).sort()
@@ -206,6 +206,7 @@ export function useAppState() {
         'max-minute': condition.maxMinute,
         'max-walk-distance': condition.walkingDistance,
         'combus-stops': combusStops,
+        'start-time': condition.departureTime,
       })
 
       setState((prev) => ({
@@ -235,7 +236,8 @@ export function useAppState() {
         (item) =>
           item.spot.id === condition.selectedSpotId &&
           item['time-limit'] === condition.maxMinute &&
-          item['walk-distance-limit'] === condition.walkingDistance
+          item['walk-distance-limit'] === condition.walkingDistance &&
+          item['start-time'] === condition.departureTime
       ) || null
     )
   }, [state])
@@ -341,20 +343,20 @@ export function useAppState() {
 
   // 利用可能な出発時刻一覧を取得
   const getAvailableDepartureTimes = useCallback((): string[] => {
-    const { stopSequences, condition, busCondition } = state
-    if (!stopSequences) return []
+    const { reachabilityList, condition } = state
+    if (!reachabilityList) return []
 
-    // 現在の条件（スポット、周回時間、徒歩距離）に合致する時刻を抽出
+    // reachabilityListから現在の条件（スポット、時間上限、徒歩距離）に合致する時刻を抽出
     const uniqueTimes = Array.from(
       new Set(
-        stopSequences
+        reachabilityList
           .filter(
-            (seq) =>
-              seq.spot === condition.selectedSpotId &&
-              seq['time-limit-m'] === busCondition.roundTripTime &&
-              seq['walk-distance-limit-m'] === condition.walkingDistance
+            (item) =>
+              item.spot.id === condition.selectedSpotId &&
+              item['time-limit'] === condition.maxMinute &&
+              item['walk-distance-limit'] === condition.walkingDistance
           )
-          .map((seq) => seq['start-time'])
+          .map((item) => item['start-time'])
       )
     ).sort()
 
