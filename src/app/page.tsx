@@ -22,6 +22,7 @@ export default function Home() {
     getManualBusStops,
     getAvailableDepartureTimes,
     togglePublicTransit,
+    togglePopulationMesh,
   } = useAppState()
 
   const reachability = getCurrentReachability()
@@ -63,6 +64,8 @@ export default function Home() {
           busStopsData={allBusStops}
           publicTransitData={state.publicTransitData}
           showPublicTransit={state.showPublicTransit}
+          populationMeshData={state.populationMeshData}
+          showPopulationMesh={state.showPopulationMesh}
           availableDepartureTimes={availableDepartureTimes}
           onUpdateCondition={updateCondition}
           onUpdateBusCondition={updateBusCondition}
@@ -73,6 +76,7 @@ export default function Home() {
           onUpdateManualBusStops={updateManualBusStops}
           onSelectRoute={handleSelectRoute}
           onTogglePublicTransit={togglePublicTransit}
+          onTogglePopulationMesh={togglePopulationMesh}
         />
       </main>
     </div>

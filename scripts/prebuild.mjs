@@ -117,12 +117,66 @@ async function fetchPublicTransit() {
   }
 }
 
+async function fetchPopulationMesh() {
+  console.log('📡 Fetching population mesh data from API...')
+  console.log(`   URL: ${API_BASE_URL}/target/mesh`)
+
+  const startTime = Date.now()
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/target/mesh`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`)
+    }
+
+    const data = await response.json()
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(2)
+    console.log(`✅ Successfully fetched population mesh data (${elapsed}s)`)
+
+    // 人口密度に応じた色を返す関数
+    const getPopulationColor = (population) => {
+      if (population <= 10) return '#4575b4'
+      if (population <= 50) return '#1a9850'
+      if (population <= 100) return '#91cf60'
+      if (population <= 200) return '#d9ef8b'
+      return '#fee08b'
+    }
+
+    // FeatureCollection形式に変換
+    const featureCollection = {
+      type: 'FeatureCollection',
+      features: data.result.map((item) => ({
+        type: 'Feature',
+        geometry: item.geometry,
+        properties: {
+          meshCode: item.mesh_code,
+          population: item.population,
+          color: getPopulationColor(item.population),
+          fillOpacity: 0.6,
+        },
+      })),
+    }
+
+    return featureCollection
+  } catch (error) {
+    console.error('❌ Failed to fetch population mesh data:', error)
+    throw error
+  }
+}
+
 async function main() {
   try {
-    // APIから到達圏データと公共交通データを並列取得
-    const [reachabilityData, publicTransitData] = await Promise.all([
+    // APIから到達圏データ、公共交通データ、人口メッシュデータを並列取得
+    const [reachabilityData, publicTransitData, populationMeshData] = await Promise.all([
       fetchReachabilityList(),
       fetchPublicTransit(),
+      fetchPopulationMesh(),
     ])
 
     // public/data ディレクトリを作成（存在しない場合）
@@ -140,6 +194,12 @@ async function main() {
     writeFileSync(publicTransitPath, JSON.stringify(publicTransitData, null, 2), 'utf-8')
     console.log(`💾 Saved public transit data to: ${publicTransitPath}`)
     console.log(`   File size: ${(JSON.stringify(publicTransitData).length / 1024).toFixed(2)} KB`)
+
+    // 人口メッシュデータをJSONファイルに保存
+    const populationMeshPath = join(publicDataDir, 'population-mesh.json')
+    writeFileSync(populationMeshPath, JSON.stringify(populationMeshData, null, 2), 'utf-8')
+    console.log(`💾 Saved population mesh data to: ${populationMeshPath}`)
+    console.log(`   File size: ${(JSON.stringify(populationMeshData).length / 1024).toFixed(2)} KB`)
 
     console.log('✨ Prebuild completed successfully!')
   } catch (error) {

@@ -26,7 +26,7 @@ export default function Panel({
   return (
     <div
       className={`
-        absolute ${position === 'right' ? 'top-16' : 'top-4'} ${positionClasses} z-[1000]
+        absolute ${position === 'right' ? 'top-4' : 'top-24'} ${positionClasses} z-[50]
         transition-transform duration-300 ease-in-out
         ${!isOpen && (position === 'left' ? '-translate-x-[calc(100%+1rem)]' : 'translate-x-[calc(100%+1rem)]')}
       `}

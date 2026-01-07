@@ -257,6 +257,22 @@ export interface PublicTransitStopWithLines extends PublicTransitStop {
     times: string[]
   }[]
 }
+
+// 人口メッシュの個別アイテム
+export interface PopulationMeshItem {
+  geometry: {
+    type: 'Polygon'
+    coordinates: number[][][]
+  }
+  mesh_code: string
+  population: number
+}
+
+// 人口メッシュAPIレスポンス
+export interface PopulationMeshResponse {
+  result: PopulationMeshItem[]
+  status: string
+}
 // アプリケーション状態
 export interface ConditionState {
   selectedSpotId: string // 個別スポットID
@@ -290,9 +306,11 @@ export interface AppState {
   busStopsData: BusStop[] | null
   searchResult: APIResponseWithScore | null
   publicTransitData: PublicTransitResponse | null
+  populationMeshData: PopulationGeoJSON | null
 
   // 表示設定
   showPublicTransit: boolean
+  showPopulationMesh: boolean
 
   // ローディング状態
   isLoading: boolean

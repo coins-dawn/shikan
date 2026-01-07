@@ -16,6 +16,7 @@ import { fetchSpots } from '@/lib/api/spots'
 import { fetchBusStops } from '@/lib/api/busStops'
 import { fetchTargetRegion, MapCenter } from '@/lib/api/targetRegion'
 import { fetchPublicTransit } from '@/lib/api/publicTransit'
+import { fetchPopulationData } from '@/lib/api/population'
 import { BusStop } from '@/types'
 
 const initialState: AppState = {
@@ -37,7 +38,9 @@ const initialState: AppState = {
   busStopsData: null,
   searchResult: null,
   publicTransitData: null,
+  populationMeshData: null,
   showPublicTransit: false,
+  showPopulationMesh: false,
   isLoading: false,
   loadingMessage: '',
 }
@@ -62,6 +65,7 @@ export function useAppState() {
         busStopsResponse,
         targetRegionResponse,
         publicTransitResponse,
+        populationMeshResponse,
       ] = await Promise.all([
         fetchReachabilityList(),
         fetchSpots(),
@@ -69,6 +73,7 @@ export function useAppState() {
         fetchBusStops(),
         fetchTargetRegion(),
         fetchPublicTransit(),
+        fetchPopulationData(),
       ])
 
       // reachabilityListから一意な時刻を抽出してソート
@@ -93,6 +98,7 @@ export function useAppState() {
         stopSequences: stopSequencesResponse.result['best-combus-stop-sequences'],
         busStopsData: busStopsResponse,
         publicTransitData: publicTransitResponse,
+        populationMeshData: populationMeshResponse,
         condition: {
           ...prev.condition,
           selectedSpotId: spotsResponse.spots[0]?.id || '',
@@ -371,6 +377,14 @@ export function useAppState() {
     }))
   }, [])
 
+  // 人口メッシュレイヤーの表示/非表示をトグル
+  const togglePopulationMesh = useCallback(() => {
+    setState((prev) => ({
+      ...prev,
+      showPopulationMesh: !prev.showPopulationMesh,
+    }))
+  }, [])
+
   return {
     state,
     mapCenter,
@@ -390,5 +404,6 @@ export function useAppState() {
     getManualBusStops,
     getAvailableDepartureTimes,
     togglePublicTransit,
+    togglePopulationMesh,
   }
 }

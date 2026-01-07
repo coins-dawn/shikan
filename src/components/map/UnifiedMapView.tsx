@@ -12,6 +12,7 @@ import {
   APIResponseWithScore,
   StopSequence,
   PublicTransitResponse,
+  PopulationGeoJSON,
 } from '@/types'
 import { MapCenter } from '@/lib/api/targetRegion'
 import ConditionPanel from '@/components/condition/ConditionPanel'
@@ -21,6 +22,7 @@ import BusManualPanel from '@/components/bus-manual/BusManualPanel'
 import BusStopDetailPanel from '@/components/result/BusStopDetailPanel'
 import ResultSummaryPanel from '@/components/result/ResultSummaryPanel'
 import Loading from '@/components/ui/Loading'
+import LayerControlPanel from '@/components/map/LayerControlPanel'
 
 // Leaflet コンポーネントは動的インポート（SSR無効化）
 const Map = dynamic(() => import('@/components/map/Map'), { ssr: false })
@@ -43,8 +45,8 @@ const PublicTransitLayer = dynamic(
   () => import('@/components/layer/PublicTransitLayer'),
   { ssr: false }
 )
-const LayerControlPanel = dynamic(
-  () => import('@/components/map/LayerControlPanel'),
+const PopulationMeshLayer = dynamic(
+  () => import('@/components/layer/PopulationMeshLayer'),
   { ssr: false }
 )
 
@@ -69,6 +71,8 @@ interface UnifiedMapViewProps {
   busStopsData: BusStop[]
   publicTransitData: PublicTransitResponse | null
   showPublicTransit: boolean
+  populationMeshData: PopulationGeoJSON | null
+  showPopulationMesh: boolean
   availableDepartureTimes: string[]
 
   // ローディング
@@ -85,6 +89,7 @@ interface UnifiedMapViewProps {
   onUpdateManualBusStops: (stopIds: string[]) => void
   onSelectRoute: (index: number) => void
   onTogglePublicTransit: () => void
+  onTogglePopulationMesh: () => void
 }
 
 export default function UnifiedMapView({
@@ -103,6 +108,8 @@ export default function UnifiedMapView({
   busStopsData,
   publicTransitData,
   showPublicTransit,
+  populationMeshData,
+  showPopulationMesh,
   availableDepartureTimes,
   isLoading,
   loadingMessage,
@@ -115,6 +122,7 @@ export default function UnifiedMapView({
   onUpdateManualBusStops,
   onSelectRoute,
   onTogglePublicTransit,
+  onTogglePopulationMesh,
 }: UnifiedMapViewProps) {
   // 結果画面のローカルステート
   const [selectedRouteIndex, setSelectedRouteIndex] = useState<number | null>(null)
@@ -151,6 +159,9 @@ export default function UnifiedMapView({
     <div className="relative w-full h-full">
       {/* 地図（常に同一インスタンス）- mapCenter取得後にマウント */}
       {mapCenter && <Map center={[mapCenter.lat, mapCenter.lng]}>
+        {/* === 人口メッシュレイヤー - 全画面共通（最背面） === */}
+        <PopulationMeshLayer data={populationMeshData} isVisible={showPopulationMesh} />
+
         {/* === 公共交通レイヤー - 全画面共通（最背面） === */}
         <PublicTransitLayer data={publicTransitData} isVisible={showPublicTransit} />
 
@@ -268,12 +279,12 @@ export default function UnifiedMapView({
       </Map>}
 
       {/* === レイヤーコントロールパネル - 全画面共通 === */}
-      {mapCenter && (
-        <LayerControlPanel
-          showPublicTransit={showPublicTransit}
-          onTogglePublicTransit={onTogglePublicTransit}
-        />
-      )}
+      <LayerControlPanel
+        showPublicTransit={showPublicTransit}
+        onTogglePublicTransit={onTogglePublicTransit}
+        showPopulationMesh={showPopulationMesh}
+        onTogglePopulationMesh={onTogglePopulationMesh}
+      />
 
       {/* === 左パネル - 画面ごとに切り替え === */}
       {currentScreen === 'condition' && (
