@@ -39,7 +39,7 @@ const initialState: AppState = {
   searchResult: null,
   publicTransitData: null,
   populationMeshData: null,
-  showPublicTransit: false,
+  showPublicTransit: true,
   showPopulationMesh: false,
   isLoading: false,
   loadingMessage: '',
