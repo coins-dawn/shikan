@@ -68,7 +68,6 @@ export default function Home() {
           showPopulationMesh={state.showPopulationMesh}
           availableDepartureTimes={availableDepartureTimes}
           onUpdateCondition={updateCondition}
-          onUpdateBusCondition={updateBusCondition}
           onNavigateToSimple={() => navigateTo('bus-simple')}
           onNavigateToManual={() => navigateTo('bus-manual')}
           onExecuteSearch={executeSearch}

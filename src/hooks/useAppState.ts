@@ -28,7 +28,6 @@ const initialState: AppState = {
     departureTime: '',
   },
   busCondition: {
-    roundTripTime: 60,
     selectedRouteIndex: 0,
   },
   manualBusStops: [],
@@ -167,7 +166,7 @@ export function useAppState() {
 
   // 到達圏検索APIを呼び出し（結果画面に遷移時）
   const executeSearch = useCallback(async () => {
-    const { condition, busCondition, stopSequences, currentScreen, manualBusStops } = state
+    const { condition, stopSequences, currentScreen, manualBusStops } = state
 
     let combusStops: string[]
 
@@ -191,7 +190,7 @@ export function useAppState() {
       if (!selectedRoute) {
         console.error('No matching stop sequence found', {
           spotId: condition.selectedSpotId,
-          timeLimit: busCondition.roundTripTime,
+          timeLimit: condition.maxMinute,
           walkDistanceLimit: condition.walkingDistance,
         })
         return
@@ -269,14 +268,14 @@ export function useAppState() {
 
   // 現在の条件に合致する全ルート候補を取得
   const getAllMatchingRoutes = useCallback((): StopSequence[] => {
-    const { stopSequences, condition, busCondition } = state
+    const { stopSequences, condition } = state
     if (!stopSequences) return []
 
     // 条件に合致するすべてのルートをフィルタ（スコア順にソート済みと想定）
     return stopSequences.filter(
       (seq) =>
         seq.spot === condition.selectedSpotId &&
-        seq['time-limit-m'] === busCondition.roundTripTime &&
+        seq['time-limit-m'] === condition.maxMinute &&
         seq['walk-distance-limit-m'] === condition.walkingDistance &&
         seq['start-time'] === condition.departureTime
     )
