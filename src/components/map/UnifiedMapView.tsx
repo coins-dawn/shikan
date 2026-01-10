@@ -49,6 +49,10 @@ const PopulationMeshLayer = dynamic(
   () => import('@/components/layer/PopulationMeshLayer'),
   { ssr: false }
 )
+const SampleRoutePolyline = dynamic(
+  () => import('@/components/layer/SampleRoutePolyline'),
+  { ssr: false }
+)
 
 interface UnifiedMapViewProps {
   // 画面状態
@@ -81,7 +85,6 @@ interface UnifiedMapViewProps {
 
   // イベントハンドラー
   onUpdateCondition: (updates: Partial<ConditionState>) => void
-  onUpdateBusCondition: (updates: Partial<BusConditionState>) => void
   onNavigateToSimple: () => void
   onNavigateToManual: () => void
   onExecuteSearch: () => void
@@ -114,7 +117,6 @@ export default function UnifiedMapView({
   isLoading,
   loadingMessage,
   onUpdateCondition,
-  onUpdateBusCondition,
   onNavigateToSimple,
   onNavigateToManual,
   onExecuteSearch,
@@ -276,6 +278,13 @@ export default function UnifiedMapView({
         {currentScreen === 'result' && busStopsFromResult.length >= 2 && (
           <BusRoutePolyline stops={busStopsFromResult} combusData={combusData} />
         )}
+
+        {/* === サンプル経路 - result画面 === */}
+        {currentScreen === 'result' && selectedRouteIndex !== null && facilityResult?.['route-pairs']?.[selectedRouteIndex] && (
+          <SampleRoutePolyline
+            routePair={facilityResult['route-pairs'][selectedRouteIndex]}
+          />
+        )}
       </Map>}
 
       {/* === レイヤーコントロールパネル - 全画面共通 === */}
@@ -299,11 +308,9 @@ export default function UnifiedMapView({
 
       {currentScreen === 'bus-simple' && (
         <BusConditionPanel
-          busCondition={busCondition}
           allRoutes={allRoutes}
           selectedRouteIndex={busCondition.selectedRouteIndex}
           onSelectRoute={onSelectRoute}
-          onUpdate={onUpdateBusCondition}
           onNext={onExecuteSearch}
           onSwitchToManual={onNavigateToManual}
         />

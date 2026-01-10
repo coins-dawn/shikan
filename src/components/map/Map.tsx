@@ -89,10 +89,10 @@ export default function Map({ children, center, zoom = 12 }: MapProps) {
       zoomControl={false}
     >
       <TileLayer
-        url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
+        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
       />
       <ZoomControl position="bottomright" />
-      <ZoomControlledLabels />
+      {/* <ZoomControlledLabels /> */}
       {children}
     </MapContainer>
   )
