@@ -5,6 +5,7 @@ import {
   ReachabilityItem,
   FacilityReachabilityWithScore,
   Spot,
+  ScreenType,
 } from '@/types'
 import Panel from '@/components/ui/Panel'
 
@@ -13,6 +14,7 @@ interface ResultSummaryPanelProps {
   reachability: ReachabilityItem | null
   facilityResult: FacilityReachabilityWithScore | null
   spots: Spot[]
+  currentScreen?: ScreenType
 }
 
 export default function ResultSummaryPanel({
@@ -20,6 +22,7 @@ export default function ResultSummaryPanel({
   reachability,
   facilityResult,
   spots,
+  currentScreen,
 }: ResultSummaryPanelProps) {
   const selectedSpot = spots.find((s) => s.id === condition.selectedSpotId)
   const originalScore = facilityResult?.reachable['original-score'] ?? 0
@@ -29,8 +32,18 @@ export default function ResultSummaryPanel({
   // 導入後の人口 = 導入前 + 増加分
   const totalAfterCombus = originalScore + increase
 
+  const helpContent = [
+    '到達圏の条件設定画面で設定した条件とその条件の時の到達可能人口が表示されます',
+    'コミュニティバスの導入後の到達可能人口と人口増加が表示されます',
+  ]
+
   return (
-    <Panel position="right" title="結果サマリ">
+    <Panel
+      position="right"
+      title="結果サマリ"
+      helpContent={helpContent}
+      currentScreen={currentScreen}
+    >
       <div className="space-y-3">
         {/* 選択条件 */}
         <div className="space-y-2">

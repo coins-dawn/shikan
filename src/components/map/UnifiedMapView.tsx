@@ -303,6 +303,7 @@ export default function UnifiedMapView({
           availableDepartureTimes={availableDepartureTimes}
           onUpdate={onUpdateCondition}
           onNext={onNavigateToSimple}
+          currentScreen={currentScreen}
         />
       )}
 
@@ -313,6 +314,7 @@ export default function UnifiedMapView({
           onSelectRoute={onSelectRoute}
           onNext={onExecuteSearch}
           onSwitchToManual={onNavigateToManual}
+          currentScreen={currentScreen}
         />
       )}
 
@@ -323,6 +325,7 @@ export default function UnifiedMapView({
           onDeselect={onToggleManualBusStop}
           onNext={onExecuteSearch}
           onBackToSimple={onNavigateToSimple}
+          currentScreen={currentScreen}
         />
       )}
 
@@ -337,6 +340,7 @@ export default function UnifiedMapView({
           onCloseSampleRoute={() => {
             setSelectedRouteIndex(null)
           }}
+          currentScreen={currentScreen}
         />
       )}
 
@@ -348,6 +352,7 @@ export default function UnifiedMapView({
           condition={condition}
           reachability={reachability}
           spots={allSpots}
+          currentScreen={currentScreen}
         />
       )}
 
@@ -357,6 +362,7 @@ export default function UnifiedMapView({
           reachability={reachability}
           facilityResult={facilityResult}
           spots={allSpots}
+          currentScreen={currentScreen}
         />
       )}
 

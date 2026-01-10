@@ -1,6 +1,6 @@
 'use client'
 
-import { StopSequence } from '@/types'
+import { StopSequence, ScreenType } from '@/types'
 import Panel from '@/components/ui/Panel'
 
 interface BusConditionPanelProps {
@@ -9,6 +9,7 @@ interface BusConditionPanelProps {
   onSelectRoute: (index: number) => void
   onNext: () => void
   onSwitchToManual: () => void
+  currentScreen?: ScreenType
 }
 
 export default function BusConditionPanel({
@@ -17,9 +18,21 @@ export default function BusConditionPanel({
   onSelectRoute,
   onNext,
   onSwitchToManual,
+  currentScreen,
 }: BusConditionPanelProps) {
+  const helpContent = [
+    'サービスが自動で生成したルートを提案します',
+    '手動でルートを作成したい場合は「手動設定する」リンクを押下すると手動設定画面に遷移します',
+    '「次へ」ボタンを押すとコミュニティバスが導入された場合の到達圏の変化を見ることができます',
+  ]
+
   return (
-    <Panel position="left" title="コミュニティバスの条件設定">
+    <Panel
+      position="left"
+      title="コミュニティバスの条件設定"
+      helpContent={helpContent}
+      currentScreen={currentScreen}
+    >
       <div className="space-y-4">
         {/* ルート選択 */}
         {allRoutes.length > 1 && (

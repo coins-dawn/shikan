@@ -1,23 +1,34 @@
 'use client'
 
-import { ConditionState, ReachabilityItem, Spot } from '@/types'
+import { ConditionState, ReachabilityItem, Spot, ScreenType } from '@/types'
 import Panel from '@/components/ui/Panel'
 
 interface SummaryPanelProps {
   condition: ConditionState
   reachability: ReachabilityItem | null
   spots: Spot[]
+  currentScreen?: ScreenType
 }
 
 export default function SummaryPanel({
   condition,
   reachability,
   spots,
+  currentScreen,
 }: SummaryPanelProps) {
   const selectedSpot = spots.find((s) => s.id === condition.selectedSpotId)
 
+  const helpContent = [
+    '到達圏の条件設定画面で設定した条件とその条件の時の到達可能人口が表示されます',
+  ]
+
   return (
-    <Panel position="right" title="サマリ">
+    <Panel
+      position="right"
+      title="サマリ"
+      helpContent={helpContent}
+      currentScreen={currentScreen}
+    >
       <div className="space-y-3">
         {/* 選択条件 */}
         <div className="space-y-2">

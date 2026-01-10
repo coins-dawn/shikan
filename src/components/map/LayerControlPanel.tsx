@@ -15,9 +15,9 @@ export default function LayerControlPanel({
 }: LayerControlPanelProps) {
   return (
     <div
-      className="top-4 left-4 absolute p-3 rounded bg-white shadow-[0_1px_5px_rgba(0,0,0,0.4)]"
+      className="top-4 left-4 absolute p-3 bg-white rounded-lg shadow-lg"
     >
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-row gap-2">
         <label className="flex items-center gap-2 cursor-pointer">
           <input
             type="checkbox"

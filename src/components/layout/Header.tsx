@@ -25,7 +25,7 @@ export default function Header({ currentScreen, onNavigate }: HeaderProps) {
     <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
       {/* ロゴ */}
       <h1 className="text-lg font-bold text-gray-800">
-        コミュニティバスを作ろう！
+        コミバスをつくろう！
       </h1>
 
       {/* パンくずナビゲーション */}

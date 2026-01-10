@@ -1,7 +1,7 @@
 'use client'
 
 import Panel from '@/components/ui/Panel'
-import { CombusData, RoutePair, RouteInfo } from '@/types'
+import { CombusData, RoutePair, RouteInfo, ScreenType } from '@/types'
 
 interface BusStopDetailPanelProps {
   combusData: CombusData | null
@@ -9,6 +9,7 @@ interface BusStopDetailPanelProps {
   selectedRouteIndex: number | null
   onShowSampleRoute: (index: number) => void
   onCloseSampleRoute: () => void
+  currentScreen?: ScreenType
 }
 
 // 経路情報表示用コンポーネント
@@ -123,10 +124,21 @@ export default function BusStopDetailPanel({
   selectedRouteIndex,
   onShowSampleRoute,
   onCloseSampleRoute,
+  currentScreen,
 }: BusStopDetailPanelProps) {
+  const helpContent = [
+    '緑色のメッシュがコミュニティバスの導入によって新たに到達可能になった地域です',
+    'サンプル経路ボタンを押すとコミュニティバスの導入によって改善された一例が見ることができます',
+  ]
+
   if (!combusData) {
     return (
-      <Panel position="left" title="バス停詳細">
+      <Panel
+        position="left"
+        title="バス停詳細"
+        helpContent={helpContent}
+        currentScreen={currentScreen}
+      >
         <div className="text-gray-500">データがありません</div>
       </Panel>
     )
@@ -164,7 +176,12 @@ export default function BusStopDetailPanel({
   const isSampleRouteOpen = selectedRouteIndex !== null
 
   return (
-    <Panel position="left" title="バス停詳細">
+    <Panel
+      position="left"
+      title="シミュレーション結果"
+      helpContent={helpContent}
+      currentScreen={currentScreen}
+    >
 
       {/* 折りたたみ可能なコンテンツ（バス停詳細） */}
       <div

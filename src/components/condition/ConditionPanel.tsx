@@ -1,6 +1,6 @@
 'use client'
 
-import { ConditionState, Spot } from '@/types'
+import { ConditionState, Spot, ScreenType } from '@/types'
 import Panel from '@/components/ui/Panel'
 
 interface ConditionPanelProps {
@@ -9,6 +9,7 @@ interface ConditionPanelProps {
   availableDepartureTimes: string[]
   onUpdate: (updates: Partial<ConditionState>) => void
   onNext: () => void
+  currentScreen?: ScreenType
 }
 
 // 移動上限時間の選択肢（30〜90分、10分刻み）
@@ -23,9 +24,21 @@ export default function ConditionPanel({
   availableDepartureTimes,
   onUpdate,
   onNext,
+  currentScreen,
 }: ConditionPanelProps) {
+  const helpContent = [
+    '選択された対象スポットの到達圏が地図上に表示されます',
+    '移動上限時間、徒歩上限距離、出発時刻を設定できます',
+    '条件の設定ができたら「次へ」ボタンを押すとコミュニティバスのルート作成画面に進みます',
+  ]
+
   return (
-    <Panel position="left" title="到達圏の条件設定">
+    <Panel
+      position="left"
+      title="到達圏の条件設定"
+      helpContent={helpContent}
+      currentScreen={currentScreen}
+    >
       <div className="space-y-4">
         {/* 対象スポット */}
         <div>
@@ -86,7 +99,7 @@ export default function ConditionPanel({
         {/* 出発時刻 */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            出発時刻を選択
+            出発時刻
           </label>
           <select
             value={condition.departureTime}
