@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "コミュニティバスを作ろう！",
+  title: "コミバスをつくろう！",
   description: "コミュニティバスの路線計画を支援する地図ベースのWebアプリケーション",
 };
 
