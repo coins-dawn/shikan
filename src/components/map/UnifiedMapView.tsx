@@ -258,6 +258,7 @@ export default function UnifiedMapView({
                 selectionOrder={isSelected ? selectedIndex + 1 : undefined}
                 onSelect={() => onToggleManualBusStop(stop.id)}
                 onDeselect={() => onToggleManualBusStop(stop.id)}
+                isManualMode={true}
               />
             )
           })}
