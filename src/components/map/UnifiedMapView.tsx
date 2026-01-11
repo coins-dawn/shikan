@@ -87,6 +87,8 @@ interface UnifiedMapViewProps {
   onUpdateCondition: (updates: Partial<ConditionState>) => void
   onNavigateToSimple: () => void
   onNavigateToManual: () => void
+  onBackToCondition: () => void
+  onBackToBus: () => void
   onExecuteSearch: () => void
   onToggleManualBusStop: (stopId: string) => void
   onUpdateManualBusStops: (stopIds: string[]) => void
@@ -119,6 +121,8 @@ export default function UnifiedMapView({
   onUpdateCondition,
   onNavigateToSimple,
   onNavigateToManual,
+  onBackToCondition,
+  onBackToBus,
   onExecuteSearch,
   onToggleManualBusStop,
   onUpdateManualBusStops,
@@ -314,6 +318,7 @@ export default function UnifiedMapView({
           onSelectRoute={onSelectRoute}
           onNext={onExecuteSearch}
           onSwitchToManual={onNavigateToManual}
+          onBack={onBackToCondition}
           currentScreen={currentScreen}
         />
       )}
@@ -340,6 +345,7 @@ export default function UnifiedMapView({
           onCloseSampleRoute={() => {
             setSelectedRouteIndex(null)
           }}
+          onBack={onBackToBus}
           currentScreen={currentScreen}
         />
       )}

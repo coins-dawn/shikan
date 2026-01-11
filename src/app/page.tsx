@@ -42,7 +42,7 @@ export default function Home() {
   return (
     <div className="h-screen flex flex-col">
       {/* ヘッダー */}
-      <Header currentScreen={state.currentScreen} onNavigate={navigateTo} />
+      <Header currentScreen={state.currentScreen} />
 
       {/* メインコンテンツ */}
       <main className="flex-1 relative overflow-hidden">
@@ -70,6 +70,11 @@ export default function Home() {
           onUpdateCondition={updateCondition}
           onNavigateToSimple={() => navigateTo('bus-simple')}
           onNavigateToManual={() => navigateTo('bus-manual')}
+          onBackToCondition={() => navigateTo('condition')}
+          onBackToBus={() => {
+            // manualBusStopsが設定されている場合はbus-manualへ、そうでなければbus-simpleへ
+            navigateTo(state.manualBusStops.length > 0 ? 'bus-manual' : 'bus-simple')
+          }}
           onExecuteSearch={executeSearch}
           onToggleManualBusStop={toggleManualBusStop}
           onUpdateManualBusStops={updateManualBusStops}

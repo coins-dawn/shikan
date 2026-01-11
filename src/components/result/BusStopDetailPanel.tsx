@@ -9,6 +9,7 @@ interface BusStopDetailPanelProps {
   selectedRouteIndex: number | null
   onShowSampleRoute: (index: number) => void
   onCloseSampleRoute: () => void
+  onBack: () => void
   currentScreen?: ScreenType
 }
 
@@ -124,6 +125,7 @@ export default function BusStopDetailPanel({
   selectedRouteIndex,
   onShowSampleRoute,
   onCloseSampleRoute,
+  onBack,
   currentScreen,
 }: BusStopDetailPanelProps) {
   const helpContent = [
@@ -276,6 +278,14 @@ export default function BusStopDetailPanel({
           </div>
         )}
       </div>
+
+      {/* コミュニティバスの条件設定に戻るボタン */}
+      {!isSampleRouteOpen && <button
+        onClick={onBack}
+        className="mt-4 w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors"
+      >
+        戻る
+      </button>}
 
       {/* サンプル経路の詳細（展開時） */}
       <div

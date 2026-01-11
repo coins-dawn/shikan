@@ -9,6 +9,7 @@ interface BusConditionPanelProps {
   onSelectRoute: (index: number) => void
   onNext: () => void
   onSwitchToManual: () => void
+  onBack: () => void
   currentScreen?: ScreenType
 }
 
@@ -18,6 +19,7 @@ export default function BusConditionPanel({
   onSelectRoute,
   onNext,
   onSwitchToManual,
+  onBack,
   currentScreen,
 }: BusConditionPanelProps) {
   const helpContent = [
@@ -68,6 +70,14 @@ export default function BusConditionPanel({
           className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
         >
           次へ
+        </button>
+
+        {/* 到達圏の条件設定に戻るボタン */}
+        <button
+          onClick={onBack}
+          className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors"
+        >
+          戻る
         </button>
       </div>
     </Panel>
