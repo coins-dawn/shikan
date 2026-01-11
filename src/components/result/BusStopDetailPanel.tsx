@@ -86,11 +86,11 @@ function RouteDisplay({
               <div className="flex items-center gap-1.5 mb-1">
                 <span
                   className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${section.mode === 'combus'
-                    ? 'bg-green-100 text-green-700'
+                    ? 'bg-blue-100 text-blue-700'
                     : section.mode === 'bus'
-                      ? 'bg-blue-100 text-blue-700'
+                      ? 'bg-gray-100 text-gray-700'
                       : section.mode === 'tram'
-                        ? 'bg-purple-100 text-purple-700'
+                        ? 'bg-gray-100 text-gray-700'
                         : 'bg-gray-100 text-gray-700'
                     }`}
                 >
@@ -190,7 +190,10 @@ export default function BusStopDetailPanel({
         className={`transition-all duration-300 ease-in-out overflow-hidden ${isSampleRouteOpen ? 'max-h-0' : 'max-h-[calc(100vh-20rem)]'
           }`}
       >
-        <div className="flex flex-col space-y-4">
+        <h3 className="text-sm font-medium text-gray-700 mb-2">
+          コミュニティバス詳細
+        </h3>
+        <div className="flex flex-col space-y-4 mb-4">
           {/* 周回サマリ */}
           <div className="bg-blue-50 rounded-lg p-3">
             <div className="grid grid-cols-2 gap-2 text-sm">
@@ -209,9 +212,6 @@ export default function BusStopDetailPanel({
 
           {/* バス停一覧 */}
           <div className="flex flex-col max-h-[calc(100vh-414px)] overflow-hidden">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">
-              バス停一覧
-            </h3>
             <div className="space-y-2 overflow-y-auto">
               {stopList.map((stop, index) => (
                 <div key={stop.id} className="text-sm">
@@ -293,8 +293,8 @@ export default function BusStopDetailPanel({
           }`}
       >
         {selectedRoutePair && selectedRouteIndex !== null && (
-          <div className="px-4 pb-4">
-            <div className="border-t border-gray-200 pt-4">
+          <div className="">
+            <div className="pt-4">
               <div className="flex gap-3 overflow-y-auto max-h-[calc(100vh-24rem)]">
                 <RouteDisplay
                   route={selectedRoutePair.original}
