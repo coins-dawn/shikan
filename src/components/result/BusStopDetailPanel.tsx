@@ -2,6 +2,7 @@
 
 import Panel from '@/components/ui/Panel'
 import { CombusData, RoutePair, RouteInfo, ScreenType } from '@/types'
+import { Fragment } from 'react'
 
 interface BusStopDetailPanelProps {
   combusData: CombusData | null
@@ -79,40 +80,43 @@ function RouteDisplay({
       {/* ルート詳細 */}
       <div>
         <h4 className="text-xs font-medium text-gray-700 mb-2">ルート詳細</h4>
-        <div className="space-y-1.5">
-          {route.sections.map((section, idx) => (
-            <div key={idx} className="bg-white rounded p-2 text-xs">
-              {/* 交通手段バッジ */}
-              <div className="flex items-center gap-1.5 mb-1">
-                <span
-                  className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${section.mode === 'combus'
-                    ? 'bg-blue-100 text-blue-700'
-                    : section.mode === 'bus'
-                      ? 'bg-gray-100 text-gray-700'
-                      : section.mode === 'tram'
-                        ? 'bg-gray-100 text-gray-700'
-                        : 'bg-gray-100 text-gray-700'
-                    }`}
-                >
-                  {section.mode === 'combus'
-                    ? 'コミバス'
-                    : section.mode === 'bus'
-                      ? 'バス'
-                      : section.mode === 'tram'
-                        ? '電車'
-                        : '徒歩'}
-                </span>
-                <span className="text-gray-600">{section['duration-m']}分</span>
-              </div>
-
+        <div className="">
+          {route.sections.map((section, idx) => (<Fragment key={idx}>
+            <div className="bg-white p-2 text-xs border border-gray-200">
               {/* 経路 */}
-              <div className="text-gray-600 text-[11px]">
-                <div className="truncate">{section.from.name}</div>
-                <div className="text-gray-400">↓</div>
-                <div className="truncate">{section.to.name}</div>
-              </div>
+              <span className="text-gray-600 text-[10px]">
+                {section.from.name}
+              </span>
             </div>
-          ))}
+            <div className='flex items-center'>
+              <span className="border-1 h-8 ml-4.5 border-gray-300" />
+              <span className="mx-2 my-1 text-[10px] text-gray-600">{section['duration-m']}分</span>
+              <span
+                className={`px-1.5 py-0.5 rounded text-[10px] ml-auto font-medium ${section.mode === 'combus'
+                  ? 'bg-blue-100 text-blue-700'
+                  : section.mode === 'bus'
+                    ? 'bg-gray-100 text-gray-700'
+                    : section.mode === 'tram'
+                      ? 'bg-gray-100 text-gray-700'
+                      : 'bg-gray-100 text-gray-700'
+                  }`}
+              >
+                {section.mode === 'combus'
+                  ? 'コミバス'
+                  : section.mode === 'bus'
+                    ? 'バス'
+                    : section.mode === 'tram'
+                      ? '電車'
+                      : '徒歩'}
+              </span>
+            </div>
+          </Fragment>))}
+          <div className="bg-white p-2 text-xs border border-gray-200">
+            {/* 経路 */}
+            <span className="text-gray-600 text-[10px]">
+              {route.to.name}
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -316,6 +320,13 @@ export default function BusStopDetailPanel({
           </div>
         )}
       </div>
+      {isSampleRouteOpen && <button
+        onClick={onCloseSampleRoute}
+        className="mt-4 w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors"
+      >
+        戻る
+      </button>}
+
     </Panel>
   )
 }
