@@ -136,33 +136,27 @@ export default function BusManualPanel({
 
         {/* バス停一覧 */}
         <div>
-          {selectedStops.length === 0 ? (
-            <p className="text-sm text-gray-500 text-center py-8">
-              地図上のマーカーをクリックしてバス停を選択
-            </p>
-          ) : (
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={selectedStops.map((stop) => stop.id)}
+              strategy={verticalListSortingStrategy}
             >
-              <SortableContext
-                items={selectedStops.map((stop) => stop.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                <ol className="space-y-2">
-                  {selectedStops.map((stop, index) => (
-                    <SortableStopItem
-                      key={stop.id}
-                      stop={stop}
-                      index={index}
-                      onDeselect={onDeselect}
-                    />
-                  ))}
-                </ol>
-              </SortableContext>
-            </DndContext>
-          )}
+              <ol className="space-y-2">
+                {selectedStops.map((stop, index) => (
+                  <SortableStopItem
+                    key={stop.id}
+                    stop={stop}
+                    index={index}
+                    onDeselect={onDeselect}
+                  />
+                ))}
+              </ol>
+            </SortableContext>
+          </DndContext>
         </div>
 
         {/* 簡易選択に戻るリンク */}
@@ -177,11 +171,10 @@ export default function BusManualPanel({
         <button
           onClick={onNext}
           disabled={!canProceed}
-          className={`w-full px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors ${
-            canProceed
+          className={`w-full px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors ${canProceed
               ? 'bg-blue-600 text-white hover:bg-blue-700'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          }`}
+            }`}
         >
           次へ
         </button>
