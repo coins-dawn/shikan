@@ -12,16 +12,16 @@ interface BusRoutePolylineProps {
 }
 
 // 矢印アイコンを作成（SVGで上向き三角形を使用）
-const createArrowIcon = (rotation: number, color: string = '#2563eb') => {
+const createArrowIcon = (rotation: number, color: string = '#2563eb', opacity: number = 1.0, size: number = 20) => {
   return L.divIcon({
     className: 'arrow-icon',
     html: `
-      <svg width="20" height="20" viewBox="0 0 20 20" style="transform: rotate(${rotation}deg);">
+      <svg width="${size}" height="${size}" viewBox="0 0 20 20" style="transform: rotate(${rotation}deg); opacity: ${opacity};">
         <path d="M10 2 L18 18 L10 14 L2 18 Z" fill="${color}" stroke="${color}" stroke-width="1"/>
       </svg>
     `,
-    iconSize: [20, 20],
-    iconAnchor: [10, 10],
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
   })
 }
 
@@ -205,7 +205,7 @@ export default function BusRoutePolyline({
           <Marker
             key={arrow.key}
             position={arrow.position}
-            icon={createArrowIcon(arrow.angle, color)}
+            icon={createArrowIcon(arrow.angle, color, isSelected ? 1.0 : 0.3, isSelected ? 20 : 14)}
             interactive={false}
           />
         ))}
@@ -252,7 +252,7 @@ export default function BusRoutePolyline({
         />
         <Marker
           position={outboundArrowPos}
-          icon={createArrowIcon(outboundAngle, color)}
+          icon={createArrowIcon(outboundAngle, color, isSelected ? 1.0 : 0.3, isSelected ? 20 : 14)}
           interactive={false}
         />
 
@@ -272,7 +272,7 @@ export default function BusRoutePolyline({
         />
         <Marker
           position={returnArrowPos}
-          icon={createArrowIcon(returnAngle, color)}
+          icon={createArrowIcon(returnAngle, color, isSelected ? 1.0 : 0.3, isSelected ? 20 : 14)}
           interactive={false}
         />
       </>
@@ -303,8 +303,8 @@ export default function BusRoutePolyline({
         positions={positions}
         pathOptions={{
           color: color,
-          weight: 3,
-          opacity: 0.7,
+          weight: isSelected ? 3 : 1,
+          opacity: isSelected ? 0.7 : 0.3,
         }}
         eventHandlers={
           onSelectRoute && !isSelected
@@ -316,7 +316,7 @@ export default function BusRoutePolyline({
         <Marker
           key={arrow.key}
           position={arrow.position}
-          icon={createArrowIcon(arrow.angle, color)}
+          icon={createArrowIcon(arrow.angle, color, isSelected ? 1.0 : 0.3, isSelected ? 20 : 8)}
           interactive={false}
         />
       ))}
