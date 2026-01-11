@@ -13,7 +13,7 @@ interface ConditionPanelProps {
 }
 
 // 移動上限時間の選択肢（30〜90分、10分刻み）
-const TIME_OPTIONS = Array.from({ length: 7 }, (_, i) => (i + 3) * 10)
+const TIME_OPTIONS = Array.from({ length: 4 }, (_, i) => (i + 3) * 10)
 
 // 徒歩距離上限の選択肢
 const WALK_DISTANCE_OPTIONS = [500, 1000]
