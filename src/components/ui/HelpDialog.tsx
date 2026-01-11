@@ -51,7 +51,7 @@ export default function HelpDialog({
           <ul className="space-y-2">
             {content.map((item, index) => (
               <li key={index} className="text-sm text-gray-700 leading-relaxed">
-                ・{item}
+                {item}
               </li>
             ))}
           </ul>
