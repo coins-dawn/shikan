@@ -233,7 +233,7 @@ export default function BusStopDetailPanel({
                 <div className="text-sm">
                   <div className="flex items-center">
                     <span className="w-6 h-6 flex items-center justify-center bg-blue-100 text-blue-700 rounded-full text-xs font-medium mr-2">
-                      {stopList.length + 1}
+                      {1}
                     </span>
                     <span className="flex-1 truncate">{stopList[0].name}</span>
                   </div>
