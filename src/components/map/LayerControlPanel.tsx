@@ -26,10 +26,10 @@ export default function LayerControlPanel({
   ]
 
   return (
-    <div className="top-4 left-4 absolute p-3 bg-white rounded-lg shadow-lg z-[50]">
-      <div className="flex flex-row items-start gap-2">
-        <div className="flex flex-row gap-2">
-          <label className="flex items-center gap-2 cursor-pointer">
+    <div className="top-4 left-4 absolute p-3 bg-white rounded-lg shadow-lg z-[50] w-80">
+      <div className="flex flex-row items-center gap-2">
+        <div className="flex flex-row gap-1">
+          <label className="flex items-center gap-1 cursor-pointer">
             <input
               type="checkbox"
               checked={showPublicTransit}
@@ -38,7 +38,7 @@ export default function LayerControlPanel({
             />
             <span className="text-sm text-gray-700">公共交通を表示</span>
           </label>
-          <label className="flex items-center gap-2 cursor-pointer">
+          <label className="flex items-center gap-1 cursor-pointer">
             <input
               type="checkbox"
               checked={showPopulationMesh}
