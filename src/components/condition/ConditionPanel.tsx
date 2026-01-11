@@ -18,6 +18,11 @@ const TIME_OPTIONS = Array.from({ length: 4 }, (_, i) => (i + 3) * 10)
 // 徒歩距離上限の選択肢
 const WALK_DISTANCE_OPTIONS = [500, 1000]
 
+const timeZone = [
+  { time: "10:00", name: `朝（10:00）` },
+  { time: "13:00", name: `昼（13:00）` },
+  { time: "16:00", name: `夕（16:00）` },
+]
 export default function ConditionPanel({
   condition,
   spots,
@@ -99,7 +104,7 @@ export default function ConditionPanel({
         {/* 出発時刻 */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            出発時刻
+            利用時間帯
           </label>
           <select
             value={condition.departureTime}
@@ -108,7 +113,7 @@ export default function ConditionPanel({
           >
             {availableDepartureTimes.map((time) => (
               <option key={time} value={time}>
-                {time}
+                {timeZone.find(item => item.time == time)?.name ?? time}
               </option>
             ))}
           </select>
