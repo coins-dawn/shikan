@@ -220,11 +220,12 @@ export default function UnifiedMapView({
                 <div key={`route-${index}`}>
                   {/* 選択されたルートのみマーカーを表示 */}
                   {isSelected &&
-                    routeBusStops.map((stop) => (
+                    routeBusStops.map((stop, stopIndex) => (
                       <BusStopMarker
                         key={`${index}-${stop.id}`}
                         stop={stop}
                         isSelected={true}
+                        selectionOrder={stopIndex + 1}
                         onSelect={() => {}}
                       />
                     ))}
@@ -271,13 +272,21 @@ export default function UnifiedMapView({
         {/* === バス停マーカー - result画面 === */}
         {currentScreen === 'result' &&
           busStopsFromResult
-            .filter((stop) => {
+            .map((stop, originalIndex) => {
               // サンプル経路が選択されていない場合は全バス停を表示
-              if (selectedRouteIndex === null) return true
+              if (selectedRouteIndex === null) {
+                return {
+                  stop,
+                  selectionOrder: originalIndex + 1,
+                  shouldDisplay: true,
+                }
+              }
 
               // サンプル経路が選択されている場合、導入後経路のsectionsに含まれるバス停のみ表示
               const routePair = facilityResult?.['route-pairs']?.[selectedRouteIndex]
-              if (!routePair) return false
+              if (!routePair) {
+                return { stop, selectionOrder: originalIndex + 1, shouldDisplay: false }
+              }
 
               // 導入後経路のsectionsからバス停名を収集
               const stopNames = new Set<string>()
@@ -286,13 +295,19 @@ export default function UnifiedMapView({
                 stopNames.add(section.to.name)
               })
 
-              return stopNames.has(stop.name)
+              return {
+                stop,
+                selectionOrder: originalIndex + 1,
+                shouldDisplay: stopNames.has(stop.name),
+              }
             })
-            .map((stop) => (
+            .filter((item) => item.shouldDisplay)
+            .map((item) => (
               <BusStopMarker
-                key={stop.id}
-                stop={stop}
+                key={item.stop.id}
+                stop={item.stop}
                 isSelected={true}
+                selectionOrder={item.selectionOrder}
                 onSelect={() => {}}
               />
             ))}
