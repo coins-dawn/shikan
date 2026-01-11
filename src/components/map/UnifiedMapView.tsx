@@ -270,17 +270,35 @@ export default function UnifiedMapView({
 
         {/* === バス停マーカー - result画面 === */}
         {currentScreen === 'result' &&
-          busStopsFromResult.map((stop) => (
-            <BusStopMarker
-              key={stop.id}
-              stop={stop}
-              isSelected={true}
-              onSelect={() => {}}
-            />
-          ))}
+          busStopsFromResult
+            .filter((stop) => {
+              // サンプル経路が選択されていない場合は全バス停を表示
+              if (selectedRouteIndex === null) return true
 
-        {/* === バス経路 - result画面 === */}
-        {currentScreen === 'result' && busStopsFromResult.length >= 2 && (
+              // サンプル経路が選択されている場合、導入後経路のsectionsに含まれるバス停のみ表示
+              const routePair = facilityResult?.['route-pairs']?.[selectedRouteIndex]
+              if (!routePair) return false
+
+              // 導入後経路のsectionsからバス停名を収集
+              const stopNames = new Set<string>()
+              routePair['with-combus'].sections.forEach((section) => {
+                stopNames.add(section.from.name)
+                stopNames.add(section.to.name)
+              })
+
+              return stopNames.has(stop.name)
+            })
+            .map((stop) => (
+              <BusStopMarker
+                key={stop.id}
+                stop={stop}
+                isSelected={true}
+                onSelect={() => {}}
+              />
+            ))}
+
+        {/* === バス経路 - result画面（サンプル経路非選択時のみ表示） === */}
+        {currentScreen === 'result' && selectedRouteIndex === null && busStopsFromResult.length >= 2 && (
           <BusRoutePolyline stops={busStopsFromResult} combusData={combusData} />
         )}
 

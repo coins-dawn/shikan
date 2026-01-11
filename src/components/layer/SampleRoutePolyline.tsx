@@ -1,3 +1,4 @@
+import React from 'react'
 import { Polyline, Marker } from 'react-leaflet'
 import L from 'leaflet'
 import { RoutePair } from '@/types'
@@ -89,23 +90,13 @@ export default function SampleRoutePolyline({ routePair }: SampleRoutePolylinePr
     })
   }
 
-  // 導入後（with-combus）のルートを処理
-  const withCombusPositions: [number, number][] = []
-  if (routePair['with-combus'].geometry) {
-    const decoded = polyline.decode(routePair['with-combus'].geometry)
-    decoded.forEach(([lat, lon]) => {
-      withCombusPositions.push([lat, lon])
-    })
-  }
-
   // geometryデータがない場合は何も表示しない
-  if (originalPositions.length === 0 && withCombusPositions.length === 0) {
+  if (originalPositions.length === 0 && routePair['with-combus'].sections.length === 0) {
     return null
   }
 
   // 矢印の位置を計算（セクションごと）
   const originalArrows = calculateArrowPositionsForSections(routePair.original.sections)
-  const withCombusArrows = calculateArrowPositionsForSections(routePair['with-combus'].sections)
 
   return (
     <>
@@ -131,27 +122,42 @@ export default function SampleRoutePolyline({ routePair }: SampleRoutePolylinePr
         </>
       )}
 
-      {/* 導入後のルート（グリーン） - 後に描画（前面） */}
-      {withCombusPositions.length > 0 && (
-        <>
-          <Polyline
-            positions={withCombusPositions}
-            pathOptions={{
-              color: '#22C55E',
-              weight: 4,
-              opacity: 0.7,
-            }}
-          />
-          {withCombusArrows.map((arrow) => (
+      {/* 導入後のルート - セクションごとに描画（コミバス区間は青・太線、それ以外は緑・通常線） */}
+      {routePair['with-combus'].sections.map((section, index) => {
+        if (!section.geometry) return null
+
+        const decoded = polyline.decode(section.geometry)
+        const positions: [number, number][] = decoded.map(([lat, lon]) => [lat, lon])
+
+        if (positions.length === 0) return null
+
+        const isCombus = section.mode === 'combus'
+        const color = isCombus ? '#2563eb' : '#22C55E'
+        const weight = 4
+
+        // セクションの中間点に矢印を配置
+        const midIndex = Math.floor(positions.length / 2)
+        const position = positions[midIndex]
+        const angle = calculateRegionalAngle(positions, midIndex, Math.min(10, Math.floor(positions.length / 3)))
+
+        return (
+          <React.Fragment key={`with-combus-section-${index}`}>
+            <Polyline
+              positions={positions}
+              pathOptions={{
+                color,
+                weight,
+                opacity: 0.7,
+              }}
+            />
             <Marker
-              key={arrow.key}
-              position={arrow.position}
-              icon={createArrowIcon(arrow.angle, '#22C55E')}
+              position={position}
+              icon={createArrowIcon(angle, color)}
               interactive={false}
             />
-          ))}
-        </>
-      )}
+          </React.Fragment>
+        )
+      })}
     </>
   )
 }
