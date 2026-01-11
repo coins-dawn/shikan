@@ -6,6 +6,7 @@ import polyline from '@mapbox/polyline'
 
 interface SampleRoutePolylineProps {
   routePair: RoutePair
+  goalColor?: string
 }
 
 // 矢印アイコンを作成（SVGで上向き三角形を使用）
@@ -19,6 +20,24 @@ const createArrowIcon = (rotation: number, color: string) => {
     `,
     iconSize: [20, 20],
     iconAnchor: [10, 10],
+  })
+}
+
+// ゴールマーカーアイコンを作成（旗のアイコン、スポットマーカーと同じスタイル）
+const createGoalIcon = (color: string) => {
+  return L.divIcon({
+    className: 'goal-icon',
+    html: `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28">
+        <circle cx="14" cy="14" r="13" fill="${color}" stroke="white" stroke-width="2"/>
+        <g transform="translate(5, 4) scale(0.035)">
+          <polygon points="448.488,138.033 448.709,137.942 250.754,55.23 175.476,23.705 175.476,23.774 175.307,23.705 175.307,252.176 334.947,185.475 448.644,138.098" fill="white"/>
+          <path d="M149.725,440.197V0h-44.693v441.054c-24.906,5.184-41.742,18.184-41.742,34.246c0,20.922,28.496,36.701,66.282,36.701c37.787,0,66.279-15.778,66.279-36.701C195.852,458.303,177.045,444.701,149.725,440.197z" fill="white"/>
+        </g>
+      </svg>
+    `,
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
   })
 }
 
@@ -80,7 +99,7 @@ const calculateArrowPositionsForSections = (sections: Array<{ geometry: string }
   return arrows
 }
 
-export default function SampleRoutePolyline({ routePair }: SampleRoutePolylineProps) {
+export default function SampleRoutePolyline({ routePair, goalColor = '#22C55E' }: SampleRoutePolylineProps) {
   // 導入前（original）のルートを処理
   const originalPositions: [number, number][] = []
   if (routePair.original.geometry) {
@@ -97,6 +116,16 @@ export default function SampleRoutePolyline({ routePair }: SampleRoutePolylinePr
 
   // 矢印の位置を計算（セクションごと）
   const originalArrows = calculateArrowPositionsForSections(routePair.original.sections)
+
+  // ゴール地点（最終目的地）の座標を取得
+  const originalGoal: [number, number] = [
+    routePair.original.to.coord.lat,
+    routePair.original.to.coord.lon
+  ]
+  const withCombusGoal: [number, number] = [
+    routePair['with-combus'].to.coord.lat,
+    routePair['with-combus'].to.coord.lon
+  ]
 
   return (
     <>
@@ -119,6 +148,13 @@ export default function SampleRoutePolyline({ routePair }: SampleRoutePolylinePr
               interactive={false}
             />
           ))}
+          {/* 導入前のゴールマーカー */}
+          <Marker
+            position={originalGoal}
+            icon={createGoalIcon('#6B7280')}
+            interactive={false}
+            zIndexOffset={1000}
+          />
         </>
       )}
 
@@ -158,6 +194,14 @@ export default function SampleRoutePolyline({ routePair }: SampleRoutePolylinePr
           </React.Fragment>
         )
       })}
+
+      {/* 導入後のゴールマーカー */}
+      <Marker
+        position={withCombusGoal}
+        icon={createGoalIcon(goalColor)}
+        interactive={false}
+        zIndexOffset={1000}
+      />
     </>
   )
 }

@@ -303,11 +303,23 @@ export default function UnifiedMapView({
         )}
 
         {/* === サンプル経路 - result画面 === */}
-        {currentScreen === 'result' && selectedRouteIndex !== null && facilityResult?.['route-pairs']?.[selectedRouteIndex] && (
-          <SampleRoutePolyline
-            routePair={facilityResult['route-pairs'][selectedRouteIndex]}
-          />
-        )}
+        {currentScreen === 'result' && selectedRouteIndex !== null && facilityResult?.['route-pairs']?.[selectedRouteIndex] && (() => {
+          // 選択中のスポットの色を取得
+          const selectedSpot = allSpots.find(s => s.id === condition.selectedSpotId)
+          const SPOT_COLORS: Record<string, string> = {
+            hospital: '#ef4444', // 赤
+            shopping: '#3b82f6', // 青
+            'public-facility': '#10b981', // 緑
+          }
+          const goalColor = selectedSpot ? (SPOT_COLORS[selectedSpot.type] || '#6b7280') : '#22C55E'
+
+          return (
+            <SampleRoutePolyline
+              routePair={facilityResult['route-pairs'][selectedRouteIndex]}
+              goalColor={goalColor}
+            />
+          )
+        })()}
       </Map>}
 
       {/* === レイヤーコントロールパネル - 全画面共通 === */}
