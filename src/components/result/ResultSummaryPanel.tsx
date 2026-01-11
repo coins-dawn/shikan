@@ -99,42 +99,64 @@ export default function ResultSummaryPanel({
 
         {/* 増加量 */}
         {facilityResult && (
-          <div className="bg-green-50 rounded-lg p-3">
+          <div className={increaseRate === 0 ? "bg-gray-100 rounded-lg p-3" : "bg-green-50 rounded-lg p-3"}>
             <div className="flex items-center justify-between gap-2">
               <div className="flex-1">
-                <div className="text-sm text-green-700 mb-1">人口増加</div>
-                <div className="text-xl font-bold text-green-600">
+                <div className={increaseRate === 0 ? "text-sm text-gray-600 mb-1" : "text-sm text-green-700 mb-1"}>人口増加</div>
+                <div className={increaseRate === 0 ? "text-xl font-bold text-gray-700" : "text-xl font-bold text-green-600"}>
                   +{increase.toLocaleString()}人
                 </div>
-                <div className="text-sm text-green-600">
+                <div className={increaseRate === 0 ? "text-sm text-gray-600" : "text-sm text-green-600"}>
                   (+{increaseRate}%)
                 </div>
               </div>
               <div className="flex gap-1 flex-shrink-0">
-                <img
-                  src="/icons/happy.png"
-                  alt="Happy"
-                  className="w-8 h-8"
-                  style={{
-                    filter: 'invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg) brightness(95%) contrast(98%)'
-                  }}
-                />
-                <img
-                  src="/icons/happy.png"
-                  alt="Happy"
-                  className="w-8 h-8"
-                  style={{
-                    filter: 'invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg) brightness(95%) contrast(98%)'
-                  }}
-                />
-                <img
-                  src="/icons/happy.png"
-                  alt="Happy"
-                  className="w-8 h-8"
-                  style={{
-                    filter: 'invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg) brightness(95%) contrast(98%)'
-                  }}
-                />
+                {increaseRate === 0 ? (
+                  <>
+                    <img
+                      src="/icons/sad.png"
+                      alt="Sad"
+                      className="w-8 h-8 opacity-60"
+                    />
+                    <img
+                      src="/icons/sad.png"
+                      alt="Sad"
+                      className="w-8 h-8 opacity-60"
+                    />
+                    <img
+                      src="/icons/sad.png"
+                      alt="Sad"
+                      className="w-8 h-8 opacity-60"
+                    />
+                  </>
+                ) : (
+                  <>
+                    <img
+                      src="/icons/happy.png"
+                      alt="Happy"
+                      className="w-8 h-8"
+                      style={{
+                        filter: 'invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg) brightness(95%) contrast(98%)'
+                      }}
+                    />
+                    <img
+                      src="/icons/happy.png"
+                      alt="Happy"
+                      className="w-8 h-8"
+                      style={{
+                        filter: 'invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg) brightness(95%) contrast(98%)'
+                      }}
+                    />
+                    <img
+                      src="/icons/happy.png"
+                      alt="Happy"
+                      className="w-8 h-8"
+                      style={{
+                        filter: 'invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg) brightness(95%) contrast(98%)'
+                      }}
+                    />
+                  </>
+                )}
               </div>
             </div>
           </div>
