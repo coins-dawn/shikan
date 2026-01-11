@@ -50,10 +50,10 @@ export default function Panel({
         ${!isOpen && (position === 'left' ? '-translate-x-[calc(100%+1rem)]' : 'translate-x-[calc(100%+1rem)]')}
       `}
     >
-      <div className="bg-white rounded-lg shadow-lg w-80 max-h-[calc(100vh-8rem)] overflow-hidden flex flex-col">
+      <div className="bg-white rounded-lg shadow-lg w-80 flex flex-col">
         {/* ヘッダー */}
         {title && (
-          <div className="px-4 py-3 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+          <div className="p-3 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
             <h2 className="font-medium text-gray-800">{title}</h2>
             {helpContent && (
               <button
@@ -68,7 +68,7 @@ export default function Panel({
         )}
 
         {/* コンテンツ */}
-        <div className="p-4 overflow-y-auto flex-1">
+        <div className="p-4 overflow-y-auto max-h-[calc(100vh-12.5rem)] flex-1">
           {children}
         </div>
       </div>

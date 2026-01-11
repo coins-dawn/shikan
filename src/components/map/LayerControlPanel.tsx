@@ -26,7 +26,7 @@ export default function LayerControlPanel({
   ]
 
   return (
-    <div className="top-4 left-4 absolute p-3 bg-white rounded-lg shadow-lg z-[50] w-80">
+    <div className="top-4 left-4 absolute p-3 bg-white rounded-lg shadow-lg z-[50] w-80 justify-between">
       <div className="flex flex-row items-center gap-2">
         <div className="flex flex-row gap-1">
           <label className="flex items-center gap-1 cursor-pointer">

@@ -30,7 +30,7 @@ function RouteDisplay({
 }) {
   return (
     <div
-      className={`flex-1 rounded-lg p-3 ${isCombus ? 'bg-green-50' : 'bg-gray-50'
+      className={`flex-1 rounded-lg p-2 ${isCombus ? 'bg-green-50' : 'bg-gray-50'
         }`}
     >
       {/* タイトル */}
@@ -187,7 +187,7 @@ export default function BusStopDetailPanel({
 
       {/* 折りたたみ可能なコンテンツ（バス停詳細） */}
       <div
-        className={`transition-all duration-300 ease-in-out overflow-hidden ${isSampleRouteOpen ? 'max-h-0' : 'max-h-[calc(100vh-20rem)]'
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${isSampleRouteOpen ? 'max-h-0' : ''
           }`}
       >
         <h3 className="text-sm font-medium text-gray-700 mb-2">
@@ -211,19 +211,23 @@ export default function BusStopDetailPanel({
           </div>
 
           {/* バス停一覧 */}
-          <div className="flex flex-col max-h-[calc(100vh-414px)] overflow-hidden">
+          <div className="flex flex-col overflow-hidden">
             <div className="space-y-2 overflow-y-auto">
               {stopList.map((stop, index) => (
-                <div key={stop.id} className="text-sm">
-                  <div className="flex items-center">
+                <div key={stop.id} className="text-sm mb-0">
+                  <div className="flex items-center bg-gray-100 px-2 py-1">
                     <span className="w-6 h-6 flex items-center justify-center bg-blue-100 text-blue-700 rounded-full text-xs font-medium mr-2">
                       {index + 1}
                     </span>
                     <span className="flex-1 truncate">{stop.name}</span>
                   </div>
                   {sectionList[index] && (
-                    <div className="text-gray-500 text-xs ml-8 mt-1">
-                      ↓ {sectionList[index]['duration-m']}分
+                    <div className="flex items-center">
+                      <span className="block border-2 h-5 ml-4.5 border-blue-700" />
+                      <span className="text-gray-500 text-xs ml-8">
+                        {sectionList[index]['duration-m']}分
+                      </span>
+
                     </div>
                   )}
                 </div>
@@ -231,7 +235,7 @@ export default function BusStopDetailPanel({
               {/* 循環バスなので最初のバス停に戻る */}
               {stopList.length > 0 && sectionList.length === stopList.length && (
                 <div className="text-sm">
-                  <div className="flex items-center">
+                  <div className="flex items-center bg-gray-100 px-2 py-1">
                     <span className="w-6 h-6 flex items-center justify-center bg-blue-100 text-blue-700 rounded-full text-xs font-medium mr-2">
                       {1}
                     </span>
@@ -289,13 +293,13 @@ export default function BusStopDetailPanel({
 
       {/* サンプル経路の詳細（展開時） */}
       <div
-        className={`transition-all duration-300 ease-in-out overflow-hidden ${isSampleRouteOpen ? 'max-h-[calc(100vh-20rem)]' : 'max-h-0'
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${isSampleRouteOpen ? '' : 'max-h-0'
           }`}
       >
         {selectedRoutePair && selectedRouteIndex !== null && (
           <div className="">
             <div className="pt-4">
-              <div className="flex gap-3 overflow-y-auto max-h-[calc(100vh-24rem)]">
+              <div className="flex gap-1 overflow-y-auto">
                 <RouteDisplay
                   route={selectedRoutePair.original}
                   title="導入前"
