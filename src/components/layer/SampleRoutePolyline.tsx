@@ -69,31 +69,128 @@ const calculateRegionalAngle = (positions: [number, number][], index: number, lo
   return calculateAngle(from, to)
 }
 
-// セクションごとに矢印を配置する位置と角度を計算
-const calculateArrowPositionsForSections = (sections: Array<{ geometry: string }>) => {
+// 2点間の距離を計算（Haversine公式、メートル単位）
+const calculateDistance = (from: [number, number], to: [number, number]): number => {
+  const [lat1, lon1] = from
+  const [lat2, lon2] = to
+
+  const R = 6371e3 // 地球の半径（メートル）
+  const φ1 = lat1 * Math.PI / 180
+  const φ2 = lat2 * Math.PI / 180
+  const Δφ = (lat2 - lat1) * Math.PI / 180
+  const Δλ = (lon2 - lon1) * Math.PI / 180
+
+  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ / 2) * Math.sin(Δλ / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+
+  return R * c
+}
+
+// 経路を垂直方向にオフセット（左側にずらす）
+const offsetPolyline = (positions: [number, number][], offsetMeters: number): [number, number][] => {
+  if (positions.length < 2) return positions
+
+  const offsetPositions: [number, number][] = []
+
+  for (let i = 0; i < positions.length; i++) {
+    const [lat, lon] = positions[i]
+
+    // 前後のセグメントから方向を計算
+    let direction = 0
+    if (i === 0) {
+      // 最初の点: 次の点との方向
+      direction = calculateAngle(positions[i], positions[i + 1])
+    } else if (i === positions.length - 1) {
+      // 最後の点: 前の点との方向
+      direction = calculateAngle(positions[i - 1], positions[i])
+    } else {
+      // 中間点: 前後の点の平均方向
+      const dir1 = calculateAngle(positions[i - 1], positions[i])
+      const dir2 = calculateAngle(positions[i], positions[i + 1])
+      direction = (dir1 + dir2) / 2
+    }
+
+    // 進行方向に対して左側（-90度）にオフセット
+    const offsetAngle = (direction - 90) * Math.PI / 180
+
+    // オフセット距離を緯度経度の差分に変換（近似）
+    const latOffset = (offsetMeters / 111000) * Math.cos(offsetAngle)
+    const lonOffset = (offsetMeters / (111000 * Math.cos(lat * Math.PI / 180))) * Math.sin(offsetAngle)
+
+    offsetPositions.push([lat + latOffset, lon + lonOffset])
+  }
+
+  return offsetPositions
+}
+
+// 矢印が目的地に近すぎるかチェック（400m以内なら除外）
+const isTooCloseToGoal = (arrowPosition: [number, number], goalPosition: [number, number], threshold = 400): boolean => {
+  return calculateDistance(arrowPosition, goalPosition) < threshold
+}
+
+// 1600mごとに矢印を配置する位置と角度を計算
+const calculateArrowPositionsForSections = (
+  sections: Array<{ geometry: string }>,
+  goalPosition?: [number, number],
+  offsetMeters?: number
+) => {
   const arrows: Array<{ position: [number, number]; angle: number; key: string }> = []
+  const interval = 1600 // 1600m間隔
 
   sections.forEach((section, sectionIndex) => {
     if (!section.geometry) return
 
     // セクションのgeometryをデコード
     const decoded = polyline.decode(section.geometry)
-    const positions: [number, number][] = decoded.map(([lat, lon]) => [lat, lon])
+    let positions: [number, number][] = decoded.map(([lat, lon]) => [lat, lon])
 
     if (positions.length < 2) return
 
-    // セクションの中間点に矢印を配置
-    const midIndex = Math.floor(positions.length / 2)
-    const position = positions[midIndex]
+    // オフセットが指定されている場合は適用
+    if (offsetMeters) {
+      positions = offsetPolyline(positions, offsetMeters)
+    }
 
-    // 広域的な角度を計算
-    const angle = calculateRegionalAngle(positions, midIndex, Math.min(10, Math.floor(positions.length / 3)))
+    let accumulatedDistance = 0
+    let nextArrowDistance = interval
 
-    arrows.push({
-      position,
-      angle,
-      key: `arrow-section-${sectionIndex}`,
-    })
+    for (let i = 0; i < positions.length - 1; i++) {
+      const segmentDistance = calculateDistance(positions[i], positions[i + 1])
+
+      // このセグメント内で矢印を配置すべき位置を探す
+      while (accumulatedDistance + segmentDistance >= nextArrowDistance) {
+        // セグメント内での矢印位置の割合を計算
+        const remainingToArrow = nextArrowDistance - accumulatedDistance
+        const ratio = remainingToArrow / segmentDistance
+
+        // 補間して矢印の位置を計算
+        const arrowLat = positions[i][0] + (positions[i + 1][0] - positions[i][0]) * ratio
+        const arrowLon = positions[i][1] + (positions[i + 1][1] - positions[i][1]) * ratio
+        const arrowPosition: [number, number] = [arrowLat, arrowLon]
+
+        // 目的地と近すぎる場合はスキップ
+        if (goalPosition && isTooCloseToGoal(arrowPosition, goalPosition)) {
+          nextArrowDistance += interval
+          continue
+        }
+
+        // 広域的な角度を計算するため、最も近いインデックスを見つける
+        const closestIndex = ratio < 0.5 ? i : i + 1
+        const angle = calculateRegionalAngle(positions, closestIndex, Math.min(10, Math.floor(positions.length / 3)))
+
+        arrows.push({
+          position: arrowPosition,
+          angle,
+          key: `arrow-section-${sectionIndex}-${arrows.length}`,
+        })
+
+        nextArrowDistance += interval
+      }
+
+      accumulatedDistance += segmentDistance
+    }
   })
 
   return arrows
@@ -109,13 +206,10 @@ export default function SampleRoutePolyline({ routePair, goalColor = '#22C55E' }
     })
   }
 
-  // geometryデータがない場合は何も表示しない
-  if (originalPositions.length === 0 && routePair['with-combus'].sections.length === 0) {
-    return null
-  }
-
-  // 矢印の位置を計算（セクションごと）
-  const originalArrows = calculateArrowPositionsForSections(routePair.original.sections)
+  // 導入前の経路を5mほど左側にオフセット（導入後の経路と重なりを避ける）
+  const offsetOriginalPositions = originalPositions.length > 0
+    ? offsetPolyline(originalPositions, 5)
+    : []
 
   // ゴール地点（最終目的地）の座標を取得
   const originalGoal: [number, number] = [
@@ -127,13 +221,21 @@ export default function SampleRoutePolyline({ routePair, goalColor = '#22C55E' }
     routePair['with-combus'].to.coord.lon
   ]
 
+  // geometryデータがない場合は何も表示しない
+  if (originalPositions.length === 0 && routePair['with-combus'].sections.length === 0) {
+    return null
+  }
+
+  // 矢印の位置を計算（目的地の座標を渡して近すぎる矢印を除外、5mオフセット適用）
+  const originalArrows = calculateArrowPositionsForSections(routePair.original.sections, originalGoal, 5)
+
   return (
     <>
       {/* 導入前のルート（グレー） - 先に描画（背面） */}
-      {originalPositions.length > 0 && (
+      {offsetOriginalPositions.length > 0 && (
         <>
           <Polyline
-            positions={originalPositions}
+            positions={offsetOriginalPositions}
             pathOptions={{
               color: '#6B7280',
               weight: 4,
@@ -169,12 +271,41 @@ export default function SampleRoutePolyline({ routePair, goalColor = '#22C55E' }
 
         const isCombus = section.mode === 'combus'
         const color = isCombus ? '#2563eb' : '#22C55E'
-        const weight = 4
+        const weight = isCombus ? 8 : 4
 
-        // セクションの中間点に矢印を配置
-        const midIndex = Math.floor(positions.length / 2)
-        const position = positions[midIndex]
-        const angle = calculateRegionalAngle(positions, midIndex, Math.min(10, Math.floor(positions.length / 3)))
+        // 1600mごとに矢印を配置
+        const interval = 1600
+        const sectionArrows: Array<{ position: [number, number]; angle: number }> = []
+        let accumulatedDistance = 0
+        let nextArrowDistance = interval
+
+        for (let i = 0; i < positions.length - 1; i++) {
+          const segmentDistance = calculateDistance(positions[i], positions[i + 1])
+
+          while (accumulatedDistance + segmentDistance >= nextArrowDistance) {
+            const remainingToArrow = nextArrowDistance - accumulatedDistance
+            const ratio = remainingToArrow / segmentDistance
+
+            const arrowLat = positions[i][0] + (positions[i + 1][0] - positions[i][0]) * ratio
+            const arrowLon = positions[i][1] + (positions[i + 1][1] - positions[i][1]) * ratio
+            const arrowPosition: [number, number] = [arrowLat, arrowLon]
+
+            // 目的地と近すぎる場合はスキップ
+            if (!isTooCloseToGoal(arrowPosition, withCombusGoal)) {
+              const closestIndex = ratio < 0.5 ? i : i + 1
+              const angle = calculateRegionalAngle(positions, closestIndex, Math.min(10, Math.floor(positions.length / 3)))
+
+              sectionArrows.push({
+                position: arrowPosition,
+                angle,
+              })
+            }
+
+            nextArrowDistance += interval
+          }
+
+          accumulatedDistance += segmentDistance
+        }
 
         return (
           <React.Fragment key={`with-combus-section-${index}`}>
@@ -186,11 +317,14 @@ export default function SampleRoutePolyline({ routePair, goalColor = '#22C55E' }
                 opacity: 0.7,
               }}
             />
-            <Marker
-              position={position}
-              icon={createArrowIcon(angle, color)}
-              interactive={false}
-            />
+            {sectionArrows.map((arrow, arrowIndex) => (
+              <Marker
+                key={`with-combus-arrow-${index}-${arrowIndex}`}
+                position={arrow.position}
+                icon={createArrowIcon(arrow.angle, color)}
+                interactive={false}
+              />
+            ))}
           </React.Fragment>
         )
       })}
