@@ -1,11 +1,13 @@
 'use client'
 
+import { HelpContentItem } from '@/types'
+
 interface HelpDialogProps {
   isOpen: boolean
   onClose: () => void
   position: 'left' | 'right'
   title: string
-  content: string[]
+  content: HelpContentItem[]
 }
 
 export default function HelpDialog({
@@ -48,13 +50,44 @@ export default function HelpDialog({
 
         {/* コンテンツ */}
         <div className="p-4 overflow-y-auto">
-          <ul className="space-y-2">
-            {content.map((item, index) => (
-              <li key={index} className="text-sm text-gray-700 leading-relaxed">
-                {item}
-              </li>
-            ))}
-          </ul>
+          {content.map((item, index) => {
+            // 単一の文字列の場合は段落として表示
+            if (typeof item === 'string') {
+              return (
+                <p key={index} className="text-sm text-gray-700 leading-relaxed">
+                  {item}
+                </p>
+              )
+            }
+
+            // 段落グループの場合
+            if (item.type === 'paragraph') {
+              return (
+                <div key={index} className={index == 0 ? '' : 'mt-2'}>
+                  {item.items.map((text, i) => (
+                    <p key={i} className="text-sm text-gray-700 leading-relaxed">
+                      {text}
+                    </p>
+                  ))}
+                </div>
+              )
+            }
+
+            // 箇条書きリストの場合
+            if (item.type === 'list') {
+              return (
+                <ul key={index} className="">
+                  {item.items.map((text, i) => (
+                    <li key={i} className="text-sm text-gray-700 leading-relaxed relative pl-[1.2em] -indent-[1.2em] before:content-['・']">
+                      {text}
+                    </li>
+                  ))}
+                </ul>
+              )
+            }
+
+            return null
+          })}
         </div>
       </div>
     </div>

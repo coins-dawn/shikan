@@ -2,6 +2,7 @@
 
 import { StopSequence, ScreenType } from '@/types'
 import Panel from '@/components/ui/Panel'
+import { HELP_CONTENT } from '@/lib/constants/helpContent'
 
 interface BusConditionPanelProps {
   allRoutes: StopSequence[]
@@ -22,17 +23,11 @@ export default function BusConditionPanel({
   onBack,
   currentScreen,
 }: BusConditionPanelProps) {
-  const helpContent = [
-    'サービスが自動で生成したルートを提案します',
-    '手動でルートを作成したい場合は「手動設定する」リンクを押下すると手動設定画面に遷移します',
-    '「次へ」ボタンを押すとコミュニティバスが導入された場合の到達圏の変化を見ることができます',
-  ]
-
   return (
     <Panel
       position="left"
       title="コミュニティバスの条件設定"
-      helpContent={helpContent}
+      helpContent={HELP_CONTENT.busSimple}
       currentScreen={currentScreen}
     >
       <div className="space-y-4">

@@ -8,6 +8,7 @@ import {
   ScreenType,
 } from '@/types'
 import Panel from '@/components/ui/Panel'
+import { HELP_CONTENT } from '@/lib/constants/helpContent'
 
 interface ResultSummaryPanelProps {
   condition: ConditionState
@@ -32,16 +33,11 @@ export default function ResultSummaryPanel({
   // 導入後の人口 = 導入前 + 増加分
   const totalAfterCombus = originalScore + increase
 
-  const helpContent = [
-    '到達圏の条件設定画面で設定した条件とその条件の時の到達可能人口が表示されます',
-    'コミュニティバスの導入後の到達可能人口と人口増加が表示されます',
-  ]
-
   return (
     <Panel
       position="right"
       title="結果サマリ"
-      helpContent={helpContent}
+      helpContent={HELP_CONTENT.resultSummary}
       currentScreen={currentScreen}
     >
       <div className="space-y-3">

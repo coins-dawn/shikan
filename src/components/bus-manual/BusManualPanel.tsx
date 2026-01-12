@@ -18,6 +18,7 @@ import {
 } from '@dnd-kit/sortable'
 import { BusStop, ScreenType } from '@/types'
 import Panel from '@/components/ui/Panel'
+import { HELP_CONTENT } from '@/lib/constants/helpContent'
 
 interface BusManualPanelProps {
   selectedStops: BusStop[]
@@ -113,19 +114,11 @@ export default function BusManualPanel({
 
   const canProceed = selectedStops.length >= 2
 
-  const helpContent = [
-    'ユーザーが任意のルートを作成できます',
-    'バス停マーカーをクリックするとそのバス停がルートに追加されます',
-    'もう一度マーカーをクリックするか、左側にあるバス停一覧のバツマークを押すとそのバス停がルートから削除されます',
-    'バス停を巡る順序はバス停を追加した順になりますが、左側のバス停一覧をドラッグ＆ドロップすると順序を入れ替えられます',
-    '「次へ」ボタンを押すとコミュニティバスが導入された場合の到達圏の変化を見ることができます',
-  ]
-
   return (
     <Panel
       position="left"
       title="コミュニティバスの条件設定（手動）"
-      helpContent={helpContent}
+      helpContent={HELP_CONTENT.busManual}
       currentScreen={currentScreen}
     >
       <div className="space-y-4">

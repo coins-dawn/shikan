@@ -2,6 +2,7 @@
 
 import { ConditionState, Spot, ScreenType } from '@/types'
 import Panel from '@/components/ui/Panel'
+import { HELP_CONTENT } from '@/lib/constants/helpContent'
 
 interface ConditionPanelProps {
   condition: ConditionState
@@ -31,17 +32,11 @@ export default function ConditionPanel({
   onNext,
   currentScreen,
 }: ConditionPanelProps) {
-  const helpContent = [
-    '選択された対象スポットの到達圏が地図上に表示されます',
-    '移動上限時間、徒歩上限距離、出発時刻を設定できます',
-    '条件の設定ができたら「次へ」ボタンを押すとコミュニティバスのルート作成画面に進みます',
-  ]
-
   return (
     <Panel
       position="left"
       title="到達圏の条件設定"
-      helpContent={helpContent}
+      helpContent={HELP_CONTENT.condition}
       currentScreen={currentScreen}
     >
       <div className="space-y-3">

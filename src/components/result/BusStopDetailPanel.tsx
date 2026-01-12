@@ -3,6 +3,7 @@
 import Panel from '@/components/ui/Panel'
 import { CombusData, RoutePair, RouteInfo, ScreenType } from '@/types'
 import { Fragment } from 'react'
+import { HELP_CONTENT } from '@/lib/constants/helpContent'
 
 interface BusStopDetailPanelProps {
   combusData: CombusData | null
@@ -132,17 +133,12 @@ export default function BusStopDetailPanel({
   onBack,
   currentScreen,
 }: BusStopDetailPanelProps) {
-  const helpContent = [
-    '緑色のメッシュがコミュニティバスの導入によって新たに到達可能になった地域です',
-    'サンプル経路ボタンを押すとコミュニティバスの導入によって改善された一例が見ることができます',
-  ]
-
   if (!combusData) {
     return (
       <Panel
         position="left"
         title="バス停詳細"
-        helpContent={helpContent}
+        helpContent={HELP_CONTENT.busStopDetail}
         currentScreen={currentScreen}
       >
         <div className="text-gray-500">データがありません</div>
@@ -185,7 +181,7 @@ export default function BusStopDetailPanel({
     <Panel
       position="left"
       title="シミュレーション結果"
-      helpContent={helpContent}
+      helpContent={HELP_CONTENT.busStopDetail}
       currentScreen={currentScreen}
     >
 

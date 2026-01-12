@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import HelpDialog from '@/components/ui/HelpDialog'
+import { HELP_CONTENT } from '@/lib/constants/helpContent'
 
 interface LayerControlPanelProps {
   showPublicTransit: boolean
@@ -17,13 +18,6 @@ export default function LayerControlPanel({
   onTogglePopulationMesh,
 }: LayerControlPanelProps) {
   const [isHelpOpen, setIsHelpOpen] = useState(false)
-
-  const helpContent = [
-    '【公共交通を表示】',
-    'チェックを入れるとサービスで利用している公共交通（東根市民バス）が表示されます。バス停をクリックすると、各路線ごとの当該バス停の停車時刻が表示されます。表示する内容はGTFSデータリポジトリの「東根市営バス」より取得しています。',
-    '【人口メッシュを表示】',
-    'チェックを入れるとサービスで利用しているメッシュ単位の人口が表示されます。人口が多いメッシュは暖色、少ないメッシュは寒色で表示されます。表示する内容はe-Statで公開されている2020年国勢調査より取得しています。',
-  ]
 
   return (
     <div className="top-4 left-4 absolute p-3 bg-white rounded-lg shadow-lg z-[50] w-80 justify-between">
@@ -63,7 +57,7 @@ export default function LayerControlPanel({
         onClose={() => setIsHelpOpen(false)}
         position="left"
         title="レイヤー表示について"
-        content={helpContent}
+        content={HELP_CONTENT.layerControl}
       />
     </div>
   )

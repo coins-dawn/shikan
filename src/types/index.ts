@@ -321,3 +321,9 @@ export interface PanelState {
   isOpen: boolean
   position: 'left' | 'right'
 }
+
+// ヘルプコンテンツアイテム
+export type HelpContentItem =
+  | string
+  | { type: 'paragraph'; items: string[] }
+  | { type: 'list'; items: string[] }

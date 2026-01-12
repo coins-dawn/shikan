@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, ReactNode } from 'react'
-import { ScreenType } from '@/types'
+import { ScreenType, HelpContentItem } from '@/types'
 import HelpDialog from './HelpDialog'
 
 interface PanelProps {
@@ -9,7 +9,7 @@ interface PanelProps {
   position: 'left' | 'right'
   title?: string
   defaultOpen?: boolean
-  helpContent?: string[]
+  helpContent?: HelpContentItem[]
   currentScreen?: ScreenType
 }
 
@@ -93,7 +93,7 @@ export default function Panel({
           isOpen={isHelpOpen}
           onClose={() => setIsHelpOpen(false)}
           position={position}
-          title={`${title}について`}
+          title={`${title ==  "コミュニティバスの条件設定（手動）" ? "手動設定" : title}について`}
           content={helpContent}
         />
       )}
