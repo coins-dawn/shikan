@@ -1,5 +1,6 @@
 'use client'
 
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { ScreenType } from '@/types'
 
 interface HeaderProps {
@@ -8,16 +9,17 @@ interface HeaderProps {
 }
 
 export default function Header({ currentScreen, navigateTo }: HeaderProps) {
+  const isDesktop = useMediaQuery('(min-width: 790px)')
   return (
-    <header className="bg-white border-b border-gray-200 px-4 py-3">
+    <header className="bg-white border-b border-gray-200 px-4 py-3 relative z-[60]">
       <div className="flex items-center justify-between">
         <h1
-          className="text-lg font-bold text-gray-800 flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors group"
+          className={`${isDesktop ? "text-lg" : "text-sm"} font-bold text-gray-800 flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors group`}
           onClick={() => navigateTo('condition')}
         >
           コミバスをつくろう！
           <svg
-            className="w-6 h-6"
+            className={isDesktop ? "w-6 h-6" : "w-4 h-4"}
             viewBox="0 0 512 512"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -55,7 +57,7 @@ export default function Header({ currentScreen, navigateTo }: HeaderProps) {
           href="/about"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+          className={`${isDesktop ? "text-sm" : "text-xs"} text-blue-600 hover:text-blue-800 hover:underline`}
         >
           このサイトについて
         </a>

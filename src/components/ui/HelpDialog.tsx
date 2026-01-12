@@ -20,8 +20,8 @@ export default function HelpDialog({
   if (!isOpen) return null
 
   const positionClasses = position === 'left'
-    ? 'left-[calc(320px+2.5rem)]'
-    : 'right-[calc(320px+2.5rem)]'
+    ? 'left-[calc(360px+2.5rem)]'
+    : 'right-[calc(360px+2.5rem)]'
 
   const topClass = 'top-0'
 

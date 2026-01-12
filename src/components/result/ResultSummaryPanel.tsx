@@ -9,6 +9,7 @@ import {
 } from '@/types'
 import Panel from '@/components/ui/Panel'
 import { HELP_CONTENT } from '@/lib/constants/helpContent'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 
 interface ResultSummaryPanelProps {
   condition: ConditionState
@@ -32,6 +33,7 @@ export default function ResultSummaryPanel({
   const increaseRate = facilityResult?.reachable['with-combus-score-rate'] ?? 0
   // 導入後の人口 = 導入前 + 増加分
   const totalAfterCombus = originalScore + increase
+  const isDesktop = useMediaQuery('(min-width: 790px)')
 
   return (
     <Panel
@@ -64,97 +66,135 @@ export default function ResultSummaryPanel({
         {/* 区切り線 */}
         <hr className="border-gray-200" />
 
-        {/* コミュニティバス導入前 */}
-        <div>
-          <div className="text-sm text-gray-600 mb-1">導入前の到達可能人口</div>
-          {reachability ? (
-            <div className="text-lg font-bold text-gray-700">
-              {originalScore.toLocaleString()}人
-            </div>
-          ) : (
-            <div className="text-gray-400">データなし</div>
-          )}
-        </div>
-
-        {/* 区切り線 */}
-        <hr className="border-gray-200" />
-
-        {/* コミュニティバス導入後 */}
-        <div>
-          <div className="text-sm text-gray-600 mb-1">導入後の到達可能人口</div>
-          {facilityResult ? (
-            <>
-              <div className="text-2xl font-bold text-blue-600">
-                {totalAfterCombus.toLocaleString()}人
+        {isDesktop && (<>
+          {/* コミュニティバス導入前 */}
+          <div>
+            <div className="text-sm text-gray-600 mb-1">導入前の到達可能人口</div>
+            {reachability ? (
+              <div className="text-lg font-bold text-gray-700">
+                {originalScore.toLocaleString()}人
               </div>
-            </>
-          ) : (
-            <div className="text-gray-400">データなし</div>
-          )}
-        </div>
+            ) : (
+              <div className="text-gray-400">データなし</div>
+            )}
+          </div>
 
-        {/* 増加量 */}
-        {facilityResult && (
-          <div className={increaseRate === 0 ? "bg-gray-100 rounded-lg p-3" : "bg-green-50 rounded-lg p-3"}>
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex-1">
-                <div className={increaseRate === 0 ? "text-sm text-gray-600 mb-1" : "text-sm text-green-700 mb-1"}>人口増加</div>
-                <div className={increaseRate === 0 ? "text-xl font-bold text-gray-700" : "text-xl font-bold text-green-600"}>
+          {/* 区切り線 */}
+          <hr className="border-gray-200" />
+
+          {/* コミュニティバス導入後 */}
+          <div>
+            <div className="text-sm text-gray-600 mb-1">導入後の到達可能人口</div>
+            {facilityResult ? (
+              <>
+                <div className="text-2xl font-bold text-blue-600">
+                  {totalAfterCombus.toLocaleString()}人
+                </div>
+              </>
+            ) : (
+              <div className="text-gray-400">データなし</div>
+            )}
+          </div>
+
+          {/* 増加量 */}
+          {facilityResult && (
+            <div className={increaseRate === 0 ? "bg-gray-100 rounded-lg p-3" : "bg-green-50 rounded-lg p-3"}>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex-1">
+                  <div className={increaseRate === 0 ? "text-sm text-gray-600 mb-1" : "text-sm text-green-700 mb-1"}>人口増加</div>
+                  <div className={increaseRate === 0 ? "text-xl font-bold text-gray-700" : "text-xl font-bold text-green-600"}>
+                    +{increase.toLocaleString()}人
+                  </div>
+                  <div className={increaseRate === 0 ? "text-sm text-gray-600" : "text-sm text-green-600"}>
+                    (+{increaseRate}%)
+                  </div>
+                </div>
+                <div className="flex gap-1 flex-shrink-0">
+                  {increaseRate === 0 ? (
+                    <>
+                      <img
+                        src="/icons/sad.png"
+                        alt="Sad"
+                        className="w-8 h-8 opacity-60"
+                      />
+                      <img
+                        src="/icons/sad.png"
+                        alt="Sad"
+                        className="w-8 h-8 opacity-60"
+                      />
+                      <img
+                        src="/icons/sad.png"
+                        alt="Sad"
+                        className="w-8 h-8 opacity-60"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <img
+                        src="/icons/happy.png"
+                        alt="Happy"
+                        className="w-8 h-8"
+                        style={{
+                          filter: 'invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg) brightness(95%) contrast(98%)'
+                        }}
+                      />
+                      <img
+                        src="/icons/happy.png"
+                        alt="Happy"
+                        className="w-8 h-8"
+                        style={{
+                          filter: 'invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg) brightness(95%) contrast(98%)'
+                        }}
+                      />
+                      <img
+                        src="/icons/happy.png"
+                        alt="Happy"
+                        className="w-8 h-8"
+                        style={{
+                          filter: 'invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg) brightness(95%) contrast(98%)'
+                        }}
+                      />
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </>)}
+        {!isDesktop && (
+          <div>
+            <div className="text-sm text-gray-600 mb-1">到達可能人口</div>
+            {reachability ? (
+              <div className="text-lg font-bold text-gray-700 flex gap-2 items-center">
+                {originalScore.toLocaleString()}人
+                <span className={increaseRate === 0 ? "text-xl font-bold text-gray-700" : "text-xl font-bold text-green-600"}>
                   +{increase.toLocaleString()}人
-                </div>
-                <div className={increaseRate === 0 ? "text-sm text-gray-600" : "text-sm text-green-600"}>
+                </span>
+                <span className={increaseRate === 0 ? "text-sm text-gray-600" : "text-sm text-green-600"}>
                   (+{increaseRate}%)
-                </div>
+                </span>
+                <span className="ml-auto">
+                  {increaseRate === 0 ? (
+                    <img
+                      src="/icons/sad.png"
+                      alt="Sad"
+                      className="w-8 h-8 opacity-60"
+                    />
+                  ) : (
+                    <img
+                      src="/icons/happy.png"
+                      alt="Happy"
+                      className="w-8 h-8"
+                      style={{
+                        filter: 'invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg) brightness(95%) contrast(98%)'
+                      }}
+                    />
+                  )}
+                </span>
               </div>
-              <div className="flex gap-1 flex-shrink-0">
-                {increaseRate === 0 ? (
-                  <>
-                    <img
-                      src="/icons/sad.png"
-                      alt="Sad"
-                      className="w-8 h-8 opacity-60"
-                    />
-                    <img
-                      src="/icons/sad.png"
-                      alt="Sad"
-                      className="w-8 h-8 opacity-60"
-                    />
-                    <img
-                      src="/icons/sad.png"
-                      alt="Sad"
-                      className="w-8 h-8 opacity-60"
-                    />
-                  </>
-                ) : (
-                  <>
-                    <img
-                      src="/icons/happy.png"
-                      alt="Happy"
-                      className="w-8 h-8"
-                      style={{
-                        filter: 'invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg) brightness(95%) contrast(98%)'
-                      }}
-                    />
-                    <img
-                      src="/icons/happy.png"
-                      alt="Happy"
-                      className="w-8 h-8"
-                      style={{
-                        filter: 'invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg) brightness(95%) contrast(98%)'
-                      }}
-                    />
-                    <img
-                      src="/icons/happy.png"
-                      alt="Happy"
-                      className="w-8 h-8"
-                      style={{
-                        filter: 'invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg) brightness(95%) contrast(98%)'
-                      }}
-                    />
-                  </>
-                )}
-              </div>
-            </div>
+            ) : (
+              <div className="text-gray-400">データなし</div>
+            )}
           </div>
         )}
       </div>
