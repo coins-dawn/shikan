@@ -44,7 +44,7 @@ export default function AboutPage() {
         </div>
         <div className="text-gray-700 mt-4">
           <p>本サービスについて、以下の動画で紹介しています。</p>
-          <a className="underline" href="" target="_blank">Youtubeに移動</a>
+          <a className="underline" href="https://youtu.be/iqeh7nqMq7w?si=wLcU9_N_T3ulOmrQ" target="_blank">Youtubeに移動</a>
         </div>
       </div>
     </div>

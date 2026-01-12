@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "コミバスをつくろう！",
-  description: "コミュニティバスの路線計画を支援する地図ベースのWebアプリケーション",
+  description: "コミュニティバスの導入を手軽にシミュレーションできるWebアプリケーションです",
 };
 
 export default function RootLayout({
