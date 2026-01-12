@@ -226,7 +226,7 @@ export default function UnifiedMapView({
                         stop={stop}
                         isSelected={true}
                         selectionOrder={stopIndex + 1}
-                        onSelect={() => {}}
+                        onSelect={() => { }}
                       />
                     ))}
 
@@ -308,7 +308,7 @@ export default function UnifiedMapView({
                 stop={item.stop}
                 isSelected={true}
                 selectionOrder={item.selectionOrder}
-                onSelect={() => {}}
+                onSelect={() => { }}
               />
             ))}
 
@@ -400,13 +400,13 @@ export default function UnifiedMapView({
       {(currentScreen === 'condition' ||
         currentScreen === 'bus-simple' ||
         currentScreen === 'bus-manual') && (
-        <SummaryPanel
-          condition={condition}
-          reachability={reachability}
-          spots={allSpots}
-          currentScreen={currentScreen}
-        />
-      )}
+          <SummaryPanel
+            condition={condition}
+            reachability={reachability}
+            spots={allSpots}
+            currentScreen={currentScreen}
+          />
+        )}
 
       {currentScreen === 'result' && (
         <ResultSummaryPanel
@@ -417,7 +417,6 @@ export default function UnifiedMapView({
           currentScreen={currentScreen}
         />
       )}
-
 
       {/* === ローディング === */}
       {isLoading && <Loading message={loadingMessage} />}
