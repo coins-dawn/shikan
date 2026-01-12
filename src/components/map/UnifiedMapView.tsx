@@ -15,7 +15,6 @@ import {
   PopulationGeoJSON,
 } from '@/types'
 import { MapCenter } from '@/lib/api/targetRegion'
-import { useMediaQuery } from '@/hooks/useMediaQuery'
 import ConditionPanel from '@/components/condition/ConditionPanel'
 import SummaryPanel from '@/components/condition/SummaryPanel'
 import BusConditionPanel from '@/components/bus-simple/BusConditionPanel'
@@ -132,8 +131,6 @@ export default function UnifiedMapView({
   onTogglePublicTransit,
   onTogglePopulationMesh,
 }: UnifiedMapViewProps) {
-  // ブレークポイント判定
-const isDesktop = useMediaQuery('(min-width: 790px)')
   // 結果画面のローカルステート
   const [selectedRouteIndex, setSelectedRouteIndex] = useState<number | null>(null)
 
@@ -349,160 +346,77 @@ const isDesktop = useMediaQuery('(min-width: 790px)')
         onTogglePopulationMesh={onTogglePopulationMesh}
       />
 
-      {/* === デスクトップレイアウト === */}
-      {isDesktop && (
-        <>
-          {/* === 左パネル - 画面ごとに切り替え === */}
-          {currentScreen === 'condition' && (
-            <ConditionPanel
-              condition={condition}
-              spots={allSpots}
-              availableDepartureTimes={availableDepartureTimes}
-              onUpdate={onUpdateCondition}
-              onNext={onNavigateToSimple}
-              currentScreen={currentScreen}
-            />
-          )}
-
-          {currentScreen === 'bus-simple' && (
-            <BusConditionPanel
-              allRoutes={allRoutes}
-              selectedRouteIndex={busCondition.selectedRouteIndex}
-              onSelectRoute={onSelectRoute}
-              onNext={onExecuteSearch}
-              onSwitchToManual={onNavigateToManual}
-              onBack={onBackToCondition}
-              currentScreen={currentScreen}
-            />
-          )}
-
-          {currentScreen === 'bus-manual' && (
-            <BusManualPanel
-              selectedStops={manualBusStops}
-              onReorder={onUpdateManualBusStops}
-              onDeselect={onToggleManualBusStop}
-              onNext={onExecuteSearch}
-              onBackToSimple={onNavigateToSimple}
-              currentScreen={currentScreen}
-            />
-          )}
-
-          {currentScreen === 'result' && (
-            <BusStopDetailPanel
-              combusData={combusData}
-              routePairs={facilityResult?.['route-pairs'] ?? []}
-              selectedRouteIndex={selectedRouteIndex}
-              onShowSampleRoute={(index) => {
-                setSelectedRouteIndex(index)
-              }}
-              onCloseSampleRoute={() => {
-                setSelectedRouteIndex(null)
-              }}
-              onBack={onBackToBus}
-              currentScreen={currentScreen}
-            />
-          )}
-
-          {/* === 右パネル - 画面ごとに切り替え === */}
-          {(currentScreen === 'condition' ||
-            currentScreen === 'bus-simple' ||
-            currentScreen === 'bus-manual') && (
-              <SummaryPanel
-                condition={condition}
-                reachability={reachability}
-                spots={allSpots}
-                currentScreen={currentScreen}
-              />
-            )}
-
-          {currentScreen === 'result' && (
-            <ResultSummaryPanel
-              condition={condition}
-              reachability={reachability}
-              facilityResult={facilityResult}
-              spots={allSpots}
-              currentScreen={currentScreen}
-            />
-          )}
-        </>
+      {/* === 左パネル - 画面ごとに切り替え === */}
+      {currentScreen === 'condition' && (
+        <ConditionPanel
+          condition={condition}
+          spots={allSpots}
+          availableDepartureTimes={availableDepartureTimes}
+          onUpdate={onUpdateCondition}
+          onNext={onNavigateToSimple}
+          currentScreen={currentScreen}
+        />
       )}
 
-      {/* === モバイル/タブレットレイアウト === */}
-      {(!isDesktop) && (
-        <>
-          {/* === 左パネル - 画面ごとに切り替え === */}
-          {currentScreen === 'condition' && (
-            <ConditionPanel
-              condition={condition}
-              spots={allSpots}
-              availableDepartureTimes={availableDepartureTimes}
-              onUpdate={onUpdateCondition}
-              onNext={onNavigateToSimple}
-              currentScreen={currentScreen}
-            />
-          )}
+      {currentScreen === 'bus-simple' && (
+        <BusConditionPanel
+          allRoutes={allRoutes}
+          selectedRouteIndex={busCondition.selectedRouteIndex}
+          onSelectRoute={onSelectRoute}
+          onNext={onExecuteSearch}
+          onSwitchToManual={onNavigateToManual}
+          onBack={onBackToCondition}
+          currentScreen={currentScreen}
+        />
+      )}
 
-          {currentScreen === 'bus-simple' && (
-            <BusConditionPanel
-              allRoutes={allRoutes}
-              selectedRouteIndex={busCondition.selectedRouteIndex}
-              onSelectRoute={onSelectRoute}
-              onNext={onExecuteSearch}
-              onSwitchToManual={onNavigateToManual}
-              onBack={onBackToCondition}
-              currentScreen={currentScreen}
-            />
-          )}
+      {currentScreen === 'bus-manual' && (
+        <BusManualPanel
+          selectedStops={manualBusStops}
+          onReorder={onUpdateManualBusStops}
+          onDeselect={onToggleManualBusStop}
+          onNext={onExecuteSearch}
+          onBackToSimple={onNavigateToSimple}
+          currentScreen={currentScreen}
+        />
+      )}
 
-          {currentScreen === 'bus-manual' && (
-            <BusManualPanel
-              selectedStops={manualBusStops}
-              onReorder={onUpdateManualBusStops}
-              onDeselect={onToggleManualBusStop}
-              onNext={onExecuteSearch}
-              onBackToSimple={onNavigateToSimple}
-              currentScreen={currentScreen}
-            />
-          )}
+      {currentScreen === 'result' && (
+        <BusStopDetailPanel
+          combusData={combusData}
+          routePairs={facilityResult?.['route-pairs'] ?? []}
+          selectedRouteIndex={selectedRouteIndex}
+          onShowSampleRoute={(index) => {
+            setSelectedRouteIndex(index)
+          }}
+          onCloseSampleRoute={() => {
+            setSelectedRouteIndex(null)
+          }}
+          onBack={onBackToBus}
+          currentScreen={currentScreen}
+        />
+      )}
 
-          {currentScreen === 'result' && (
-            <BusStopDetailPanel
-              combusData={combusData}
-              routePairs={facilityResult?.['route-pairs'] ?? []}
-              selectedRouteIndex={selectedRouteIndex}
-              onShowSampleRoute={(index) => {
-                setSelectedRouteIndex(index)
-              }}
-              onCloseSampleRoute={() => {
-                setSelectedRouteIndex(null)
-              }}
-              onBack={onBackToBus}
-              currentScreen={currentScreen}
-            />
-          )}
+      {/* === 右パネル - 画面ごとに切り替え === */}
+      {(currentScreen === 'condition' ||
+        currentScreen === 'bus-simple' ||
+        currentScreen === 'bus-manual') && (
+          <SummaryPanel
+            condition={condition}
+            reachability={reachability}
+            spots={allSpots}
+            currentScreen={currentScreen}
+          />
+        )}
 
-          {/* === 右パネル - 画面ごとに切り替え === */}
-          {(currentScreen === 'condition' ||
-            currentScreen === 'bus-simple' ||
-            currentScreen === 'bus-manual') && (
-              <SummaryPanel
-                condition={condition}
-                reachability={reachability}
-                spots={allSpots}
-                currentScreen={currentScreen}
-              />
-            )}
-
-          {currentScreen === 'result' && (
-            <ResultSummaryPanel
-              condition={condition}
-              reachability={reachability}
-              facilityResult={facilityResult}
-              spots={allSpots}
-              currentScreen={currentScreen}
-            />
-          )}
-        </>
+      {currentScreen === 'result' && (
+        <ResultSummaryPanel
+          condition={condition}
+          reachability={reachability}
+          facilityResult={facilityResult}
+          spots={allSpots}
+          currentScreen={currentScreen}
+        />
       )}
 
       {/* === ローディング === */}

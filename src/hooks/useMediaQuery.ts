@@ -8,7 +8,9 @@ import { useState, useEffect } from 'react'
  * @returns クエリがマッチしているかどうか
  */
 export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(false)
+  // 初期値をtrueにすることで、デスクトップユーザーのちらつきを防ぐ
+  // (790px以上のブレークポイントを想定)
+  const [matches, setMatches] = useState(true)
 
   useEffect(() => {
     // サーバーサイドレンダリング時はfalseを返す

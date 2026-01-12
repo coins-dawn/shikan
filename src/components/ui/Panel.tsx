@@ -113,12 +113,13 @@ export default function Panel({
         transition-transform duration-300 ease-in-out
         ${panelTranslate}
         ${isDesktop ? 'w-90' : 'w-full'}
+        ${!isOpen && !isDesktop && position === 'right' ? 'pointer-events-none' : ''}
       `}
     >
       <div className={`${isDesktop || position === 'left' ? 'bg-white' : ''} ${isDesktop ? 'rounded-lg' : ''} ${isDesktop || position === 'left' ? 'shadow-lg' : ''} w-full flex flex-col`}>
         {/* ヘッダー */}
         {title && (
-          <div className={`${isDesktop ? 'p-3' : 'px-3 py-2 z-50'} border-b border-gray-200 bg-gray-50 flex items-center justify-between`}>
+          <div className={`${isDesktop ? 'p-3' : 'px-3 py-2 z-50'} border-b border-gray-200 bg-gray-50 flex items-center justify-between ${!isOpen && !isDesktop && position === 'right' ? 'pointer-events-auto' : ''}`}>
             <h2 className="font-medium text-gray-800">{title}</h2>
             {/* デスクトップ時のみヘルプボタン表示 */}
             {isDesktop && helpContent && (
@@ -148,9 +149,10 @@ export default function Panel({
           className={`
             bg-white shadow-lg
             p-4 overflow-y-auto flex-1
-            ${!isDesktop && position === 'left' ? 'max-h-[calc(100vh-400px)]' : 'max-h-[calc(100vh-12.5rem)]'}
+            ${!isDesktop && position === 'left' ? 'max-h-[calc(100vh-520px)]' : 'max-h-[calc(100vh-12.5rem)]'}
             transition-transform duration-300 ease-in-out
             ${contentOnlyTranslate}
+            ${!isOpen && !isDesktop && position === 'right' ? 'pointer-events-none' : ''}
           `}
         >
           {children}
