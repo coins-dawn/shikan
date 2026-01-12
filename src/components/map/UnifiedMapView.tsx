@@ -23,7 +23,6 @@ import BusStopDetailPanel from '@/components/result/BusStopDetailPanel'
 import ResultSummaryPanel from '@/components/result/ResultSummaryPanel'
 import Loading from '@/components/ui/Loading'
 import LayerControlPanel from '@/components/map/LayerControlPanel'
-import MobileLayout from '@/components/layout/MobileLayout'
 
 // Leaflet コンポーネントは動的インポート（SSR無効化）
 const Map = dynamic(() => import('@/components/map/Map'), { ssr: false })
