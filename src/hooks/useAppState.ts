@@ -126,10 +126,19 @@ export function useAppState() {
 
   // 画面遷移
   const navigateTo = useCallback((screen: ScreenType) => {
-    setState((prev) => ({
-      ...prev,
-      currentScreen: screen,
-    }))
+    setState((prev) => {
+      // 到達圏の条件設定からコミュニティバス条件設定に遷移する場合、レイヤー表示をリセット
+      const shouldResetLayers =
+        prev.currentScreen === 'condition' &&
+        (screen === 'bus-simple' || screen === 'bus-manual')
+
+      return {
+        ...prev,
+        currentScreen: screen,
+        showPublicTransit: shouldResetLayers ? false : prev.showPublicTransit,
+        showPopulationMesh: shouldResetLayers ? false : prev.showPopulationMesh,
+      }
+    })
   }, [])
 
   // 到達圏の条件を更新
