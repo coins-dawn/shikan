@@ -9,7 +9,6 @@ import {
 } from '@/types'
 import Panel from '@/components/ui/Panel'
 import { HELP_CONTENT } from '@/lib/constants/helpContent'
-import { useMediaQuery } from '@/hooks/useMediaQuery'
 
 interface ResultSummaryPanelProps {
   condition: ConditionState
@@ -33,7 +32,6 @@ export default function ResultSummaryPanel({
   const increaseRate = facilityResult?.reachable['with-combus-score-rate'] ?? 0
   // 導入後の人口 = 導入前 + 増加分
   const totalAfterCombus = originalScore + increase
-  const isDesktop = useMediaQuery('(min-width: 790px)')
 
   return (
     <Panel
@@ -66,7 +64,8 @@ export default function ResultSummaryPanel({
         {/* 区切り線 */}
         <hr className="border-gray-200" />
 
-        {isDesktop && (<>
+        {/* デスクトップ表示 */}
+        <div className="hidden desktop:block space-y-3">
           {/* コミュニティバス導入前 */}
           <div>
             <div className="text-sm text-gray-600 mb-1">導入前の到達可能人口</div>
@@ -160,43 +159,43 @@ export default function ResultSummaryPanel({
               </div>
             </div>
           )}
-        </>)}
-        {!isDesktop && (
-          <div>
-            <div className="text-sm text-gray-600 mb-1">到達可能人口</div>
-            {reachability ? (
-              <div className="text-lg font-bold text-gray-700 flex gap-2 items-center">
-                {originalScore.toLocaleString()}人
-                <span className={increaseRate === 0 ? "text-xl font-bold text-gray-700" : "text-xl font-bold text-green-600"}>
-                  +{increase.toLocaleString()}人
-                </span>
-                <span className={increaseRate === 0 ? "text-sm text-gray-600" : "text-sm text-green-600"}>
-                  (+{increaseRate}%)
-                </span>
-                <span className="ml-auto">
-                  {increaseRate === 0 ? (
-                    <img
-                      src="/icons/sad.png"
-                      alt="Sad"
-                      className="w-8 h-8 opacity-60"
-                    />
-                  ) : (
-                    <img
-                      src="/icons/happy.png"
-                      alt="Happy"
-                      className="w-8 h-8"
-                      style={{
-                        filter: 'invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg) brightness(95%) contrast(98%)'
-                      }}
-                    />
-                  )}
-                </span>
-              </div>
-            ) : (
-              <div className="text-gray-400">データなし</div>
-            )}
-          </div>
-        )}
+        </div>
+
+        {/* モバイル表示 */}
+        <div className="block desktop:hidden">
+          <div className="text-sm text-gray-600 mb-1">到達可能人口</div>
+          {reachability ? (
+            <div className="text-lg font-bold text-gray-700 flex gap-2 items-center">
+              {originalScore.toLocaleString()}人
+              <span className={increaseRate === 0 ? "text-xl font-bold text-gray-700" : "text-xl font-bold text-green-600"}>
+                +{increase.toLocaleString()}人
+              </span>
+              <span className={increaseRate === 0 ? "text-sm text-gray-600" : "text-sm text-green-600"}>
+                (+{increaseRate}%)
+              </span>
+              <span className="ml-auto">
+                {increaseRate === 0 ? (
+                  <img
+                    src="/icons/sad.png"
+                    alt="Sad"
+                    className="w-8 h-8 opacity-60"
+                  />
+                ) : (
+                  <img
+                    src="/icons/happy.png"
+                    alt="Happy"
+                    className="w-8 h-8"
+                    style={{
+                      filter: 'invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg) brightness(95%) contrast(98%)'
+                    }}
+                  />
+                )}
+              </span>
+            </div>
+          ) : (
+            <div className="text-gray-400">データなし</div>
+          )}
+        </div>
       </div>
     </Panel>
   )

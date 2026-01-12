@@ -23,7 +23,7 @@ export default function HelpDialog({
     ? 'left-[calc(360px+2.5rem)]'
     : 'right-[calc(360px+2.5rem)]'
 
-  const topClass = 'top-0'
+  const topClass = 'top-4'
 
   return (
     <div

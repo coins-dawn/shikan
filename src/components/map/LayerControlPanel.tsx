@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import HelpDialog from '@/components/ui/HelpDialog'
 import { HELP_CONTENT } from '@/lib/constants/helpContent'
-import { useMediaQuery } from '@/hooks/useMediaQuery'
 
 interface LayerControlPanelProps {
   showPublicTransit: boolean
@@ -19,9 +18,8 @@ export default function LayerControlPanel({
   onTogglePopulationMesh,
 }: LayerControlPanelProps) {
   const [isHelpOpen, setIsHelpOpen] = useState(false)
-  const isDesktop = useMediaQuery('(min-width: 790px)')
   return (
-    <div className={`${isDesktop ? 'top-4 left-4 rounded-lg p-3 max-w-90 shadow-lg' : 'top-0 left-0 px-3 py-2'} absolute bg-white z-[60] w-[calc(100%)]`}>
+    <div className="absolute top-0 left-0 px-3 py-2 desktop:top-4 desktop:left-4 desktop:rounded-lg desktop:p-3 desktop:max-w-90 desktop:shadow-lg bg-white z-[60] w-[calc(100%)]">
       <div className="flex flex-row items-center gap-2 justify-between">
         <div className="flex flex-row gap-4">
           <label className="flex items-center gap-1 cursor-pointer">
@@ -31,7 +29,10 @@ export default function LayerControlPanel({
               onChange={onTogglePublicTransit}
               className="cursor-pointer"
             />
-            <span className="text-sm text-gray-700">{isDesktop ? "公共交通を表示" : "公共交通"}</span>
+            <span className="text-sm text-gray-700">
+              <span className="desktop:hidden">公共交通</span>
+              <span className="hidden desktop:inline">公共交通を表示</span>
+            </span>
           </label>
           <label className="flex items-center gap-1 cursor-pointer">
             <input
@@ -40,7 +41,10 @@ export default function LayerControlPanel({
               onChange={onTogglePopulationMesh}
               className="cursor-pointer"
             />
-            <span className="text-sm text-gray-700">{isDesktop ? "人口メッシュを表示" : "人口"}</span>
+            <span className="text-sm text-gray-700">
+              <span className="desktop:hidden">人口</span>
+              <span className="hidden desktop:inline">人口メッシュを表示</span>
+            </span>
           </label>
         </div>
         <button
