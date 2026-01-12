@@ -190,7 +190,7 @@ src/
 - `togglePopulationMesh()`: 人口メッシュレイヤーの表示/非表示切替
 
 #### [Header.tsx](src/components/layout/Header.tsx)
-- ロゴ（テキスト「コミュニティバスを作ろう！」）を表示
+- ロゴ（テキスト「コミュニティバスをつくろう！」）を表示
 - パンくずナビゲーション（3ステップ）
   1. 到達圏の条件設定（condition）
   2. コミュニティバスの条件設定（bus-simple / bus-manual）
