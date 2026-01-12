@@ -7,6 +7,7 @@ interface BusStopAPIResponse {
       lat: number
       lon: number
       name: string
+      'near-spot-id': string | null
     }>
   }
   status: string
@@ -29,12 +30,13 @@ export async function fetchBusStops(): Promise<BusStop[]> {
       throw new Error(`API returned error status: ${data.status}`)
     }
 
-    // APIのlon -> lng に変換
+    // APIのlon -> lng に変換、near-spot-id も保持
     return data.result['combus-stops'].map((stop) => ({
       id: stop.id,
       name: stop.name,
       lat: stop.lat,
       lng: stop.lon,
+      nearSpotId: stop['near-spot-id'],
     }))
   } catch (error) {
     console.error('Error fetching bus stops:', error)

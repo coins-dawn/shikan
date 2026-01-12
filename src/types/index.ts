@@ -5,6 +5,7 @@ export interface BusStop {
   name: string
   lat: number
   lng: number
+  nearSpotId?: string | null
 }
 
 export interface Spot {

@@ -84,6 +84,12 @@ export function useAppState() {
         )
       ).sort()
 
+      // 初期スポットに対応するバス停を検索
+      const initialSpotId = spotsResponse.spots[0]?.id || ''
+      const nearStop = busStopsResponse.find(
+        (stop) => stop.nearSpotId === initialSpotId
+      )
+
       setState((prev) => ({
         ...prev,
         reachabilityList: reachabilityResponse.result.reachables,
@@ -100,9 +106,10 @@ export function useAppState() {
         populationMeshData: populationMeshResponse,
         condition: {
           ...prev.condition,
-          selectedSpotId: spotsResponse.spots[0]?.id || '',
+          selectedSpotId: initialSpotId,
           departureTime: uniqueTimes[0] || '',
         },
+        manualBusStops: nearStop ? [nearStop.id] : [],
         isLoading: false,
         loadingMessage: '',
       }))
@@ -144,17 +151,33 @@ export function useAppState() {
   // 到達圏の条件を更新
   const updateCondition = useCallback(
     (updates: Partial<AppState['condition']>) => {
-      setState((prev) => ({
-        ...prev,
-        condition: {
-          ...prev.condition,
-          ...updates,
-        },
-        busCondition: {
-          ...prev.busCondition,
-          selectedRouteIndex: 0, // 条件変更時はルートをリセット
-        },
-      }))
+      setState((prev) => {
+        // スポットが変更された場合、手動選択バス停を初期化
+        let newManualBusStops = prev.manualBusStops
+        if (updates.selectedSpotId && updates.selectedSpotId !== prev.condition.selectedSpotId) {
+          const nearStop = prev.busStopsData?.find(
+            (stop) => stop.nearSpotId === updates.selectedSpotId
+          )
+          if (nearStop) {
+            newManualBusStops = [nearStop.id]
+          } else {
+            newManualBusStops = []
+          }
+        }
+
+        return {
+          ...prev,
+          condition: {
+            ...prev.condition,
+            ...updates,
+          },
+          busCondition: {
+            ...prev.busCondition,
+            selectedRouteIndex: 0, // 条件変更時はルートをリセット
+          },
+          manualBusStops: newManualBusStops,
+        }
+      })
     },
     []
   )
