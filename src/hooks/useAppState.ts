@@ -31,6 +31,7 @@ const initialState: AppState = {
     selectedRouteIndex: 0,
   },
   manualBusStops: [],
+  previousBusScreen: null,
   reachabilityList: null,
   spotsData: null,
   stopSequences: null,
@@ -200,6 +201,11 @@ export function useAppState() {
   const executeSearch = useCallback(async () => {
     const { condition, stopSequences, currentScreen, manualBusStops } = state
 
+    // 結果画面に遷移する前の画面を記録
+    const previousBusScreen = currentScreen === 'bus-manual' || currentScreen === 'bus-simple'
+      ? currentScreen
+      : null
+
     let combusStops: string[]
 
     if (currentScreen === 'bus-manual') {
@@ -250,6 +256,7 @@ export function useAppState() {
         ...prev,
         searchResult: result,
         currentScreen: 'result',
+        previousBusScreen,
         isLoading: false,
         loadingMessage: '',
       }))

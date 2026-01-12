@@ -299,6 +299,9 @@ export interface AppState {
   // 手動選択バス停（bus-manual画面用）
   manualBusStops: string[]
 
+  // 結果画面に遷移する前のバス条件設定画面（戻り先として使用）
+  previousBusScreen: 'bus-simple' | 'bus-manual' | null
+
   // API データ
   reachabilityList: ReachabilityItem[] | null
   spotsData: SpotsResponse | null

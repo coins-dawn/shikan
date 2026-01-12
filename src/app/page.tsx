@@ -72,8 +72,8 @@ export default function Home() {
           onNavigateToManual={() => navigateTo('bus-manual')}
           onBackToCondition={() => navigateTo('condition')}
           onBackToBus={() => {
-            // manualBusStopsが設定されている場合はbus-manualへ、そうでなければbus-simpleへ
-            navigateTo(state.manualBusStops.length > 0 ? 'bus-manual' : 'bus-simple')
+            // 結果画面に遷移する前の画面に戻る（デフォルトはbus-simple）
+            navigateTo(state.previousBusScreen || 'bus-simple')
           }}
           onExecuteSearch={executeSearch}
           onToggleManualBusStop={toggleManualBusStop}
