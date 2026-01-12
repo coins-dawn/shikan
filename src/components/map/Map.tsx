@@ -78,7 +78,7 @@ const ZoomControlledLabels = () => {
 }
 
 
-export default function Map({ children, center, zoom = 12 }: MapProps) {
+export default function Map({ children, center, zoom = 13 }: MapProps) {
   return (
     <MapContainer
       center={center}
