@@ -4,13 +4,17 @@ import { ScreenType } from '@/types'
 
 interface HeaderProps {
   currentScreen: ScreenType
+  navigateTo: (screen: ScreenType) => void
 }
 
-export default function Header({ currentScreen }: HeaderProps) {
+export default function Header({ currentScreen, navigateTo }: HeaderProps) {
   return (
     <header className="bg-white border-b border-gray-200 px-4 py-3">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+        <h1
+          className="text-lg font-bold text-gray-800 flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors"
+          onClick={() => navigateTo('condition')}
+        >
           コミバスをつくろう！
           <img src="/icons/bus.svg" alt="バス" className="w-6 h-6" />
         </h1>

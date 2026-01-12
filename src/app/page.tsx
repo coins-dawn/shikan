@@ -42,7 +42,7 @@ export default function Home() {
   return (
     <div className="h-screen flex flex-col">
       {/* ヘッダー */}
-      <Header currentScreen={state.currentScreen} />
+      <Header currentScreen={state.currentScreen} navigateTo={navigateTo} />
 
       {/* メインコンテンツ */}
       <main className="flex-1 relative overflow-hidden">
