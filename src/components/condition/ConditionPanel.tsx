@@ -44,7 +44,7 @@ export default function ConditionPanel({
       helpContent={helpContent}
       currentScreen={currentScreen}
     >
-      <div className="space-y-4">
+      <div className="space-y-3">
         {/* 対象スポット */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
