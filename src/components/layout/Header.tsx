@@ -1,6 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import { ScreenType } from '@/types'
+import HeaderMenu from './HeaderMenu'
+import UsageHelpDialog from '../ui/UsageHelpDialog'
 
 interface HeaderProps {
   currentScreen: ScreenType
@@ -8,6 +11,7 @@ interface HeaderProps {
 }
 
 export default function Header({ currentScreen, navigateTo }: HeaderProps) {
+  const [isUsageDialogOpen, setIsUsageDialogOpen] = useState(false)
   return (
     <header className="bg-white border-b border-gray-200 px-2 desktop:px-4 py-2 desktop:py-3 relative z-[60]">
       <div className="flex items-center justify-between">
@@ -51,15 +55,31 @@ export default function Header({ currentScreen, navigateTo }: HeaderProps) {
             />
           </svg>
         </h1>
-        <a
-          href="/about"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs desktop:text-sm text-blue-600 hover:text-blue-800 hover:underline"
-        >
-          このサイトについて
-        </a>
+
+        {/* 右部: モバイルはメニュー、デスクトップはリンク */}
+        <div className="flex items-center">
+          {/* モバイル: ハンバーガーメニュー */}
+          <div className="desktop:hidden">
+            <HeaderMenu onUsageClick={() => setIsUsageDialogOpen(true)} />
+          </div>
+
+          {/* デスクトップ: このサイトについてリンク */}
+          <a
+            href="/about"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden desktop:block text-sm text-blue-600 hover:text-blue-800 hover:underline"
+          >
+            このサイトについて
+          </a>
+        </div>
       </div>
+
+      {/* 使い方ダイアログ */}
+      <UsageHelpDialog
+        isOpen={isUsageDialogOpen}
+        onClose={() => setIsUsageDialogOpen(false)}
+      />
     </header>
   )
 }

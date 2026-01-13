@@ -120,3 +120,17 @@ export const HELP_CONTENT = {
 } as const satisfies Record<string, HelpContentItem[]>
 
 export type HelpContentKey = keyof typeof HELP_CONTENT
+
+/**
+ * ヘルプセクション定義（使い方ダイアログ用）
+ * 各セクションのkeyとタイトルを定義
+ */
+export const HELP_SECTIONS = [
+  { key: 'layerControl' as const, title: 'レイヤーコントロール' },
+  { key: 'condition' as const, title: '到達圏の条件設定' },
+  { key: 'summary' as const, title: 'サマリー' },
+  { key: 'busSimple' as const, title: 'コミュニティバスの条件設定・簡易' },
+  { key: 'busManual' as const, title: 'コミュニティバスの条件設定・手動' },
+  { key: 'busStopDetail' as const, title: 'シミュレーション結果' },
+  { key: 'resultSummary' as const, title: '結果サマリー' },
+] as const
