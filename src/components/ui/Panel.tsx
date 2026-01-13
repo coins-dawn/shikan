@@ -49,6 +49,18 @@ export default function Panel({
     </svg>
   )
 
+  const UpArrow = () => (
+    <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="gray">
+      <path d="M5 15 L12 7 L19 15 Z" />
+    </svg>
+  )
+
+  const DownArrow = () => (
+    <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="gray">
+      <path d="M5 9 L12 17 L19 9 Z" />
+    </svg>
+  )
+
   return (
     <>
       {/* === デスクトップレイアウト === */}
@@ -111,7 +123,7 @@ export default function Panel({
           ${position === 'left' ? 'left-0 bottom-0' : 'right-0 top-10'}
           w-full
           transition-transform duration-300 ease-in-out
-          ${!isOpen && position === 'left' ? 'translate-y-[calc(100%-2.75rem)]' : ''}
+          ${!isOpen && position === 'left' ? 'translate-y-[calc(100%-40px)]' : ''}
           ${!isOpen && position === 'right' ? 'pointer-events-none' : ''}
         `}
       >
@@ -126,7 +138,7 @@ export default function Panel({
                 className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors"
                 aria-label="パネルを閉じる"
               >
-                {position === 'left' ? (isOpen ? <LeftArrow /> : <RightArrow />) : (isOpen ? <RightArrow /> : <LeftArrow />)}
+                {position === 'left' ? (isOpen ? <DownArrow /> : <UpArrow />) : (isOpen ? <UpArrow /> : <DownArrow />)}
               </button>
             </div>
           )}
@@ -135,8 +147,8 @@ export default function Panel({
           <div
             className={`
               bg-white shadow-lg
-              p-4 overflow-y-auto flex-1
-              ${position === 'left' ? 'max-h-[calc(100svh-520px)]' : 'max-h-[calc(100svh-12.5rem)]'}
+              px-4 py-2 desktop:p-4 overflow-y-auto flex-1
+              ${position === 'left' ? 'max-h-[calc(100svh-480px)]' : 'max-h-[calc(100svh-12.5rem)]'}
               transition-transform duration-300 ease-in-out
               ${!isOpen && position === 'right' ? '-translate-y-full' : ''}
               ${!isOpen && position === 'right' ? 'pointer-events-none' : ''}

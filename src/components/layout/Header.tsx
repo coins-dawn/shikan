@@ -9,7 +9,7 @@ interface HeaderProps {
 
 export default function Header({ currentScreen, navigateTo }: HeaderProps) {
   return (
-    <header className="bg-white border-b border-gray-200 px-4 py-3 relative z-[60]">
+    <header className="bg-white border-b border-gray-200 px-2 desktop:px-4 py-2 desktop:py-3 relative z-[60]">
       <div className="flex items-center justify-between">
         <h1
           className="text-sm desktop:text-lg font-bold text-gray-800 flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors group"

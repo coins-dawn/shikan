@@ -55,3 +55,13 @@ body {
 .transport-label.airport .icon {
   background: #22c55e;
 }
+
+.leaflet-control-zoom {
+  display: none;
+}
+
+@media (min-width: 790px) {
+  .leaflet-control-zoom {
+    display: block;
+  }
+}

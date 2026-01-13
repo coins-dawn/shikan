@@ -49,7 +49,7 @@ export default function LayerControlPanel({
         </div>
         <button
           onClick={() => setIsHelpOpen(!isHelpOpen)}
-          className="w-6 h-6 flex items-center justify-center rounded-full bg-blue-100 hover:bg-blue-200 text-blue-600 font-bold text-sm transition-colors"
+          className="invisible desktop:visible w-6 h-6 items-center justify-center rounded-full bg-blue-100 hover:bg-blue-200 text-blue-600 font-bold text-sm transition-colors"
           aria-label="ヘルプ"
         >
           ?
