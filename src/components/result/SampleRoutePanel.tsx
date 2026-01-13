@@ -161,7 +161,7 @@ export default function SampleRoutePanel({
       </div>
 
       {/* コンテンツ */}
-      <div className="overflow-y-auto max-h-[calc(100vh-23rem)]">
+      <div className="overflow-y-auto max-h-[calc(100svh-23rem)]">
         {/* 2カラム比較表示 */}
         <div className="flex gap-3">
           <RouteDisplay route={original} title="導入前" isCombus={false} />

@@ -82,7 +82,7 @@ export default function Panel({
           )}
 
           {/* コンテンツ */}
-          <div className="bg-white p-4 overflow-y-auto flex-1 max-h-[calc(100vh-12.5rem)]">
+          <div className="bg-white p-4 overflow-y-auto flex-1 max-h-[calc(100svh-12.5rem)]">
             {children}
           </div>
         </div>
@@ -136,7 +136,7 @@ export default function Panel({
             className={`
               bg-white shadow-lg
               p-4 overflow-y-auto flex-1
-              ${position === 'left' ? 'max-h-[calc(100vh-520px)]' : 'max-h-[calc(100vh-12.5rem)]'}
+              ${position === 'left' ? 'max-h-[calc(100svh-520px)]' : 'max-h-[calc(100svh-12.5rem)]'}
               transition-transform duration-300 ease-in-out
               ${!isOpen && position === 'right' ? '-translate-y-full' : ''}
               ${!isOpen && position === 'right' ? 'pointer-events-none' : ''}

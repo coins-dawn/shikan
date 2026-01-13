@@ -40,7 +40,7 @@ export default function Home() {
   }
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-[100svh] flex flex-col">
       {/* ヘッダー */}
       <Header currentScreen={state.currentScreen} navigateTo={navigateTo} />
 

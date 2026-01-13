@@ -33,7 +33,7 @@ export default function HelpDialog({
       role="dialog"
       aria-labelledby="help-dialog-title"
     >
-      <div className="bg-white rounded-lg shadow-lg border border-gray-200 w-80 max-h-[calc(100vh-151px)] overflow-hidden flex flex-col">
+      <div className="bg-white rounded-lg shadow-lg border border-gray-200 w-80 max-h-[calc(100svh-151px)] overflow-hidden flex flex-col">
         {/* ヘッダー */}
         <div className="px-4 py-3 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
           <h3 id="help-dialog-title" className="text-sm font-medium text-gray-800">
