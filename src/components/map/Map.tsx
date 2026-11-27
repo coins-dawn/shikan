@@ -1,8 +1,9 @@
 'use client'
 
-import { MapContainer, TileLayer, useMap, ZoomControl } from 'react-leaflet'
+import { MapContainer, useMap, ZoomControl } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { ReactNode, useEffect, useState } from 'react'
+import GsiVectorBaseLayer from './GsiVectorBaseLayer'
 
 interface MapProps {
   children?: ReactNode
@@ -88,9 +89,7 @@ export default function Map({ children, center, zoom = 13 }: MapProps) {
       className="z-0"
       zoomControl={false}
     >
-      <TileLayer
-        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-      />
+      <GsiVectorBaseLayer />
       <ZoomControl position="bottomright" />
       {/* <ZoomControlledLabels /> */}
       {children}
