@@ -41,6 +41,7 @@
 - **言語**: TypeScript 5
 - **UI**: React 19.1.0, Tailwind CSS 4
 - **地図**: Leaflet 1.9.4, react-leaflet 5.0.0
+- **背景地図**: 国土地理院 最適化ベクトルタイル（maplibre-gl 5, @maplibre/maplibre-gl-leaflet でLeaflet上に描画）
 - **経路描画**: @mapbox/polyline 1.2.1, leaflet-polylinedecorator 1.6.0
 - **ドラッグ&ドロップ**: @dnd-kit (core 6.3.1, sortable 10.0.0, utilities 3.2.2)
 - **パッケージマネージャー**: npm
@@ -97,6 +98,7 @@ src/
 │   │   └── SampleRoutePanel.tsx
 │   ├── map/
 │   │   ├── Map.tsx                    # Leaflet地図ベース
+│   │   ├── GsiVectorBaseLayer.tsx     # 背景地図（地理院ベクトルタイルをMapLibre GLで描画）
 │   │   ├── UnifiedMapView.tsx         # 統合地図ビュー（全画面共有）
 │   │   └── LayerControlPanel.tsx      # レイヤー表示切替パネル
 │   ├── bus/
@@ -115,6 +117,9 @@ src/
 ├── hooks/
 │   └── useAppState.ts      # アプリケーション状態管理（4画面対応）
 ├── lib/
+│   ├── map/
+│   │   ├── airportArea.ts             # 山形空港の範囲（国土数値情報 空港データより抜粋）
+│   │   └── gsiSimpleStyle.ts          # 地理院シンプルスタイル（道路・鉄道・河川・主要地名・空港・国道、山地は標高で緑・空港範囲はグレーに着色）
 │   ├── api/
 │   │   ├── reachabilityList.ts        # 到達圏一覧取得（静的JSON）
 │   │   ├── spots.ts                   # スポット一覧取得
